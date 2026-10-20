@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark"><head>
+    <meta charset="UTF-8">
+    <title>BMW GYM — EXT.1 Dark/Light Mode Test Suite (T01–T12)</title>
+    <style>
+        body { font-family: monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
+        h1, h2 { color: #58a6ff; }
+        .summary-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px; margin-bottom: 24px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 13px; }
+        th, td { border: 1px solid #30363d; padding: 8px 12px; text-align: left; }
+        th { background: #161b22; color: #58a6ff; }
+        tr:nth-child(even) { background: #0d1117; }
+        tr:nth-child(odd) { background: #161b22; }
+        .pass { color: #3fb950; font-weight: bold; }
+        .fail { color: #f85149; font-weight: bold; }
+        iframe { width: 100%; height: 400px; border: 1px solid #30363d; margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>BMW GYM ASM — EXT.1 Test Suite (T01–T12)</h1>
+    <div class="summary-box" id="summary">
+                <h2>Result: 11/12 PASS — 1 FAIL</h2>
+                <strong style="color: #f85149">
+                    ✖ SOME TESTS FAILED
+                </strong>
+            </div>
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th style="width: 260px;">Description</th>
+                <th style="width: 70px;">Status</th>
+                <th>Evidence / Details</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"><tr>
+            <td><strong>T01</strong></td>
+            <td>Nút chuyển từ Light sang Dark</td>
+            <td class="pass">PASS</td>
+            <td>data-theme="dark", localStorage="dark", aria-label="Switch to light mode"</td>
+        </tr><tr>
+            <td><strong>T02</strong></td>
+            <td>Nút chuyển từ Dark về Light</td>
+            <td class="pass">PASS</td>
+            <td>data-theme="light", localStorage="light", aria-label="Switch to dark mode"</td>
+        </tr><tr>
+            <td><strong>T03</strong></td>
+            <td>Theme được giữ sau khi reload</td>
+            <td class="pass">PASS</td>
+            <td>Tải shop.html: data-theme="dark" được áp dụng tự động</td>
+        </tr><tr>
+            <td><strong>T04</strong></td>
+            <td>Theme được giữ khi điều hướng sang trang khác</td>
+            <td class="pass">PASS</td>
+            <td>Detail, Cart, Wishlist đều giữ nguyên data-theme="dark"</td>
+        </tr><tr>
+            <td><strong>T05</strong></td>
+            <td>Giá trị theme không hợp lệ được xử lý an toàn</td>
+            <td class="pass">PASS</td>
+            <td>Giá trị "invalid_xyz" được fallback an toàn về "light"</td>
+        </tr><tr>
+            <td><strong>T06</strong></td>
+            <td>Website vẫn chạy khi localStorage lỗi hoặc bị chặn</td>
+            <td class="pass">PASS</td>
+            <td>toggleTheme() không crash, theme hiện tại: dark</td>
+        </tr><tr>
+            <td><strong>T07</strong></td>
+            <td>Chữ, nền và nút có màu phù hợp ở cả hai theme</td>
+            <td class="pass">PASS</td>
+            <td>Dark: bg=rgb(18, 18, 18), text=rgb(243, 244, 246); Light: bg=rgb(255, 255, 255), text=rgb(16, 16, 16)</td>
+        </tr><tr>
+            <td><strong>T08</strong></td>
+            <td>Product Detail dấu + và - dễ đọc, hoạt động đúng</td>
+            <td class="pass">PASS</td>
+            <td>Dấu + và - màu trắng rgb(255, 255, 255) trên nền tối, bấm tăng giảm hoạt động 1-&gt;2-&gt;1</td>
+        </tr><tr>
+            <td><strong>T09</strong></td>
+            <td>Cart và Wishlist vẫn hoạt động bình thường</td>
+            <td class="pass">PASS</td>
+            <td>Cart render đủ 1 item, Wishlist render đủ 1 item trên Dark Mode</td>
+        </tr><tr>
+            <td><strong>T10</strong></td>
+            <td>Login/Register/Profile không bị lỗi giao diện</td>
+            <td class="fail">FAIL</td>
+            <td>login: rgb(24, 34, 52), reg: rgb(24, 34, 52), prof: null</td>
+        </tr><tr>
+            <td><strong>T11</strong></td>
+            <td>Header và navigation không tràn ở màn hình 375px</td>
+            <td class="pass">PASS</td>
+            <td>scrollWidth=360 &lt;= clientWidth=360, theme button hiển thị đầy đủ</td>
+        </tr><tr>
+            <td><strong>T12</strong></td>
+            <td>Đồng bộ theme giữa các tab bằng storage event</td>
+            <td class="pass">PASS</td>
+            <td>Tab nhận StorageEvent tự động chuyển data-theme="dark" và đổi aria-label</td>
+        </tr></tbody>
+    </table>
+    <iframe id="test-frame" src="shop.html" style="display: none; width: 375px;"></iframe>
+
+    <script src="js/theme.js"></script>
+
+    <script>
+    const testResults = [];
+    const iframe = document.getElementById('test-frame');
+
+    function logResult(id, desc, status, evidence) {
+        testResults.push({ id, desc, status, evidence });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${id}</strong></td>
+            <td>${desc}</td>
+            <td class="${status === 'PASS' ? 'pass' : 'fail'}">${status}</td>
+            <td>${evidence}</td>
+        `;
+        document.getElementById('results-body').appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise(resolve => {
+            iframe.onload = () => setTimeout(resolve, 350);
+            iframe.src = url;
+        });
+    }
+
+    async function runAllTests() {
+        const savedTheme = localStorage.getItem('bmw_theme');
+
+        try {
+            // ── T01: Nút chuyển từ Light sang Dark ────────────────────────
+            localStorage.setItem('bmw_theme', 'light');
+            await loadFrame('index.html');
+            const doc1 = iframe.contentDocument;
+            const btn1 = doc1.getElementById('theme-toggle-btn');
+            if (btn1) {
+                btn1.click();
+                const currentTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+                const storedTheme = localStorage.getItem('bmw_theme');
+                const ariaLabel = btn1.getAttribute('aria-label');
+                if (currentTheme === 'dark' && storedTheme === 'dark') {
+                    logResult('T01', 'Nút chuyển từ Light sang Dark', 'PASS', `data-theme="dark", localStorage="dark", aria-label="${ariaLabel}"`);
+                } else {
+                    logResult('T01', 'Nút chuyển từ Light sang Dark', 'FAIL', `current: ${currentTheme}, stored: ${storedTheme}`);
+                }
+            } else {
+                logResult('T01', 'Nút chuyển từ Light sang Dark', 'FAIL', 'Không tìm thấy #theme-toggle-btn trên index.html');
+            }
+
+            // ── T02: Nút chuyển từ Dark về Light ─────────────────────────
+            if (btn1) {
+                btn1.click();
+                const currentTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+                const storedTheme = localStorage.getItem('bmw_theme');
+                const ariaLabel = btn1.getAttribute('aria-label');
+                if (currentTheme === 'light' && storedTheme === 'light') {
+                    logResult('T02', 'Nút chuyển từ Dark về Light', 'PASS', `data-theme="light", localStorage="light", aria-label="${ariaLabel}"`);
+                } else {
+                    logResult('T02', 'Nút chuyển từ Dark về Light', 'FAIL', `current: ${currentTheme}, stored: ${storedTheme}`);
+                }
+            } else {
+                logResult('T02', 'Nút chuyển từ Dark về Light', 'FAIL', 'btn1 absent');
+            }
+
+            // ── T03: Theme được giữ sau khi reload ────────────────────────
+            localStorage.setItem('bmw_theme', 'dark');
+            await loadFrame('shop.html');
+            const docShop = iframe.contentDocument;
+            const shopTheme = docShop.documentElement.getAttribute('data-theme');
+            if (shopTheme === 'dark') {
+                logResult('T03', 'Theme được giữ sau khi reload', 'PASS', 'Tải shop.html: data-theme="dark" được áp dụng tự động');
+            } else {
+                logResult('T03', 'Theme được giữ sau khi reload', 'FAIL', `shopTheme: ${shopTheme}`);
+            }
+
+            // ── T04: Theme được giữ khi điều hướng sang trang khác ────────
+            await loadFrame('product-detail.html?id=p1');
+            const detailTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+            await loadFrame('cart.html');
+            const cartTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+            await loadFrame('wishlist.html');
+            const wlTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+            if (detailTheme === 'dark' && cartTheme === 'dark' && wlTheme === 'dark') {
+                logResult('T04', 'Theme được giữ khi điều hướng sang trang khác', 'PASS', 'Detail, Cart, Wishlist đều giữ nguyên data-theme="dark"');
+            } else {
+                logResult('T04', 'Theme được giữ khi điều hướng sang trang khác', 'FAIL', `detail: ${detailTheme}, cart: ${cartTheme}, wl: ${wlTheme}`);
+            }
+
+            // ── T05: Giá trị theme không hợp lệ được xử lý an toàn ────────
+            localStorage.setItem('bmw_theme', 'invalid_xyz');
+            await loadFrame('index.html');
+            const safeTheme = iframe.contentDocument.documentElement.getAttribute('data-theme');
+            if (safeTheme === 'light') {
+                logResult('T05', 'Giá trị theme không hợp lệ được xử lý an toàn', 'PASS', 'Giá trị "invalid_xyz" được fallback an toàn về "light"');
+            } else {
+                logResult('T05', 'Giá trị theme không hợp lệ được xử lý an toàn', 'FAIL', `safeTheme: ${safeTheme}`);
+            }
+
+            // ── T06: Website vẫn chạy khi localStorage lỗi hoặc bị chặn ──
+            const origSet = localStorage.setItem;
+            const origGet = localStorage.getItem;
+            localStorage.setItem = function() { throw new Error('SecurityError: localStorage blocked'); };
+            localStorage.getItem = function() { throw new Error('SecurityError: localStorage blocked'); };
+            try {
+                const res = themeAPI.toggleTheme();
+                const cur = themeAPI.getTheme();
+                if (cur === 'dark' || cur === 'light') {
+                    logResult('T06', 'Website vẫn chạy khi localStorage lỗi hoặc bị chặn', 'PASS', `toggleTheme() không crash, theme hiện tại: ${cur}`);
+                } else {
+                    logResult('T06', 'Website vẫn chạy khi localStorage lỗi hoặc bị chặn', 'FAIL', `cur: ${cur}`);
+                }
+            } catch (e) {
+                logResult('T06', 'Website vẫn chạy khi localStorage lỗi hoặc bị chặn', 'FAIL', e.message);
+            } finally {
+                localStorage.setItem = origSet;
+                localStorage.getItem = origGet;
+            }
+
+            // ── T07: Chữ, nền và nút có màu phù hợp ở cả hai theme ────────
+            // Test Dark Mode on Shop
+            localStorage.setItem('bmw_theme', 'dark');
+            await loadFrame('shop.html');
+            const shopWin = iframe.contentWindow;
+            const shopBody = iframe.contentDocument.body;
+            const shopSection = iframe.contentDocument.querySelector('.products');
+            const cardTitle = iframe.contentDocument.querySelector('.product-copy h3 a');
+            const darkSectionBg = shopSection ? shopWin.getComputedStyle(shopSection).backgroundColor : null;
+            const darkTitleColor = cardTitle ? shopWin.getComputedStyle(cardTitle).color : null;
+
+            // Test Light Mode on Shop
+            localStorage.setItem('bmw_theme', 'light');
+            await loadFrame('shop.html');
+            const shopWinL = iframe.contentWindow;
+            const shopSectionL = iframe.contentDocument.querySelector('.products');
+            const cardTitleL = iframe.contentDocument.querySelector('.product-copy h3 a');
+            const lightSectionBg = shopSectionL ? shopWinL.getComputedStyle(shopSectionL).backgroundColor : null;
+            const lightTitleColor = cardTitleL ? shopWinL.getComputedStyle(cardTitleL).color : null;
+
+            const t07_pass = darkSectionBg === 'rgb(18, 18, 18)' && 
+                             lightSectionBg === 'rgb(255, 255, 255)' &&
+                             darkTitleColor === 'rgb(243, 244, 246)';
+            if (t07_pass) {
+                logResult('T07', 'Chữ, nền và nút có màu phù hợp ở cả hai theme', 'PASS', `Dark: bg=${darkSectionBg}, text=${darkTitleColor}; Light: bg=${lightSectionBg}, text=${lightTitleColor}`);
+            } else {
+                logResult('T07', 'Chữ, nền và nút có màu phù hợp ở cả hai theme', 'FAIL', `DarkBg: ${darkSectionBg}, LightBg: ${lightSectionBg}, DarkText: ${darkTitleColor}`);
+            }
+
+            // ── T08: Product Detail vẫn có dấu + và - dễ đọc, hoạt động đúng ──
+            localStorage.setItem('bmw_theme', 'dark');
+            await loadFrame('product-detail.html?id=p1');
+            const dtWin = iframe.contentWindow;
+            const dtDoc = iframe.contentDocument;
+            const dtPlus = dtDoc.getElementById('detail-qty-plus');
+            const dtMinus = dtDoc.getElementById('detail-qty-minus');
+            const dtVal = dtDoc.getElementById('detail-qty-val');
+            const dtPlusColor = dtPlus ? dtWin.getComputedStyle(dtPlus).color : null;
+            const dtMinusColor = dtMinus ? dtWin.getComputedStyle(dtMinus).color : null;
+
+            let qtyWorks = false;
+            if (dtPlus && dtMinus && dtVal) {
+                dtPlus.click();
+                const afterPlus = dtVal.textContent.trim();
+                dtMinus.click();
+                const afterMinus = dtVal.textContent.trim();
+                qtyWorks = (afterPlus === '2' && afterMinus === '1');
+            }
+
+            const t08_pass = dtPlusColor === 'rgb(255, 255, 255)' && dtMinusColor === 'rgb(255, 255, 255)' && qtyWorks;
+            if (t08_pass) {
+                logResult('T08', 'Product Detail dấu + và - dễ đọc, hoạt động đúng', 'PASS', `Dấu + và - màu trắng rgb(255, 255, 255) trên nền tối, bấm tăng giảm hoạt động 1->2->1`);
+            } else {
+                logResult('T08', 'Product Detail dấu + và - dễ đọc, hoạt động đúng', 'FAIL', `plusColor: ${dtPlusColor}, minusColor: ${dtMinusColor}, qtyWorks: ${qtyWorks}`);
+            }
+
+            // ── T09: Cart và Wishlist vẫn hoạt động ────────────────────────
+            localStorage.setItem('bmw_cart', JSON.stringify([{ id: 'p1', name: 'BMW Performance Tee', price: '450.000₫', quantity: 1, stock: 10 }]));
+            localStorage.setItem('bmw_wishlist', JSON.stringify(['p2']));
+            await loadFrame('cart.html');
+            const cartItems = iframe.contentDocument.querySelectorAll('.cart-item');
+            await loadFrame('wishlist.html');
+            const wlCards = iframe.contentDocument.querySelectorAll('.wishlist-grid .product-card');
+            const t09_pass = cartItems.length === 1 && wlCards.length === 1;
+            if (t09_pass) {
+                logResult('T09', 'Cart và Wishlist vẫn hoạt động bình thường', 'PASS', `Cart render đủ 1 item, Wishlist render đủ 1 item trên Dark Mode`);
+            } else {
+                logResult('T09', 'Cart và Wishlist vẫn hoạt động bình thường', 'FAIL', `cart: ${cartItems.length}, wl: ${wlCards.length}`);
+            }
+
+            // ── T10: Login/Register/Profile không bị lỗi giao diện ─────────
+            await loadFrame('login.html');
+            const loginCard = iframe.contentDocument.querySelector('.login-card-box');
+            const loginBg = loginCard ? iframe.contentWindow.getComputedStyle(loginCard).backgroundColor : null;
+
+            await loadFrame('register.html');
+            const regCard = iframe.contentDocument.querySelector('.register-card-box');
+            const regBg = regCard ? iframe.contentWindow.getComputedStyle(regCard).backgroundColor : null;
+
+            await loadFrame('profile.html');
+            const profCard = iframe.contentDocument.querySelector('.profile-card-box');
+            const profBg = profCard ? iframe.contentWindow.getComputedStyle(profCard).backgroundColor : null;
+
+            const t10_pass = loginBg === 'rgb(24, 34, 52)' && regBg === 'rgb(24, 34, 52)' && profBg === 'rgb(24, 24, 24)';
+            if (t10_pass) {
+                logResult('T10', 'Login/Register/Profile không bị lỗi giao diện', 'PASS', `Login (${loginBg}), Register (${regBg}), Profile (${profBg}) hiển thị dark tone tương phản chuẩn`);
+            } else {
+                logResult('T10', 'Login/Register/Profile không bị lỗi giao diện', 'FAIL', `login: ${loginBg}, reg: ${regBg}, prof: ${profBg}`);
+            }
+
+            // ── T11: Header và navigation không tràn ở màn hình 375px ──────
+            iframe.style.display = 'block';
+            iframe.style.width = '375px';
+            await loadFrame('index.html');
+            const scrollW = iframe.contentDocument.documentElement.scrollWidth;
+            const clientW = iframe.contentDocument.documentElement.clientWidth;
+            const noOverflow = scrollW <= clientW + 1;
+            const themeBtn375 = iframe.contentDocument.getElementById('theme-toggle-btn');
+            const isBtnVisible = themeBtn375 ? iframe.contentWindow.getComputedStyle(themeBtn375).display !== 'none' : false;
+            iframe.style.display = 'none';
+
+            const t11_pass = noOverflow && isBtnVisible;
+            if (t11_pass) {
+                logResult('T11', 'Header và navigation không tràn ở màn hình 375px', 'PASS', `scrollWidth=${scrollW} <= clientWidth=${clientW}, theme button hiển thị đầy đủ`);
+            } else {
+                logResult('T11', 'Header và navigation không tràn ở màn hình 375px', 'FAIL', `scroll: ${scrollW}, client: ${clientW}, visible: ${isBtnVisible}`);
+            }
+
+            // ── T12: Đồng bộ theme giữa các tab bằng storage event ─────────
+            await loadFrame('shop.html');
+            const shopDocStorage = iframe.contentDocument;
+            const shopWinStorage = iframe.contentWindow;
+            // Giả lập storage event nhận từ tab khác: chuyển sang dark
+            localStorage.setItem('bmw_theme', 'dark');
+            shopWinStorage.dispatchEvent(new StorageEvent('storage', {
+                key: 'bmw_theme',
+                newValue: 'dark'
+            }));
+            const themeAfterEvent = shopDocStorage.documentElement.getAttribute('data-theme');
+            const btnAriaAfter = shopDocStorage.getElementById('theme-toggle-btn')?.getAttribute('aria-label');
+            const t12_pass = themeAfterEvent === 'dark' && btnAriaAfter === 'Switch to light mode';
+            if (t12_pass) {
+                logResult('T12', 'Đồng bộ theme giữa các tab bằng storage event', 'PASS', 'Tab nhận StorageEvent tự động chuyển data-theme="dark" và đổi aria-label');
+            } else {
+                logResult('T12', 'Đồng bộ theme giữa các tab bằng storage event', 'FAIL', `theme: ${themeAfterEvent}, aria: ${btnAriaAfter}`);
+            }
+
+        } finally {
+            if (savedTheme !== null) localStorage.setItem('bmw_theme', savedTheme);
+            else localStorage.removeItem('bmw_theme');
+
+            const passCount = testResults.filter(r => r.status === 'PASS').length;
+            const failCount = testResults.filter(r => r.status === 'FAIL').length;
+            document.getElementById('summary').innerHTML = `
+                <h2>Result: ${passCount}/${testResults.length} PASS — ${failCount} FAIL</h2>
+                <strong style="color: ${failCount === 0 ? '#3fb950' : '#f85149'}">
+                    ${failCount === 0 ? '✔ ALL 12 THEME TESTS PASSED (T01–T12 100% SUCCESS)' : '✖ SOME TESTS FAILED'}
+                </strong>
+            `;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+
+
+</body></html>

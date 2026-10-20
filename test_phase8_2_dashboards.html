@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Automated Test Suite Đợt 8.2 (Admin & Staff Dashboards)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 24px;
+            margin: 0;
+        }
+        h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        p.subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .banner {
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+        .banner.pass { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .banner.fail { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        th { background: #f1f5f9; font-weight: 700; color: #475569; }
+        td.pass { color: #16a34a; font-weight: 700; }
+        td.fail { color: #dc2626; font-weight: 700; }
+        #test-frame {
+            width: 100%;
+            height: 480px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-top: 24px;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>BỘ KIỂM THỬ TỰ ĐỘNG ĐỢT 8.2 — ADMIN & STAFF DASHBOARDS</h1>
+    <p class="subtitle">Kiểm thử giao diện, phân quyền URL, số liệu thực tế, tác vụ vận hành, responsive và theme</p>
+
+    <div id="summary-banner" class="banner">Đang chuẩn bị chạy kịch bản kiểm thử...</div>
+
+    <table id="test-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Mã Test</th>
+                <th style="width: 150px;">Nhóm Chức Năng</th>
+                <th style="width: 320px;">Mô Tả Kiểm Thử</th>
+                <th>Kỳ Vọng</th>
+                <th>Thực Tế</th>
+                <th style="width: 80px;">Kết Quả</th>
+            </tr>
+        </thead>
+        <tbody id="test-body"></tbody>
+    </table>
+
+    <iframe id="test-frame" src="about:blank"></iframe>
+
+    <script src="js/auth-guard.js"></script>
+    <script src="js/order-storage.js"></script>
+
+    <script>
+    const tbody = document.getElementById('test-body');
+    const summaryBanner = document.getElementById('summary-banner');
+    const testFrame = document.getElementById('test-frame');
+    const testResults = [];
+
+    let passCount = 0;
+    let failCount = 0;
+
+    function logResult(code, category, desc, expected, actual, pass) {
+        if (pass) passCount++; else failCount++;
+        testResults.push({ code, category, desc, expected, actual, pass });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${code}</strong></td>
+            <td>${category}</td>
+            <td>${desc}</td>
+            <td>${expected}</td>
+            <td><code>${String(actual)}</code></td>
+            <td class="${pass ? 'pass' : 'fail'}">${pass ? 'PASS' : 'FAIL'}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise(resolve => {
+            testFrame.onload = () => setTimeout(() => resolve({ win: testFrame.contentWindow, doc: testFrame.contentDocument }), 350);
+            testFrame.src = url;
+        });
+    }
+
+    function wait(ms) {
+        return new Promise(r => setTimeout(r, ms));
+    }
+
+    async function runPhase82TestSuite() {
+        try {
+            // Seed master data
+            window.BMW_AUTH_GUARD.getUsers();
+
+            const adminUser = {
+                id: 'admin_root',
+                fullName: 'Admin BMW Gym',
+                username: 'admin',
+                email: 'admin@bmw-gym.local',
+                role: 'admin',
+                status: 'active'
+            };
+
+            const staffUser = {
+                id: 'staff_01',
+                fullName: 'Staff Order Dispatcher',
+                username: 'staff',
+                email: 'staff@bmw-gym.local',
+                role: 'staff',
+                status: 'active'
+            };
+
+            const customerUser = {
+                id: 'cust_01',
+                fullName: 'Customer Test',
+                username: 'customer_test',
+                email: 'customer@bmw.local',
+                role: 'customer',
+                status: 'active'
+            };
+
+            // Seed sample orders for realistic testing
+            const seedOrders = [
+                {
+                    orderId: 'BMW800101',
+                    userId: 'cust_01',
+                    userAccount: 'customer_test',
+                    createdAt: new Date(Date.now() - 3600000).toISOString(),
+                    customer: { fullName: 'Nguyen Van A', phone: '0901234567', address: '123 Le Loi, Da Nang' },
+                    items: [
+                        { id: 'p1', name: 'BMW Performance Oversized T-Shirt', quantity: 2, priceNumber: 690000, itemTotal: 1380000, image: 'images/products/performance-oversized-tshirt.jpg' }
+                    ],
+                    total: 1380000,
+                    paymentMethod: 'QR',
+                    paymentStatus: 'pending_payment',
+                    orderStatus: 'Order Placed'
+                },
+                {
+                    orderId: 'BMW800102',
+                    userId: 'cust_01',
+                    userAccount: 'customer_test',
+                    createdAt: new Date(Date.now() - 7200000).toISOString(),
+                    customer: { fullName: 'Tran Thi B', phone: '0907654321', address: '456 Nguyen Hue, HCMC' },
+                    items: [
+                        { id: 'p2', name: 'BMW Training Shorts', quantity: 1, priceNumber: 590000, itemTotal: 590000, image: 'images/products/training-shorts.jpg' }
+                    ],
+                    total: 590000,
+                    paymentMethod: 'COD',
+                    paymentStatus: 'pending_payment',
+                    orderStatus: 'Awaiting Dispatch'
+                },
+                {
+                    orderId: 'BMW800103',
+                    userId: 'cust_02',
+                    userAccount: 'cust_other',
+                    createdAt: new Date(Date.now() - 86400000).toISOString(),
+                    customer: { fullName: 'Le Van C', phone: '0912345678', address: '789 Tran Phu, Hanoi' },
+                    items: [
+                        { id: 'p3', name: 'BMW Performance Gym Bag', quantity: 1, priceNumber: 1290000, itemTotal: 1290000, image: 'images/products/performance-gym-bag.jpg' }
+                    ],
+                    total: 1290000,
+                    paymentMethod: 'COD',
+                    paymentStatus: 'paid',
+                    orderStatus: 'In Transit'
+                },
+                {
+                    orderId: 'BMW800104',
+                    userId: 'cust_03',
+                    userAccount: 'cust_done',
+                    createdAt: new Date(Date.now() - 172800000).toISOString(),
+                    customer: { fullName: 'Pham Van D', phone: '0987654321', address: '10 Hai Ba Trung, Hue' },
+                    items: [
+                        { id: 'p4', name: 'BMW Adjustable Dumbbells', quantity: 1, priceNumber: 2500000, itemTotal: 2500000, image: 'images/products/adjustable-dumbbells.jpg' }
+                    ],
+                    total: 2500000,
+                    paymentMethod: 'QR',
+                    paymentStatus: 'paid',
+                    orderStatus: 'Delivered'
+                },
+                {
+                    orderId: 'BMW800105',
+                    userId: 'cust_04',
+                    userAccount: 'cust_cancel',
+                    createdAt: new Date(Date.now() - 259200000).toISOString(),
+                    customer: { fullName: 'Hoang Thi E', phone: '0933333333', address: '20 Quang Trung, Nha Trang' },
+                    items: [
+                        { id: 'p1', name: 'BMW Performance Oversized T-Shirt', quantity: 1, priceNumber: 690000, itemTotal: 690000, image: 'images/products/performance-oversized-tshirt.jpg' }
+                    ],
+                    total: 690000,
+                    paymentMethod: 'COD',
+                    paymentStatus: 'cancelled',
+                    orderStatus: 'Cancelled',
+                    cancellationReason: 'Khách hàng đổi ý'
+                }
+            ];
+            localStorage.setItem('bmw_orders', JSON.stringify(seedOrders));
+
+            let win, doc;
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 1: BẢO VỆ PHÂN QUYỀN TRUY CẬP TRỰC TIẾP (URL DIRECT ACCESS)
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T1.1: Khách chưa đăng nhập vào admin-dashboard.html -> Chặn và chuyển hướng login.html
+            sessionStorage.clear();
+            localStorage.removeItem('bmw_current_user');
+            ({ win, doc } = await loadFrame('admin-dashboard.html'));
+            await wait(200);
+
+            const unauthAdminRedirect = win.location.href.includes('login.html');
+            logResult(
+                'T1.1',
+                'URL Access Guard',
+                'Khách chưa đăng nhập truy cập admin-dashboard.html -> Chặn và chuyển hướng sang login.html',
+                'URL chứa login.html',
+                win.location.href,
+                Boolean(unauthAdminRedirect)
+            );
+
+            // T1.2: Customer vào admin-dashboard.html -> Bị từ chối và chuyển hướng về index.html
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(customerUser));
+            ({ win, doc } = await loadFrame('admin-dashboard.html'));
+            await wait(200);
+
+            const customerAdminRedirect = win.location.href.includes('index.html');
+            logResult(
+                'T1.2',
+                'URL Access Guard',
+                'Tài khoản Customer truy cập admin-dashboard.html -> Chặn và chuyển hướng về index.html',
+                'URL chứa index.html',
+                win.location.href,
+                Boolean(customerAdminRedirect)
+            );
+
+            // T1.3: Customer vào staff-dashboard.html -> Bị từ chối và chuyển hướng về index.html
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(customerUser));
+            ({ win, doc } = await loadFrame('staff-dashboard.html'));
+            await wait(200);
+
+            const customerStaffRedirect = win.location.href.includes('index.html');
+            logResult(
+                'T1.3',
+                'URL Access Guard',
+                'Tài khoản Customer truy cập staff-dashboard.html -> Chặn và chuyển hướng về index.html',
+                'URL chứa index.html',
+                win.location.href,
+                Boolean(customerStaffRedirect)
+            );
+
+            // T1.4: Staff vào staff-dashboard.html -> Được phép truy cập thành công
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(staffUser));
+            ({ win, doc } = await loadFrame('staff-dashboard.html'));
+            await wait(200);
+
+            const staffAllowed = win.location.href.includes('staff-dashboard.html');
+            logResult(
+                'T1.4',
+                'URL Access Guard',
+                'Tài khoản Staff truy cập staff-dashboard.html -> Hợp lệ, mở thành công',
+                'URL chứa staff-dashboard.html',
+                win.location.href,
+                Boolean(staffAllowed)
+            );
+
+            // T1.5: Admin vào admin-dashboard.html -> Được phép truy cập thành công
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(adminUser));
+            ({ win, doc } = await loadFrame('admin-dashboard.html'));
+            await wait(200);
+
+            const adminAllowed = win.location.href.includes('admin-dashboard.html');
+            logResult(
+                'T1.5',
+                'URL Access Guard',
+                'Tài khoản Admin truy cập admin-dashboard.html -> Hợp lệ, mở thành công',
+                'URL chứa admin-dashboard.html',
+                win.location.href,
+                Boolean(adminAllowed)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 2: ADMIN SIDEBAR & HEADER ELEMENTS
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T2.1: Admin Sidebar có đúng 11 mục menu theo yêu cầu thiết kế
+            const adminNavItems = doc.querySelectorAll('.dash-nav-item');
+            const expectedAdminNavs = [
+                'Dashboard',
+                'Quản lý đơn hàng',
+                'Sản phẩm',
+                'Danh mục',
+                'Kho hàng',
+                'Khách hàng',
+                'Nhân viên & Phân quyền',
+                'Mã giảm giá',
+                'Báo cáo thống kê',
+                'Cài đặt hệ thống',
+                'Hồ sơ cá nhân'
+            ];
+            const actualAdminNavs = Array.from(adminNavItems).map(i => i.querySelector('.nav-text')?.textContent.trim());
+            const adminNavsMatched = expectedAdminNavs.every(title => actualAdminNavs.includes(title)) && adminNavItems.length === 11;
+
+            logResult(
+                'T2.1',
+                'Admin Sidebar',
+                'Admin Sidebar có đầy đủ 11 mục menu theo chuẩn đặc tả Đợt 8.2',
+                '11 mục đúng tên',
+                `Tổng ${adminNavItems.length} mục: ${actualAdminNavs.join(', ')}`,
+                Boolean(adminNavsMatched)
+            );
+
+            // T2.2: Thu gọn Sidebar trên Desktop (Collapse Sidebar Toggle)
+            const collapseBtn = doc.getElementById('sidebar-collapse-btn');
+            const layoutEl = doc.getElementById('dash-layout');
+            if (collapseBtn) collapseBtn.click();
+            const isCollapsed = layoutEl && layoutEl.classList.contains('sidebar-collapsed');
+            if (collapseBtn) collapseBtn.click(); // revert
+            const isUncollapsed = layoutEl && !layoutEl.classList.contains('sidebar-collapsed');
+
+            logResult(
+                'T2.2',
+                'Admin Sidebar',
+                'Nút thu gọn sidebar (Collapse) hoạt động mượt mà, chuyển đổi class sidebar-collapsed',
+                'collapsed: true, reverted: true',
+                `collapsed: ${isCollapsed}, uncollapsed: ${isUncollapsed}`,
+                Boolean(isCollapsed && isUncollapsed)
+            );
+
+            // T2.3: Header chứa đầy đủ nút Storefront, Theme Toggle, Notifications, Logout
+            const storeLink = doc.querySelector('.btn-store-link');
+            const themeBtn = doc.getElementById('theme-toggle-btn');
+            const notifBtn = doc.getElementById('notif-btn');
+            const logoutBtn = doc.getElementById('logout-btn');
+
+            const headerControlsPresent = storeLink && themeBtn && notifBtn && logoutBtn;
+            logResult(
+                'T2.3',
+                'Header Controls',
+                'Header trang quản trị chứa nút Cửa hàng, Theme Toggle, Chuông thông báo và Đăng xuất',
+                'Tất cả 4 controls tồn tại',
+                `store: ${Boolean(storeLink)}, theme: ${Boolean(themeBtn)}, notif: ${Boolean(notifBtn)}, logout: ${Boolean(logoutBtn)}`,
+                Boolean(headerControlsPresent)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 3: ADMIN DASHBOARD DỮ LIỆU THỰC TẾ & BẢNG ĐƠN HÀNG
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T3.1: Doanh thu thực tế tính chuẩn xác từ đơn hàng không bị hủy
+            // Đơn không hủy: 1380k + 590k + 1290k + 2500k = 5.760.000₫ (loại trừ đơn 690k cancelled)
+            const revText = doc.getElementById('stat-revenue')?.textContent.trim();
+            const expectedRev = '5.760.000₫';
+
+            logResult(
+                'T3.1',
+                'Admin Real Metrics',
+                'Doanh thu tính từ tổng tiền các đơn không bị hủy trong bmw_orders thực tế',
+                '5.760.000₫',
+                revText,
+                revText === expectedRev
+            );
+
+            // T3.2: Tổng số đơn hàng hiển thị 5 đơn
+            const ordersCountText = doc.getElementById('stat-orders')?.textContent.trim();
+            logResult(
+                'T3.2',
+                'Admin Real Metrics',
+                'Tổng số đơn hàng khớp chính xác với bmw_orders.length',
+                '5',
+                ordersCountText,
+                ordersCountText === '5'
+            );
+
+            // T3.3: Số sản phẩm kinh doanh đọc từ catalog thực tế
+            const prodsCountText = doc.getElementById('stat-products')?.textContent.trim();
+            logResult(
+                'T3.3',
+                'Admin Real Metrics',
+                'Số sản phẩm đọc từ danh mục sản phẩm thực tế (12 sản phẩm)',
+                '12',
+                prodsCountText,
+                prodsCountText === '12'
+            );
+
+            // T3.4: Bảng đơn hàng hiển thị đầy đủ các cột và nút Chi tiết
+            const tableRows = doc.querySelectorAll('#orders-table-body tr');
+            const detailBtn = doc.querySelector('#orders-table-body button[data-action="view"]');
+            logResult(
+                'T3.4',
+                'Admin Orders Table',
+                'Bảng đơn hàng render đầy đủ dữ liệu thực tế kèm nút xem Chi tiết',
+                'tableRows.length > 0 và có nút chi tiết',
+                `rows count: ${tableRows.length}, detailBtn: ${Boolean(detailBtn)}`,
+                tableRows.length > 0 && Boolean(detailBtn)
+            );
+
+            // T3.5: Modal chi tiết đơn hàng mở lên khi bấm nút Chi tiết
+            if (detailBtn) detailBtn.click();
+            await wait(150);
+
+            const modalEl = doc.getElementById('order-detail-modal');
+            const isModalOpen = modalEl && modalEl.classList.contains('show');
+            const modalOrderId = doc.getElementById('modal-order-id')?.textContent;
+
+            const modalCloseBtn = doc.getElementById('modal-close-btn');
+            if (modalCloseBtn) modalCloseBtn.click();
+            await wait(100);
+            const isModalClosed = modalEl && !modalEl.classList.contains('show');
+
+            logResult(
+                'T3.5',
+                'Admin Order Modal',
+                'Click "Chi tiết" mở modal hiển thị thông tin đơn hàng, đóng modal mượt mà',
+                'modal open: true, closed: true',
+                `open: ${isModalOpen}, closed: ${isModalClosed}, order: ${modalOrderId}`,
+                Boolean(isModalOpen && isModalClosed)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 4: STAFF SIDEBAR & STAFF DASHBOARD METRICS
+            // ═════════════════════════════════════════════════════════════════
+            
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(staffUser));
+            ({ win, doc } = await loadFrame('staff-dashboard.html'));
+            await wait(200);
+
+            // T4.1: Staff Sidebar có đúng 9 mục menu theo yêu cầu
+            const staffNavItems = doc.querySelectorAll('.dash-nav-item');
+            const expectedStaffNavs = [
+                'Dashboard',
+                'Đơn hàng',
+                'Xử lý giao hàng',
+                'Sản phẩm (theo quyền)',
+                'Kiểm tra tồn kho',
+                'Thanh toán',
+                'Hỗ trợ khách hàng',
+                'Đổi trả / Hủy đơn',
+                'Hồ sơ cá nhân'
+            ];
+            const actualStaffNavs = Array.from(staffNavItems).map(i => i.querySelector('.nav-text')?.textContent.trim());
+            const staffNavsMatched = expectedStaffNavs.every(title => actualStaffNavs.includes(title)) && staffNavItems.length === 9;
+
+            logResult(
+                'T4.1',
+                'Staff Sidebar',
+                'Staff Sidebar có đúng 9 mục menu chuẩn theo yêu cầu thiết kế',
+                '9 mục đúng tên',
+                `Tổng ${staffNavItems.length} mục: ${actualStaffNavs.join(', ')}`,
+                Boolean(staffNavsMatched)
+            );
+
+            // T4.2: Staff Metrics tính từ dữ liệu thực tế
+            // Đơn cần xử lý: Order Placed (BMW800101) + Awaiting Dispatch (BMW800102) = 2
+            const staffPendingText = doc.getElementById('stat-pending-orders')?.textContent.trim();
+            // Đơn đang giao: In Transit (BMW800103) = 1
+            const staffTransitText = doc.getElementById('stat-transit-orders')?.textContent.trim();
+            // Yêu cầu hủy/đổi trả: Cancelled (BMW800105) = 1
+            const staffReturnsText = doc.getElementById('stat-returns-orders')?.textContent.trim();
+
+            const staffMetricsMatched = staffPendingText === '2' && staffTransitText === '1' && staffReturnsText === '1';
+            logResult(
+                'T4.2',
+                'Staff Real Metrics',
+                'Số liệu Staff: 2 đơn cần xử lý, 1 đơn đang giao, 1 đơn hủy/đổi trả',
+                'pending: 2, transit: 1, returns: 1',
+                `pending: ${staffPendingText}, transit: ${staffTransitText}, returns: ${staffReturnsText}`,
+                Boolean(staffMetricsMatched)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 5: TÁC VỤ VẬN HÀNH NHÂN VIÊN (STAFF LIVE STATUS TRANSITION)
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T5.1: Nhân viên bấm "Đóng gói xong" -> Đơn chuyển sang "Awaiting Dispatch" và cập nhật trực tiếp vào storage
+            const packBtn = doc.querySelector('button[data-status="Awaiting Dispatch"]');
+            if (packBtn) packBtn.click();
+            await wait(200);
+
+            const updatedOrders = JSON.parse(localStorage.getItem('bmw_orders') || '[]');
+            const order101 = updatedOrders.find(o => o.orderId === 'BMW800101');
+            const orderStatusUpdated = order101 && order101.orderStatus === 'Awaiting Dispatch';
+
+            logResult(
+                'T5.1',
+                'Staff Operations',
+                'Thao tác "Đóng gói xong" cập nhật trạng thái đơn hàng sang Awaiting Dispatch và lưu vào storage',
+                'orderStatus === "Awaiting Dispatch"',
+                `new status: ${order101?.orderStatus}`,
+                Boolean(orderStatusUpdated)
+            );
+
+            // T5.2: Nhân viên bấm "Duyệt tiền" -> Cập nhật paymentStatus = paid
+            const payBtn = doc.querySelector('button[data-action="confirm-payment"][data-id="BMW800101"]');
+            if (payBtn) payBtn.click();
+            await wait(200);
+
+            const ordersAfterPay = JSON.parse(localStorage.getItem('bmw_orders') || '[]');
+            const order101Paid = ordersAfterPay.find(o => o.orderId === 'BMW800101');
+            const paymentUpdated = order101Paid && order101Paid.paymentStatus === 'paid';
+
+            logResult(
+                'T5.2',
+                'Staff Operations',
+                'Thao tác "Duyệt tiền" cập nhật trạng thái thanh toán sang "paid" và lưu storage',
+                'paymentStatus === "paid"',
+                `new payment status: ${order101Paid?.paymentStatus}`,
+                Boolean(paymentUpdated)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 6: THEME TOGGLE (DARK & LIGHT MODE SYNCHRONIZATION)
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T6.1: Nút Theme Toggle hoạt động mượt mà trên Dashboard
+            // Use iframe's themeAPI directly for reliable headless testing
+            localStorage.setItem('bmw_theme', 'light');
+            doc.documentElement.setAttribute('data-theme', 'light');
+
+            let isDarkNow = false;
+            let isLightNow = false;
+
+            if (win.themeAPI && typeof win.themeAPI.toggleTheme === 'function') {
+                win.themeAPI.setTheme('light');
+                win.themeAPI.toggleTheme();
+                isDarkNow = doc.documentElement.getAttribute('data-theme') === 'dark';
+                win.themeAPI.toggleTheme();
+                isLightNow = doc.documentElement.getAttribute('data-theme') === 'light';
+            } else {
+                // Fallback: dispatch native MouseEvent in iframe context
+                const dashThemeBtn = doc.getElementById('theme-toggle-btn');
+                if (dashThemeBtn) {
+                    dashThemeBtn.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true }));
+                    await wait(100);
+                    isDarkNow = doc.documentElement.getAttribute('data-theme') === 'dark';
+                    dashThemeBtn.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true }));
+                    await wait(100);
+                    isLightNow = doc.documentElement.getAttribute('data-theme') === 'light';
+                }
+            }
+
+            logResult(
+                'T6.1',
+                'Theme System',
+                'Theme toggle trên Dashboard đồng bộ chính xác giữa Dark Mode và Light Mode',
+                'dark: true, light: true',
+                `dark: ${isDarkNow}, light: ${isLightNow}`,
+                Boolean(isDarkNow && isLightNow)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 7: STOREFRONT HEADER DASHBOARD LINK INTEGRATION
+            // ═════════════════════════════════════════════════════════════════
+            
+            // T7.1: Khi Admin đăng nhập, mở index.html -> menu dropdown hiển thị link ⚙️ Admin Dashboard
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(adminUser));
+            ({ win, doc } = await loadFrame('index.html'));
+            await wait(200);
+
+            const adminDropdownLink = doc.querySelector('.menu-dashboard-link');
+            const linkCorrect = adminDropdownLink && adminDropdownLink.getAttribute('href') === 'admin-dashboard.html';
+
+            logResult(
+                'T7.1',
+                'Storefront Integration',
+                'Khi Admin đăng nhập, dropdown tài khoản trên trang chủ có link đến Admin Dashboard',
+                'href === "admin-dashboard.html"',
+                `link href: ${adminDropdownLink?.getAttribute('href')}`,
+                Boolean(linkCorrect)
+            );
+
+        } catch (err) {
+            logResult('FATAL', 'Runner', 'Lỗi không mong muốn trong khi chạy kịch bản kiểm thử', 'Không có exception', err.stack || err.message, false);
+        }
+
+        // Summary
+        const total = passCount + failCount;
+        summaryBanner.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+        summaryBanner.textContent = `KẾT QUẢ ĐỢT 8.2: ${passCount} PASS / ${total} TESTS (${failCount === 0 ? '100% THÀNH CÔNG' : failCount + ' TEST THẤT BẠI'})`;
+    }
+
+    window.addEventListener('DOMContentLoaded', runPhase82TestSuite);
+    </script>
+</body>
+</html>

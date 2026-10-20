@@ -1,0 +1,389 @@
+/* ── Top Announcement Bar (Smooth Infinite Marquee) ── */
+.announcement {
+    height: 32px;
+    background: var(--blue);
+    color: #ffffff;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .09em;
+    width: 100%;
+    user-select: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+.announcement:hover .marquee-track {
+    animation-play-state: paused;
+}
+.marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: marqueeScroll 26s linear infinite;
+}
+.marquee-content {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 45px;
+    padding-right: 45px;
+}
+.marquee-content span {
+    white-space: nowrap;
+}
+.marquee-dot {
+    opacity: 0.65;
+    font-size: 11px;
+}
+@keyframes marqueeScroll {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+        animation: none;
+        width: 100%;
+        justify-content: space-around;
+    }
+    .marquee-content:last-child {
+        display: none;
+    }
+}
+
+/* Shopee-style Header Grid */
+.header { 
+    position:relative; 
+    z-index:20; 
+    display:grid; 
+    grid-template-columns: 120px 1fr auto; 
+    grid-template-areas: 
+        "brand search actions"
+        "brand nav nav";
+    align-items:center; 
+    padding: 12px 3.4vw 0; 
+    border-bottom:1px solid var(--line); 
+    background:#080808; 
+    row-gap: 8px;
+    column-gap: 4vw;
+}
+
+.brand { grid-area: brand; display:flex; align-items:baseline; gap:1px; font-family:var(--font-display); letter-spacing:-.09em; font-size:34px; line-height:1; padding-bottom: 12px; }
+.brand strong:nth-child(2) { color:var(--blue); }
+.brand em { margin-left:10px; color:#aaa; font-family:var(--font-body); font-size:6px; font-style:normal; letter-spacing:.1em; white-space:nowrap; }
+
+.header-search-wrapper { grid-area: search; width: 100%; max-width: 750px; justify-self: center; }
+
+.header-actions { grid-area: actions; display:flex; justify-content:flex-end; gap:24px; align-items: center; padding-bottom: 12px;}
+.header-actions button, .mobile-menu { position:relative; display:grid; place-items:center; padding:0; border:0; background:transparent; color:#ffffff; cursor:pointer;}
+.header-actions button svg, .mobile-menu svg { stroke:#ffffff; }
+
+.header nav { 
+    grid-area: nav; 
+    display:flex; 
+    align-items:center; 
+    justify-content:flex-start;
+    gap:clamp(14px,2vw,33px); 
+    font-size:10px; 
+    font-weight:800; 
+    letter-spacing:.07em; 
+    padding-bottom: 12px;
+}
+.header nav a { transition:.2s; }
+.header nav a:hover, .header nav .sale { color:var(--blue); }
+.chevron { margin-left:4px; color:#aaa; }
+
+.mobile-menu { display:none; grid-area: menu; }
+
+/* Clean Header Cart Icon */
+.header-actions .bag {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.header-actions .bag svg {
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    width: 24px;
+    height: 24px;
+    transition: stroke 0.2s ease, transform 0.2s ease;
+}
+.header-actions .bag:hover svg, .header-actions .bag.active svg {
+    stroke: var(--blue);
+    transform: scale(1.06);
+}
+.header-actions .bag:hover i { color: var(--blue); }
+.bag i {
+    position: static;
+    display: inline-block;
+    min-width: auto;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    color: var(--blue);
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+/* Shopee-style search form */
+.header-search-form {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 2px solid var(--blue);
+    border-radius: 4px;
+    padding: 2px;
+    height: 42px;
+    width: 100%;
+}
+.header-search-form:focus-within {
+    box-shadow: 0 0 4px rgba(37,99,235,0.5);
+}
+.header-search-input {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #111;
+    font-size: 14px;
+    padding: 0 12px;
+    outline: 0;
+    width: 100%;
+    font-family: var(--font-body);
+}
+.header-search-input::placeholder { color: #888; }
+.header-search-btn {
+    background: var(--blue) !important;
+    color: #fff !important;
+    border: 0 !important;
+    cursor: pointer;
+    padding: 0 20px !important;
+    border-radius: 2px;
+    height: 100%;
+    display: grid !important;
+    place-items: center;
+    transition: background 0.2s;
+}
+.header-search-btn:hover { background: #1D4ED8 !important; }
+.header-search-btn svg {
+    stroke: #fff !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+/* ACCOUNT DROPDOWN CSS */
+.account-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+.account-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+}
+.account-toggle-btn svg {
+    stroke: #fff;
+    width: 24px;
+    height: 24px;
+    transition: stroke 0.2s ease, transform 0.2s ease;
+}
+.account-toggle-btn:hover svg, .account-toggle-btn:focus-visible svg {
+    stroke: var(--blue);
+    transform: scale(1.06);
+}
+.account-toggle-btn.logged-in svg {
+    stroke: var(--blue);
+}
+.account-toggle-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 50%; }
+
+.account-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    min-width: 180px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+/* Open only via class .active (no hover) */
+.account-dropdown-menu.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+.acc-menu-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f8fafc;
+    border-radius: 4px 4px 0 0;
+}
+.acc-menu-header small {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.menu-username-display {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-all;
+}
+
+.acc-menu-link {
+    display: block;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.acc-menu-link:hover, .acc-menu-link:focus-visible {
+    background-color: #f3f4f6;
+    color: var(--blue);
+    outline: none;
+}
+.acc-menu-link.logout-link {
+    color: #DC2626;
+    border-top: 1px solid #f3f4f6;
+}
+.acc-menu-link.logout-link:hover, .acc-menu-link.logout-link:focus-visible {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.page-header h1 strong { color: var(--blue); }
+
+/* Responsive adjustments inside header.css */
+@media (max-width: 900px) {
+    .header {
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: 
+            "menu brand actions"
+            "search search search";
+        padding: 10px 4vw;
+        row-gap: 12px;
+        column-gap: 15px;
+    }
+    .brand { padding-bottom: 0; justify-self: center; }
+    .header-actions { padding-bottom: 0; }
+    .header nav { display: none; }
+    .mobile-menu { display: grid; }
+    .header-search-wrapper { max-width: 100%; }
+}
+
+/* ── Y6 Wishlist header icon ──────────────────────────────────────── */
+.wishlist-header-btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    background: transparent;
+    color: var(--white, #fff);
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.wishlist-header-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    transition: fill 0.2s, stroke 0.2s;
+}
+.wishlist-header-btn:hover svg,
+.wishlist-header-btn.has-items svg {
+    fill: var(--blue, #7ec8e3);
+    stroke: var(--blue, #7ec8e3);
+}
+.wishlist-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--blue, #7ec8e3);
+    color: #111;
+    font-size: 9px;
+    font-weight: 800;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* ── Y6 Detail wishlist button ─────────────────────────────────────── */
+.detail-wishlist-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border: 1.5px solid #111;
+    background: transparent;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: border-color 0.2s, color 0.2s;
+    margin-top: 10px;
+}
+.detail-wishlist-btn svg { width: 18px; height: 18px; flex-shrink: 0; transition: fill 0.2s; stroke: currentColor; }
+.detail-wishlist-btn:hover { border-color: var(--blue, #7ec8e3); color: var(--blue, #7ec8e3); }
+.detail-wishlist-btn.liked { border-color: var(--blue, #7ec8e3); color: var(--blue, #7ec8e3); }
+.detail-wishlist-btn.liked svg { fill: var(--blue, #7ec8e3); stroke: var(--blue, #7ec8e3); }
+
+/* ── Wishlist toast ────────────────────────────────────────────────── */
+.wishlist-toast-el {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #111;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+}
+.wishlist-toast-el.show { opacity: 1; transform: translateY(0); }

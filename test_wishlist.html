@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Y6 Wishlist Tests</title>
+<style>
+body{font-family:monospace;background:#111;color:#eee;padding:20px;}
+.pass{color:#4ade80;} .fail{color:#f87171;} .pending{color:#fbbf24;}
+h1{color:#7ec8e3;} h2{color:#7ec8e3;margin-top:30px;}
+table{border-collapse:collapse;width:100%;margin-top:10px;}
+td,th{border:1px solid #333;padding:6px 10px;font-size:12px;}
+th{background:#1a1a1a;color:#7ec8e3;}
+#summary{margin-top:30px;padding:16px;background:#1a1a1a;border-radius:4px;}
+</style>
+</head>
+<body>
+<h1>BMW GYM — Y6 Wishlist Test Suite</h1>
+<div id="log"></div>
+<div id="summary"></div>
+
+<script src="js/products.js"></script>
+<script src="js/wishlist.js"></script>
+<script>
+// ── Test Harness ──────────────────────────────────────────────────────
+const results = [];
+function test(id, desc, fn) {
+    try {
+        const ok = fn();
+        results.push({id, desc, status: ok ? 'PASS' : 'FAIL', note: ''});
+    } catch(e) {
+        results.push({id, desc, status: 'FAIL', note: e.message});
+    }
+}
+
+// Clean slate
+localStorage.removeItem('bmw_wishlist');
+
+// W01 — Initial state
+test('W01', 'getWishlist() returns [] when key absent', () => {
+    const list = wishlistAPI.getWishlist();
+    return Array.isArray(list) && list.length === 0;
+});
+
+// W02 — addToWishlist valid
+test('W02', 'addToWishlist("p1") returns true', () => {
+    return wishlistAPI.addToWishlist('p1') === true;
+});
+
+// W03 — isInWishlist after add
+test('W03', 'isInWishlist("p1") is true after add', () => {
+    return wishlistAPI.isInWishlist('p1') === true;
+});
+
+// W04 — duplicate add idempotent
+test('W04', 'addToWishlist("p1") again keeps list length 1', () => {
+    wishlistAPI.addToWishlist('p1');
+    return wishlistAPI.getWishlist().length === 1;
+});
+
+// W05 — add second product
+test('W05', 'addToWishlist("p3") → list length 2', () => {
+    wishlistAPI.addToWishlist('p3');
+    return wishlistAPI.getWishlist().length === 2;
+});
+
+// W06 — isInWishlist false for absent
+test('W06', 'isInWishlist("p7") is false', () => {
+    return wishlistAPI.isInWishlist('p7') === false;
+});
+
+// W07 — removeFromWishlist
+test('W07', 'removeFromWishlist("p1") removes it', () => {
+    wishlistAPI.removeFromWishlist('p1');
+    return !wishlistAPI.isInWishlist('p1') && wishlistAPI.getWishlist().length === 1;
+});
+
+// W08 — toggleWishlist adds
+test('W08', 'toggleWishlist("p5") adds → returns true', () => {
+    return wishlistAPI.toggleWishlist('p5') === true && wishlistAPI.isInWishlist('p5');
+});
+
+// W09 — toggleWishlist removes
+test('W09', 'toggleWishlist("p5") again → returns false and removed', () => {
+    return wishlistAPI.toggleWishlist('p5') === false && !wishlistAPI.isInWishlist('p5');
+});
+
+// W10 — invalid product ID rejected (when products array present)
+test('W10', 'addToWishlist("p99") returns false (no such product)', () => {
+    return wishlistAPI.addToWishlist('p99') === false;
+});
+
+// W11 — localStorage persisted
+test('W11', 'bmw_wishlist key exists in localStorage after adds', () => {
+    return localStorage.getItem('bmw_wishlist') !== null;
+});
+
+// W12 — data is valid JSON array
+test('W12', 'bmw_wishlist value is JSON array of IDs', () => {
+    const raw = localStorage.getItem('bmw_wishlist');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.every(x => typeof x === 'string');
+});
+
+// W13 — all 12 products can be added
+test('W13', 'All 12 products (p1–p12) can be added to wishlist', () => {
+    localStorage.removeItem('bmw_wishlist');
+    for (let i = 1; i <= 12; i++) wishlistAPI.addToWishlist('p' + i);
+    return wishlistAPI.getWishlist().length === 12;
+});
+
+// W14 — clear wishlist by removing all
+test('W14', 'removeFromWishlist for all items → empty list', () => {
+    for (let i = 1; i <= 12; i++) wishlistAPI.removeFromWishlist('p' + i);
+    return wishlistAPI.getWishlist().length === 0;
+});
+
+// W15 — wishlistAPI public API surface
+test('W15', 'wishlistAPI exposes all 6 required functions', () => {
+    const fns = ['getWishlist','addToWishlist','removeFromWishlist','toggleWishlist','isInWishlist','syncWishlistState'];
+    return fns.every(f => typeof wishlistAPI[f] === 'function');
+});
+
+// W16 — badge not rendered (no .wishlist-badge in this test page) — just verify updateWishlistBadge doesn't throw
+test('W16', 'updateWishlistBadge() does not throw when no badge elements exist', () => {
+    try { wishlistAPI.updateWishlistBadge(); return true; } catch(e) { return false; }
+});
+
+// ── Render results ────────────────────────────────────────────────────
+const pass = results.filter(r => r.status === 'PASS').length;
+const fail = results.filter(r => r.status === 'FAIL').length;
+
+const log = document.getElementById('log');
+let html = '<table><tr><th>ID</th><th>Description</th><th>Status</th><th>Note</th></tr>';
+results.forEach(r => {
+    const cls = r.status === 'PASS' ? 'pass' : 'fail';
+    html += `<tr><td>${r.id}</td><td>${r.desc}</td><td class="${cls}">${r.status}</td><td>${r.note}</td></tr>`;
+});
+html += '</table>';
+log.innerHTML = html;
+
+document.getElementById('summary').innerHTML = `
+    <strong>Results: ${pass}/${results.length} PASS, ${fail} FAIL</strong><br>
+    <span class="${fail === 0 ? 'pass' : 'fail'}">${fail === 0 ? '✔ ALL TESTS PASSED' : '✖ SOME TESTS FAILED'}</span>
+`;
+</script>
+</body>
+</html>

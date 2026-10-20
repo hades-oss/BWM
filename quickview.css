@@ -1,0 +1,469 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BMW GYM — EXT.2: PRODUCT QUICK VIEW (quickview.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Overlay backdrop ──────────────────────────────────────────────────── */
+#qv-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    -webkit-overflow-scrolling: touch;
+}
+#qv-overlay.qv-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ── 2. Modal panel ───────────────────────────────────────────────────────── */
+.qv-modal {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    width: 100%;
+    max-width: 860px;
+    max-height: 90vh;
+    background: #ffffff;
+    color: #111111;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    transform: translateY(20px);
+    transition: transform 0.28s ease;
+}
+#qv-overlay.qv-open .qv-modal {
+    transform: translateY(0);
+}
+
+/* ── 3. Close button ──────────────────────────────────────────────────────── */
+.qv-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #d0d0d0;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.qv-close:hover {
+    background: #111111;
+    color: #ffffff;
+    border-color: #111111;
+}
+.qv-close svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    pointer-events: none;
+}
+
+/* ── 4. Image panel (left) ────────────────────────────────────────────────── */
+.qv-image-panel {
+    position: relative;
+    background: #e9e9e9;
+    overflow: hidden;
+    aspect-ratio: 1 / 1.1;
+    max-height: 90vh;
+}
+.qv-image-panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: grayscale(1);
+    transition: transform 0.4s ease;
+    display: block;
+}
+.qv-image-panel img:hover {
+    transform: scale(1.03);
+}
+.qv-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 8px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ── 5. Info panel (right) ────────────────────────────────────────────────── */
+.qv-info-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 36px 36px;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.qv-category {
+    margin: 0 0 8px;
+    color: #2563EB;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.qv-name {
+    margin: 0 0 14px;
+    font-family: 'Archivo Narrow', Arial, sans-serif;
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: #000000;
+}
+
+.qv-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.qv-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+}
+.qv-old-price {
+    text-decoration: line-through;
+    color: #999999;
+    font-size: 12px;
+}
+
+.qv-rating {
+    margin-bottom: 16px;
+    font-size: 11px;
+    color: #555555;
+}
+
+.qv-divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 14px 0;
+    border: none;
+}
+
+.qv-description {
+    margin: 0 0 20px;
+    font-size: 12px;
+    line-height: 1.75;
+    color: #444444;
+}
+
+/* ── 6. Stock indicator ───────────────────────────────────────────────────── */
+.qv-stock {
+    margin: 0 0 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+.qv-stock.in-stock  { color: #16a34a; }
+.qv-stock.low-stock { color: #d97706; }
+.qv-stock.out-stock { color: #dc2626; }
+
+/* ── 7. Quantity control ──────────────────────────────────────────────────── */
+.qv-qty-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #000000;
+}
+.qv-qty-control {
+    display: inline-flex;
+    border: 1px solid #111111;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: #ffffff;
+}
+.qv-qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    color: #000000;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+}
+.qv-qty-btn:hover { background: #f0f0f0; }
+.qv-qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.qv-qty-val {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000000;
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+}
+
+/* ── 8. Action buttons ────────────────────────────────────────────────────── */
+.qv-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto;
+}
+.qv-btn-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border: 0;
+    background: #111111;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.qv-btn-cart:hover {
+    background: #2563EB;
+    box-shadow: 4px 4px 0 #000;
+    transform: translate(-2px, -2px);
+}
+.qv-btn-cart:disabled {
+    background: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.qv-btn-cart svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+.qv-btn-wishlist {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border: 1.5px solid #111111;
+    background: transparent;
+    color: #111111;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.qv-btn-wishlist:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+}
+.qv-btn-wishlist.liked {
+    border-color: #2563EB;
+    color: #2563EB;
+    background: rgba(37, 99, 235, 0.06);
+}
+.qv-btn-wishlist svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; transition: fill 0.2s; }
+.qv-btn-wishlist.liked svg { fill: #2563EB; }
+
+.qv-btn-detail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 20px;
+    border: 0;
+    background: transparent;
+    color: #555555;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.qv-btn-detail:hover { color: #2563EB; }
+.qv-btn-detail svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+/* ── 9. Quick View trigger button on product cards ───────────────────────── */
+.qv-trigger {
+    position: absolute;
+    bottom: 48px; /* sits just above the "ADD TO CART" bar */
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    white-space: nowrap;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.7);
+    background: rgba(10, 10, 10, 0.72);
+    color: #ffffff;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    z-index: 5;
+    backdrop-filter: blur(3px);
+}
+.product-card:hover .qv-trigger {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ── 10. Loading spinner inside modal ─────────────────────────────────────── */
+.qv-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #999999;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+}
+
+/* ── 11. DARK MODE overrides ──────────────────────────────────────────────── */
+[data-theme="dark"] .qv-modal {
+    background: #1a1a1a;
+    color: #eeeeee;
+}
+[data-theme="dark"] .qv-close {
+    background: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #eeeeee;
+}
+[data-theme="dark"] .qv-close:hover {
+    background: #ffffff;
+    color: #111111;
+    border-color: #ffffff;
+}
+[data-theme="dark"] .qv-image-panel {
+    background: #1e1e1e;
+}
+[data-theme="dark"] .qv-name {
+    color: #f3f4f6;
+}
+[data-theme="dark"] .qv-price {
+    color: #ffffff;
+}
+[data-theme="dark"] .qv-old-price {
+    color: #777777;
+}
+[data-theme="dark"] .qv-rating {
+    color: #aaaaaa;
+}
+[data-theme="dark"] .qv-description {
+    color: #bbbbbb;
+}
+[data-theme="dark"] .qv-divider {
+    background: #2a2a2a;
+}
+[data-theme="dark"] .qv-qty-label {
+    color: #eeeeee;
+}
+[data-theme="dark"] .qv-qty-control {
+    border-color: #555555;
+    background: #222222;
+}
+[data-theme="dark"] .qv-qty-btn {
+    color: #ffffff;
+}
+[data-theme="dark"] .qv-qty-btn:hover {
+    background: #333333;
+}
+[data-theme="dark"] .qv-qty-val {
+    color: #ffffff;
+    border-color: #555555;
+}
+[data-theme="dark"] .qv-btn-cart {
+    background: #2563EB;
+    color: #ffffff;
+}
+[data-theme="dark"] .qv-btn-cart:hover {
+    background: #1D4ED8;
+    box-shadow: 4px 4px 0 rgba(255,255,255,0.15);
+}
+[data-theme="dark"] .qv-btn-wishlist {
+    border-color: #555555;
+    color: #eeeeee;
+}
+[data-theme="dark"] .qv-btn-wishlist:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+}
+[data-theme="dark"] .qv-btn-detail {
+    color: #aaaaaa;
+}
+[data-theme="dark"] .qv-btn-detail:hover {
+    color: #2563EB;
+}
+[data-theme="dark"] .qv-tag {
+    background: #000000;
+    border: 1px solid #333333;
+}
+[data-theme="dark"] .qv-loading {
+    color: #666666;
+}
+
+/* ── 12. Responsive – single column on mobile ────────────────────────────── */
+@media (max-width: 640px) {
+    #qv-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+    .qv-modal {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: 18px 18px 0 0;
+    }
+    .qv-image-panel {
+        aspect-ratio: 16 / 9;
+        max-height: 200px;
+    }
+    .qv-info-panel {
+        padding: 24px 20px 28px;
+    }
+    .qv-name {
+        font-size: 22px;
+    }
+    /* On mobile the trigger button is always visible (no hover) */
+    .qv-trigger {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        bottom: 50px;
+    }
+}
+@media (max-width: 400px) {
+    .qv-info-panel {
+        padding: 18px 14px 22px;
+    }
+}

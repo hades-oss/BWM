@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EXT.2 Quick View Tests — T01–T14</title>
+    <style>
+        body { font-family: monospace; background: #0a0a0a; color: #eee; padding: 24px; }
+        h1 { color: #2563EB; }
+        .pass { color: #16a34a; }
+        .fail { color: #dc2626; }
+        .skip { color: #d97706; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid #222; }
+        th { color: #2563EB; }
+        #summary { margin-top: 20px; font-size: 16px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>EXT.2 — Product Quick View Test Suite</h1>
+<table>
+    <thead><tr><th>#</th><th>Test</th><th>Result</th><th>Detail</th></tr></thead>
+    <tbody id="results"></tbody>
+</table>
+<div id="summary"></div>
+
+<!-- Load all dependencies -->
+<script src="js/products.js"></script>
+<script src="js/wishlist.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/quickview.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/quickview.css">
+
+<script>
+const tbody = document.getElementById('results');
+let pass = 0, fail = 0;
+
+function addRow(id, desc, ok, detail) {
+    const tr = document.createElement('tr');
+    const cls = ok === null ? 'skip' : ok ? 'pass' : 'fail';
+    const label = ok === null ? 'SKIP' : ok ? 'PASS' : 'FAIL';
+    tr.innerHTML = `<td>${id}</td><td>${desc}</td><td class="${cls}">${label}</td><td>${detail}</td>`;
+    tbody.appendChild(tr);
+    if (ok === true) pass++;
+    else if (ok === false) fail++;
+}
+
+function run() {
+    // ── T01: quickviewAPI exists ────────────────────────────────────────
+    addRow('T01', 'window.quickViewAPI exposed', 
+        typeof window.quickViewAPI === 'object' && typeof window.quickViewAPI.open === 'function',
+        typeof window.quickViewAPI);
+
+    // ── T02: Modal DOM built ────────────────────────────────────────────
+    const overlay = document.getElementById('qv-overlay');
+    addRow('T02', '#qv-overlay in DOM', !!overlay, overlay ? 'found' : 'missing');
+
+    const modal = document.getElementById('qv-modal');
+    addRow('T03', '#qv-modal inside overlay', !!modal, modal ? 'found' : 'missing');
+
+    // ── T04: Open modal for product p1 ─────────────────────────────────
+    window.quickViewAPI.open('p1');
+    const isOpen = overlay && overlay.classList.contains('qv-open');
+    addRow('T04', 'Open modal for p1 → qv-open class', isOpen, isOpen ? 'qv-open present' : 'not opened');
+
+    // ── T05: Product name rendered ──────────────────────────────────────
+    const infoPanel = document.getElementById('qv-info-panel');
+    const name = infoPanel ? infoPanel.querySelector('.qv-name') : null;
+    addRow('T05', '.qv-name rendered with product name', 
+        name && name.textContent.includes('BMW Performance Oversized'),
+        name ? name.textContent.trim().slice(0, 40) : 'missing');
+
+    // ── T06: Price rendered ─────────────────────────────────────────────
+    const price = infoPanel ? infoPanel.querySelector('.qv-price') : null;
+    addRow('T06', '.qv-price rendered', price && price.textContent.includes('690'), price ? price.textContent.trim() : 'missing');
+
+    // ── T07: Old price rendered ─────────────────────────────────────────
+    const oldPrice = infoPanel ? infoPanel.querySelector('.qv-old-price') : null;
+    addRow('T07', '.qv-old-price rendered (p1 has oldPrice)', oldPrice && oldPrice.textContent.includes('850'), oldPrice ? oldPrice.textContent.trim() : 'missing');
+
+    // ── T08: Rating rendered ────────────────────────────────────────────
+    const rating = infoPanel ? infoPanel.querySelector('.qv-rating') : null;
+    addRow('T08', '.qv-rating rendered', rating && rating.textContent.includes('4.8'), rating ? rating.textContent.trim() : 'missing');
+
+    // ── T09: Quantity control present ───────────────────────────────────
+    const minus = infoPanel ? infoPanel.querySelector('#qv-qty-minus') : null;
+    const plus  = infoPanel ? infoPanel.querySelector('#qv-qty-plus') : null;
+    const val   = infoPanel ? infoPanel.querySelector('#qv-qty-val') : null;
+    addRow('T09', 'Qty −/value/+ all present', !!(minus && plus && val), 
+        `minus:${!!minus} plus:${!!plus} val:${!!val}`);
+
+    // ── T10: Qty increment works ────────────────────────────────────────
+    if (plus && val) {
+        plus.click();
+        addRow('T10', 'Click + → qty becomes 2', val.textContent === '2', `val=${val.textContent}`);
+        minus.click();
+        addRow('T10b', 'Click − → qty back to 1', val.textContent === '1', `val=${val.textContent}`);
+    } else {
+        addRow('T10', 'Qty increment (+ / −)', null, 'elements missing — skip');
+        addRow('T10b','Qty decrement', null, 'skip');
+    }
+
+    // ── T11: Add to Cart button present ────────────────────────────────
+    const cartBtn = infoPanel ? infoPanel.querySelector('#qv-btn-cart') : null;
+    addRow('T11', '#qv-btn-cart present and not disabled', 
+        cartBtn && !cartBtn.disabled,
+        cartBtn ? `disabled=${cartBtn.disabled}` : 'missing');
+
+    // ── T12: Wishlist button present ────────────────────────────────────
+    const wishBtn = infoPanel ? infoPanel.querySelector('#qv-btn-wishlist') : null;
+    addRow('T12', '#qv-btn-wishlist present', !!wishBtn, wishBtn ? 'found' : 'missing');
+
+    // ── T13: Close button and Escape close modal ────────────────────────
+    const closeBtn = document.getElementById('qv-close-btn');
+    addRow('T13', '#qv-close-btn present', !!closeBtn, closeBtn ? 'found' : 'missing');
+    if (closeBtn) {
+        closeBtn.click();
+        const isClosed = !overlay.classList.contains('qv-open');
+        addRow('T13b', 'Click close → modal closes', isClosed, isClosed ? 'qv-open removed' : 'still open');
+    } else {
+        addRow('T13b', 'Close button click', null, 'skip');
+    }
+
+    // ── T14: Open product with no oldPrice (p2) ─────────────────────────
+    window.quickViewAPI.open('p2');
+    const infoP2 = document.getElementById('qv-info-panel');
+    const oldPriceP2 = infoP2 ? infoP2.querySelector('.qv-old-price') : null;
+    const nameP2 = infoP2 ? infoP2.querySelector('.qv-name') : null;
+    addRow('T14', 'p2 (no oldPrice) renders without .qv-old-price', 
+        nameP2 && nameP2.textContent.includes('Training Shorts') && !oldPriceP2,
+        `name:${nameP2 ? nameP2.textContent.trim().slice(0,25) : 'miss'} oldPrice:${!!oldPriceP2}`);
+    window.quickViewAPI.close();
+
+    // ── T15: .qv-trigger on product cards ──────────────────────────────
+    // Simulate product-render generating cards
+    const testContainer = document.createElement('div');
+    testContainer.innerHTML = `
+        <article class="product-card group" data-id="p3">
+            <div class="product-image">
+                <button class="qv-trigger" data-id="p3">QUICK VIEW</button>
+            </div>
+        </article>`;
+    document.body.appendChild(testContainer);
+    const trigger = testContainer.querySelector('.qv-trigger');
+    addRow('T15', '.qv-trigger in card delegates to quickViewAPI.open', !!trigger, trigger ? 'trigger button in DOM' : 'missing');
+    if (trigger) {
+        trigger.click();
+        const openedP3 = overlay.classList.contains('qv-open');
+        const nameP3 = document.querySelector('#qv-info-panel .qv-name');
+        addRow('T15b','Trigger click → opens modal with p3', 
+            openedP3 && nameP3 && nameP3.textContent.includes('Gym Bag'),
+            `open:${openedP3} name:${nameP3 ? nameP3.textContent.slice(0,25) : 'miss'}`);
+        window.quickViewAPI.close();
+    } else {
+        addRow('T15b','Trigger click', null, 'skip');
+    }
+
+    // ── T16: OUT OF STOCK product ───────────────────────────────────────
+    // Temporarily set p3 stock to 0
+    const origStock = products.find(p => p.id === 'p3').stock;
+    products.find(p => p.id === 'p3').stock = 0;
+    window.quickViewAPI.open('p3');
+    const cartBtnOOS = document.querySelector('#qv-btn-cart');
+    const stockSpan = document.querySelector('.qv-stock');
+    addRow('T16', 'Out-of-stock: cart btn disabled + OUT OF STOCK label', 
+        cartBtnOOS && cartBtnOOS.disabled && stockSpan && stockSpan.classList.contains('out-stock'),
+        `disabled:${cartBtnOOS ? cartBtnOOS.disabled : 'miss'} class:${stockSpan ? stockSpan.className : 'miss'}`);
+    products.find(p => p.id === 'p3').stock = origStock; // restore
+    window.quickViewAPI.close();
+
+    // Summary
+    const total = pass + fail;
+    const summary = document.getElementById('summary');
+    summary.textContent = `Result: ${pass}/${total} PASS${fail > 0 ? ` | ${fail} FAIL` : ''}`;
+    summary.style.color = fail === 0 ? '#16a34a' : '#dc2626';
+}
+
+// Run after DOM + scripts ready
+document.addEventListener('DOMContentLoaded', run);
+</script>
+</body>
+</html>

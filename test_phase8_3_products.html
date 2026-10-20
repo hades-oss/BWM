@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Automated Test Suite Đợt 8.3 (Products, Categories & Inventory)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 24px;
+            margin: 0;
+        }
+        h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        p.subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .banner {
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+        .banner.pass { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .banner.fail { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        th { background: #f1f5f9; font-weight: 700; color: #475569; }
+        td.pass { color: #16a34a; font-weight: 700; }
+        td.fail { color: #dc2626; font-weight: 700; }
+        #test-frame {
+            width: 100%;
+            height: 480px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-top: 24px;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>BỘ KIỂM THỬ TỰ ĐỘNG ĐỢT 8.3 — PRODUCT, CATEGORY & INVENTORY MANAGEMENT</h1>
+    <p class="subtitle">Kiểm thử CRUD sản phẩm, danh mục an toàn, kiểm soát tồn kho, phân quyền Staff và đồng bộ Storefront</p>
+
+    <div id="summary-banner" class="banner">Đang chuẩn bị chạy kịch bản kiểm thử...</div>
+
+    <table id="test-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Mã Test</th>
+                <th style="width: 150px;">Nhóm Chức Năng</th>
+                <th style="width: 320px;">Mô Tả Kiểm Thử</th>
+                <th>Kỳ Vọng</th>
+                <th>Thực Tế</th>
+                <th style="width: 80px;">Kết Quả</th>
+            </tr>
+        </thead>
+        <tbody id="test-body"></tbody>
+    </table>
+
+    <iframe id="test-frame" src="about:blank"></iframe>
+
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <script>
+    const tbody = document.getElementById('test-body');
+    const summaryBanner = document.getElementById('summary-banner');
+    const testFrame = document.getElementById('test-frame');
+    const testResults = [];
+
+    let passCount = 0;
+    let failCount = 0;
+
+    function logResult(code, category, desc, expected, actual, pass) {
+        if (pass) passCount++; else failCount++;
+        testResults.push({ code, category, desc, expected, actual, pass });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${code}</strong></td>
+            <td>${category}</td>
+            <td>${desc}</td>
+            <td>${expected}</td>
+            <td><code>${String(actual)}</code></td>
+            <td class="${pass ? 'pass' : 'fail'}">${pass ? 'PASS' : 'FAIL'}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise(resolve => {
+            testFrame.onload = () => setTimeout(() => resolve({ win: testFrame.contentWindow, doc: testFrame.contentDocument }), 350);
+            testFrame.src = url;
+        });
+    }
+
+    function wait(ms) {
+        return new Promise(r => setTimeout(r, ms));
+    }
+
+    async function runPhase83TestSuite() {
+        try {
+            const api = window.BMW_PRODUCTS_API;
+
+            // Reset master storage to seed data for clean reproducible test run
+            localStorage.setItem('bmw_products', JSON.stringify(api.SEED_PRODUCTS));
+            localStorage.setItem('bmw_categories', JSON.stringify(['Clothing', 'Accessories', 'Equipment']));
+            localStorage.removeItem('bmw_staff_permissions');
+
+            const adminUser = {
+                id: 'admin_root',
+                fullName: 'Admin BMW Gym',
+                username: 'admin',
+                role: 'admin',
+                status: 'active'
+            };
+
+            const staffUser = {
+                id: 'staff_01',
+                fullName: 'Staff Dispatcher',
+                username: 'staff',
+                role: 'staff',
+                status: 'active'
+            };
+
+            let win, doc;
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 1: TÁI SỬ DỤNG VÀ KHỞI TẠO CATALOG (SEED & COMPATIBILITY)
+            // ═════════════════════════════════════════════════════════════════
+
+            // T1.1: Khởi tạo đầy đủ 12 sản phẩm p1–p12 với 3 danh mục chuẩn
+            const prods = api.getProducts();
+            const cats = api.getCategories();
+            const seedValid = prods.length >= 12 && prods.some(p => p.id === 'p1') && prods.some(p => p.id === 'p12');
+            const catsValid = cats.includes('Clothing') && cats.includes('Accessories') && cats.includes('Equipment');
+
+            logResult(
+                'T1.1',
+                'Seed Catalog',
+                'Khởi tạo và tái sử dụng chính xác danh sách sản phẩm p1–p12 và 3 danh mục hiện tại',
+                '12 sản phẩm, 3 danh mục chuẩn',
+                `products: ${prods.length}, categories: ${cats.join(', ')}`,
+                Boolean(seedValid && catsValid)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 2: KIỂM TRA DỮ LIỆU ĐẦU VÀO (INPUT VALIDATION)
+            // ═════════════════════════════════════════════════════════════════
+
+            // T2.1: Chặn thêm sản phẩm nếu tên trống hoặc ngắn hơn 3 ký tự
+            const emptyNameRes = api.addProduct({ name: '', price: 500000, stock: 10, category: 'Clothing' }, adminUser);
+            const shortNameRes = api.addProduct({ name: 'AB', price: 500000, stock: 10, category: 'Clothing' }, adminUser);
+            logResult(
+                'T2.1',
+                'Product Validation',
+                'Chặn thêm sản phẩm khi tên để trống hoặc dưới 3 ký tự',
+                'success: false cả 2 trường hợp',
+                `emptyName: ${emptyNameRes.success}, shortName: ${shortNameRes.success}`,
+                emptyNameRes.success === false && shortNameRes.success === false
+            );
+
+            // T2.2: Chặn giá âm hoặc bằng 0
+            const negPriceRes = api.addProduct({ name: 'T-Shirt Test', price: -50000, stock: 10, category: 'Clothing' }, adminUser);
+            const zeroPriceRes = api.addProduct({ name: 'T-Shirt Test', price: 0, stock: 10, category: 'Clothing' }, adminUser);
+            logResult(
+                'T2.2',
+                'Product Validation',
+                'Chặn giá sản phẩm âm hoặc bằng 0',
+                'success: false cả 2 trường hợp',
+                `negPrice: ${negPriceRes.success}, zeroPrice: ${zeroPriceRes.success}`,
+                negPriceRes.success === false && zeroPriceRes.success === false
+            );
+
+            // T2.3: Chặn tồn kho là số âm hoặc số thập phân
+            const negStockRes = api.addProduct({ name: 'T-Shirt Test', price: 500000, stock: -5, category: 'Clothing' }, adminUser);
+            const decStockRes = api.addProduct({ name: 'T-Shirt Test', price: 500000, stock: 5.5, category: 'Clothing' }, adminUser);
+            logResult(
+                'T2.3',
+                'Product Validation',
+                'Chặn tồn kho là số âm hoặc số thập phân (bắt buộc số nguyên không âm)',
+                'success: false cả 2 trường hợp',
+                `negStock: ${negStockRes.success}, decStock: ${decStockRes.success}`,
+                negStockRes.success === false && decStockRes.success === false
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 3: ADMIN PRODUCT CRUD (THÊM, SỬA, XÓA SẢN PHẨM)
+            // ═════════════════════════════════════════════════════════════════
+
+            // T3.1: Admin thêm sản phẩm mới hợp lệ -> Sinh ID tự động (p13) và lưu vào storage
+            const addRes = api.addProduct({
+                name: 'BMW Heavy Grip Gripper',
+                category: 'Equipment',
+                price: 290000,
+                oldPrice: 350000,
+                stock: 40,
+                tag: 'NEW',
+                description: 'Kìm bóp tay chịu lực cao cấp BMW.',
+                image: 'images/products/resistance-bands.jpg'
+            }, adminUser);
+
+            const p13InStorage = api.getProductById(addRes.product?.id);
+            logResult(
+                'T3.1',
+                'Admin CRUD',
+                'Admin thêm sản phẩm mới thành công -> lưu vào storage với ID tự động sinh (p13)',
+                'success: true, id === "p13"',
+                `success: ${addRes.success}, id: ${addRes.product?.id}, saved: ${Boolean(p13InStorage)}`,
+                Boolean(addRes.success && addRes.product?.id === 'p13' && p13InStorage)
+            );
+
+            // T3.2: Admin sửa sản phẩm p1 (giá, tên, tồn kho) -> cập nhật thành công
+            const updateRes = api.updateProduct('p1', {
+                name: 'BMW Performance Oversized T-Shirt V2',
+                price: 720000,
+                stock: 65
+            }, adminUser);
+
+            const p1Updated = api.getProductById('p1');
+            const p1Success = updateRes.success && p1Updated.name === 'BMW Performance Oversized T-Shirt V2' && p1Updated.price === '720.000₫' && p1Updated.stock === 65;
+            logResult(
+                'T3.2',
+                'Admin CRUD',
+                'Admin chỉnh sửa thông tin sản phẩm p1 -> cập nhật giá 720.000₫ và tồn kho 65',
+                'name V2, price: 720.000₫, stock: 65',
+                `name: ${p1Updated?.name}, price: ${p1Updated?.price}, stock: ${p1Updated?.stock}`,
+                Boolean(p1Success)
+            );
+
+            // T3.3: Admin xóa sản phẩm p13 -> gỡ bỏ khỏi storage
+            const deleteRes = api.deleteProduct('p13', adminUser);
+            const p13AfterDelete = api.getProductById('p13');
+            logResult(
+                'T3.3',
+                'Admin CRUD',
+                'Admin xóa sản phẩm p13 -> gỡ bỏ thành công khỏi catalog',
+                'success: true, p13AfterDelete: null',
+                `success: ${deleteRes.success}, p13AfterDelete: ${p13AfterDelete}`,
+                deleteRes.success === true && p13AfterDelete === null
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 4: PHÂN QUYỀN STAFF & CHỐNG TỰ CẤP QUYỀN
+            // ═════════════════════════════════════════════════════════════════
+
+            // T4.1: Staff mặc định KHÔNG có quyền thêm hoặc sửa sản phẩm
+            const staffAddRes = api.addProduct({ name: 'Staff Unauthorized Product', price: 300000, stock: 10, category: 'Clothing' }, staffUser);
+            const staffEditRes = api.updateProduct('p1', { name: 'Staff Unauthorized Edit' }, staffUser);
+
+            logResult(
+                'T4.1',
+                'Staff Permissions',
+                'Staff mặc định bị chặn khi thêm hoặc sửa sản phẩm nếu chưa được Admin cấp quyền',
+                'success: false cả 2 thao tác',
+                `staffAdd: ${staffAddRes.success}, staffEdit: ${staffEditRes.success}`,
+                staffAddRes.success === false && staffEditRes.success === false
+            );
+
+            // T4.2: Staff KHÔNG thể tự cấp quyền cho chính mình
+            const selfGrantRes = api.setStaffPermissions({ canAddProducts: true, canEditProducts: true }, staffUser);
+            logResult(
+                'T4.2',
+                'Staff Permissions',
+                'Staff không thể tự cấp quyền cho chính mình (chỉ Admin mới có quyền cấp)',
+                'success: false, thông báo từ chối',
+                `success: ${selfGrantRes.success}, msg: "${selfGrantRes.message}"`,
+                selfGrantRes.success === false
+            );
+
+            // T4.3: Admin cấp quyền -> Staff được phép thêm và sửa sản phẩm
+            const adminGrantRes = api.setStaffPermissions({ canAddProducts: true, canEditProducts: true }, adminUser);
+            const staffAddGrantedRes = api.addProduct({ name: 'Staff Authorized Product', price: 300000, stock: 15, category: 'Clothing' }, staffUser);
+
+            logResult(
+                'T4.3',
+                'Staff Permissions',
+                'Admin cấp quyền -> Staff được phép thêm sản phẩm mới thành công',
+                'adminGrant: true, staffAdd: true',
+                `adminGrant: ${adminGrantRes.success}, staffAdd: ${staffAddGrantedRes.success}`,
+                adminGrantRes.success === true && staffAddGrantedRes.success === true
+            );
+
+            // T4.4: Staff tuyệt đối KHÔNG có quyền xóa sản phẩm dù có quyền sửa
+            const staffDeleteRes = api.deleteProduct(staffAddGrantedRes.product?.id, staffUser);
+            logResult(
+                'T4.4',
+                'Staff Permissions',
+                'Staff tuyệt đối không có quyền xóa sản phẩm (chỉ dành riêng cho Admin)',
+                'success: false',
+                `success: ${staffDeleteRes.success}, msg: "${staffDeleteRes.message}"`,
+                staffDeleteRes.success === false
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 5: QUẢN LÝ DANH MỤC & NGUYÊN TẮC XÓA AN TOÀN
+            // ═════════════════════════════════════════════════════════════════
+
+            // T5.1: Admin thêm danh mục mới và đổi tên danh mục
+            const addCatRes = api.addCategory('Supplements', adminUser);
+            const renameCatRes = api.updateCategory('Supplements', 'Nutrition & Supplements', adminUser);
+
+            const hasNewCat = api.getCategories().includes('Nutrition & Supplements');
+            logResult(
+                'T5.1',
+                'Category Management',
+                'Admin thêm danh mục mới và đổi tên danh mục thành công',
+                'Danh mục "Nutrition & Supplements" tồn tại',
+                `addCat: ${addCatRes.success}, rename: ${renameCatRes.success}, exists: ${hasNewCat}`,
+                addCatRes.success && renameCatRes.success && hasNewCat
+            );
+
+            // T5.2: Chặn xóa danh mục đang có sản phẩm nếu chưa có danh mục chuyển tiếp
+            const blockDeleteRes = api.deleteCategory('Clothing', null, adminUser);
+            logResult(
+                'T5.2',
+                'Category Management',
+                'Chặn xóa danh mục "Clothing" vì đang có sản phẩm liên kết mà không có danh mục chuyển tiếp',
+                'success: false, hasProducts: true',
+                `success: ${blockDeleteRes.success}, productCount: ${blockDeleteRes.productCount}`,
+                blockDeleteRes.success === false && blockDeleteRes.hasProducts === true
+            );
+
+            // T5.3: Xóa danh mục an toàn có chuyển tiếp sản phẩm sang danh mục khác
+            // Chuyển toàn bộ sản phẩm của 'Clothing' sang 'Accessories' và xóa 'Clothing'
+            const safeDeleteRes = api.deleteCategory('Clothing', 'Accessories', adminUser);
+            const remainingCats = api.getCategories();
+            const clothingProdsAfter = api.getProducts().filter(p => p.category === 'Clothing');
+            const migratedProds = api.getProducts().filter(p => p.category === 'Accessories');
+
+            logResult(
+                'T5.3',
+                'Category Management',
+                'Xóa danh mục an toàn: chuyển toàn bộ sản phẩm sang danh mục đích trước khi xóa',
+                'Clothing bị xóa (0 sp), Accessories nhận toàn bộ sp',
+                `safeDelete: ${safeDeleteRes.success}, remainingCats: ${remainingCats.join(', ')}, clothingProds: ${clothingProdsAfter.length}`,
+                safeDeleteRes.success === true && !remainingCats.includes('Clothing') && clothingProdsAfter.length === 0
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 6: QUẢN LÝ TỒN KHO & CHẶN ĐẶT HÀNG VƯỢT TỒN KHO
+            // ═════════════════════════════════════════════════════════════════
+
+            // Restore Clothing for standard tests
+            api.addCategory('Clothing', adminUser);
+            api.updateProduct('p1', { category: 'Clothing', stock: 10 }, adminUser);
+
+            // T6.1: Cấu hình ngưỡng cảnh báo tồn kho thấp
+            const thresholdRes = api.setLowStockThreshold(15, adminUser);
+            const thresholdVal = api.getLowStockThreshold();
+            logResult(
+                'T6.1',
+                'Inventory Management',
+                'Cấu hình ngưỡng cảnh báo tồn kho thấp thành công (ngưỡng 15)',
+                'threshold === 15',
+                `threshold: ${thresholdVal}`,
+                thresholdVal === 15
+            );
+
+            // T6.2: Đặt hàng tự động trừ tồn kho và tránh trừ 2 lần
+            const p1StockBefore = api.getProductById('p1').stock; // 10
+            const testOrder = window.BMW_ORDERS_API.createOrder({
+                orderId: 'BMW_STOCK_TEST_01',
+                customer: { fullName: 'Stock Test Customer', phone: '0901112233' },
+                items: [
+                    { id: 'p1', name: 'BMW Performance Oversized T-Shirt', quantity: 3, price: '690.000₫', priceNumber: 690000 }
+                ],
+                total: 2070000
+            });
+
+            const p1StockAfterOrder = api.getProductById('p1').stock; // 10 - 3 = 7
+            logResult(
+                'T6.2',
+                'Inventory Management',
+                'Đặt hàng 3 chiếc p1 -> tự động trừ tồn kho từ 10 xuống 7, gắn cờ inventoryDeducted',
+                'stock === 7, inventoryDeducted: true',
+                `stockBefore: ${p1StockBefore}, stockAfter: ${p1StockAfterOrder}, flag: ${testOrder.inventoryDeducted}`,
+                p1StockBefore === 10 && p1StockAfterOrder === 7 && testOrder.inventoryDeducted === true
+            );
+
+            // T6.3: Hủy đơn hàng -> Tự động hoàn lại số lượng tồn kho (Restock)
+            window.BMW_ORDERS_API.cancelOrder('BMW_STOCK_TEST_01', 'Khách đổi ý');
+            const p1StockAfterCancel = api.getProductById('p1').stock; // 7 + 3 = 10
+            logResult(
+                'T6.3',
+                'Inventory Management',
+                'Hủy đơn hàng -> Tự động hoàn trả tồn kho (Restock) từ 7 lên lại 10',
+                'stock === 10',
+                `stockAfterCancel: ${p1StockAfterCancel}`,
+                p1StockAfterCancel === 10
+            );
+
+            // T6.4: Chặn đặt hàng vượt quá số lượng tồn kho hiện có
+            const overOrderDeduct = api.deductStock([{ id: 'p1', quantity: 999 }]);
+            logResult(
+                'T6.4',
+                'Inventory Management',
+                'Chặn đặt hàng khi số lượng yêu cầu vượt quá tồn kho (yêu cầu 999 trong khi tồn 10)',
+                'success: false',
+                `success: ${overOrderDeduct.success}, msg: "${overOrderDeduct.message}"`,
+                overOrderDeduct.success === false
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 7: BẢO VỆ TOÀN VẸN ĐƠN HÀNG CŨ (HISTORICAL SNAPSHOTS)
+            // ═════════════════════════════════════════════════════════════════
+
+            // T7.1: Sửa giá sản phẩm hiện tại KHÔNG làm thay đổi giá trên hóa đơn đơn hàng cũ
+            const oldOrderSnapshot = {
+                orderId: 'BMW_SNAPSHOT_01',
+                customer: { fullName: 'Snapshot Customer' },
+                items: [
+                    { id: 'p2', name: 'BMW Training Shorts', price: '590.000₫', priceNumber: 590000, quantity: 1, itemTotal: 590000 }
+                ],
+                total: 590000,
+                orderStatus: 'Delivered'
+            };
+            const currentOrders = window.BMW_ORDERS_API.getOrders();
+            currentOrders.push(oldOrderSnapshot);
+            window.BMW_ORDERS_API.saveOrders(currentOrders);
+
+            // Admin tăng giá p2 từ 590.000₫ lên 990.000₫
+            api.updateProduct('p2', { price: 990000 }, adminUser);
+
+            // Kiểm tra lại hóa đơn cũ
+            const inspectedOrder = window.BMW_ORDERS_API.getOrderById('BMW_SNAPSHOT_01');
+            const oldPricePreserved = inspectedOrder.items[0].price === '590.000₫' && inspectedOrder.total === 590000;
+            const newCatalogPrice = api.getProductById('p2').price === '990.000₫';
+
+            logResult(
+                'T7.1',
+                'Order Snapshot Integrity',
+                'Sửa giá sản phẩm p2 lên 990.000₫ không làm thay đổi giá 590.000₫ trên hóa đơn cũ',
+                'oldOrder price: 590.000₫, catalog: 990.000₫',
+                `order item price: ${inspectedOrder.items[0].price}, catalog price: ${api.getProductById('p2').price}`,
+                Boolean(oldPricePreserved && newCatalogPrice)
+            );
+
+            // ═════════════════════════════════════════════════════════════════
+            // NHÓM 8: GIAO DIỆN TRANG ADMIN PRODUCTS & STAFF PRODUCTS
+            // ═════════════════════════════════════════════════════════════════
+
+            // T8.1: Trang admin-products.html tải thành công với 4 tabs đầy đủ
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(adminUser));
+            ({ win, doc } = await loadFrame('admin-products.html'));
+            await wait(200);
+
+            const tabButtons = doc.querySelectorAll('.dash-tab-btn');
+            const has4Tabs = tabButtons.length === 4;
+            const tableRowsCount = doc.querySelectorAll('#products-table-body tr').length;
+
+            logResult(
+                'T8.1',
+                'Admin UI',
+                'Trang admin-products.html tải đầy đủ 4 tabs (Sản phẩm, Danh mục, Kho hàng, Phân quyền) và bảng dữ liệu',
+                '4 tabs, bảng có dòng',
+                `tabs: ${tabButtons.length}, rows: ${tableRowsCount}`,
+                has4Tabs && tableRowsCount > 0
+            );
+
+            // T8.2: Trang staff-products.html tải thành công và ẩn quyền Quản lý Danh mục
+            sessionStorage.setItem('bmw_current_user', JSON.stringify(staffUser));
+            ({ win, doc } = await loadFrame('staff-products.html'));
+            await wait(200);
+
+            const staffTabs = doc.querySelectorAll('.dash-tab-btn');
+            const staffHasNoCatTab = !doc.querySelector('.dash-tab-btn[data-tab="tab-categories"]');
+
+            logResult(
+                'T8.2',
+                'Staff UI',
+                'Trang staff-products.html hiển thị đúng phạm vi Staff (2 tabs tra cứu & tồn kho, không có tab Danh mục)',
+                '2 tabs, không có tab Danh mục',
+                `tabs: ${staffTabs.length}, hasNoCatTab: ${staffHasNoCatTab}`,
+                staffTabs.length === 2 && staffHasNoCatTab
+            );
+
+        } catch (err) {
+            logResult('FATAL', 'Runner', 'Lỗi không mong muốn trong khi chạy kịch bản kiểm thử', 'Không có exception', err.stack || err.message, false);
+        }
+
+        const total = passCount + failCount;
+        summaryBanner.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+        summaryBanner.textContent = `KẾT QUẢ ĐỢT 8.3: ${passCount} PASS / ${total} TESTS (${failCount === 0 ? '100% THÀNH CÔNG' : failCount + ' TEST THẤT BẠI'})`;
+    }
+
+    window.addEventListener('DOMContentLoaded', runPhase83TestSuite);
+    </script>
+</body>
+</html>

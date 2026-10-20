@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EXT.1 FIX — Visual Theme Tests</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/quickview.css">
+    <script src="js/theme.js"></script>
+    <style>
+        body { font-family: monospace; padding: 20px; margin: 0; }
+        h1 { font-size: 18px; margin-bottom: 12px; }
+        table { border-collapse: collapse; width: 100%; font-size: 12px; margin-bottom: 20px; }
+        th, td { padding: 5px 10px; text-align: left; border-bottom: 1px solid rgba(128,128,128,0.3); }
+        th { font-weight: 800; }
+        .pass { color: #16a34a; font-weight: 800; }
+        .fail { color: #dc2626; font-weight: 800; }
+        #summary { font-size: 16px; font-weight: 800; margin-top: 16px; padding: 12px; border: 2px solid currentColor; display: inline-block; }
+
+        /* ── Fake page sections to test theme colours ── */
+        .test-body-bg    { width: 60px; height: 20px; display: inline-block; }
+        .test-palette    { display: flex; gap: 6px; margin: 12px 0; }
+        .swatch          { width: 40px; height: 40px; border: 1px solid rgba(128,128,128,0.4); }
+    </style>
+</head>
+<body>
+
+<!-- Hidden test elements that mirror real page classes -->
+<div id="test-elements" style="position:absolute;left:-9999px;top:0;width:800px;">
+    <!-- Body equivalent -->
+    <div class="products"        id="t-products">products</div>
+    <div class="product-preview" id="t-preview">preview</div>
+    <div class="best"            id="t-best">best</div>
+    <div class="categories"      id="t-categories">categories</div>
+    <div class="newsletter"      id="t-newsletter">newsletter</div>
+    <div class="page-content"    id="t-page-content">page-content</div>
+    <div class="filter-sort-bar" id="t-filter">filter</div>
+    <div class="product-card"    id="t-product-card"><div class="product-image" id="t-product-image"></div><div class="product-copy"><h3><a href="#">Name</a></h3><div><span class="price" id="t-price">690.000₫</span></div></div></div>
+    <div class="account-dropdown-menu" id="t-dropdown">dropdown</div>
+    <div class="cart-summary-box" id="t-cart-summary">cart summary</div>
+    <div class="wishlist-page-section" id="t-wishlist">wishlist</div>
+    <div class="search-page-container" id="t-search">search</div>
+    <div class="qv-modal" id="t-qv-modal"><div class="qv-info-panel" id="t-qv-info">qv info</div></div>
+    <div class="header-search-form" id="t-search-form">search form</div>
+    <div class="filter-select" id="t-filter-select">select</div>
+</div>
+
+<h1>EXT.1 FIX — Theme Visual Colour Tests</h1>
+<p style="font-size:12px;opacity:.7;">Tests computed background-color and color of key page sections in both Light and Dark mode.</p>
+
+<table id="results-table">
+    <thead><tr><th>ID</th><th>Section</th><th>Mode</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead>
+    <tbody id="results-body"></tbody>
+</table>
+<div id="summary"></div>
+
+<script src="js/products.js"></script>
+<script>
+    var pass = 0, fail = 0;
+
+    function rgb(r,g,b){ return 'rgb('+r+', '+g+', '+b+')'; }
+    function hex2rgb(hex){
+        hex = hex.replace('#','');
+        if(hex.length===3) hex = hex.split('').map(function(c){return c+c;}).join('');
+        var r=parseInt(hex.substr(0,2),16), g=parseInt(hex.substr(2,2),16), b=parseInt(hex.substr(4,2),16);
+        return rgb(r,g,b);
+    }
+
+    function getStyle(el, prop){ return window.getComputedStyle(el).getPropertyValue(prop).trim(); }
+
+    function addRow(id, section, mode, prop, expected, actual){
+        // Normalise both to lowercase for comparison
+        var ok = actual.toLowerCase() === expected.toLowerCase();
+        if(ok) pass++; else fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+id+'</td><td>'+section+'</td><td>'+mode+'</td>'
+            +'<td style="font-family:monospace">'+expected+'</td>'
+            +'<td style="font-family:monospace;background:'+actual+';color:'+(ok?'inherit':'red')+'">'+actual+'</td>'
+            +'<td class="'+(ok?'pass':'fail')+'">'+(ok?'PASS':'FAIL')+'</td>';
+        document.getElementById('results-body').appendChild(tr);
+    }
+
+    function runTests(){
+        /* ── LIGHT MODE tests ──────────────────────────────────────── */
+        themeAPI.setTheme('light');
+
+        // LT01: body background should be light (#f5f5f5)
+        addRow('LT01','body bg','Light', hex2rgb('f5f5f5'),
+            hex2rgb('f5f5f5'),
+            getStyle(document.body,'background-color'));
+
+        // LT02: .products section background = white
+        addRow('LT02','.products bg','Light', hex2rgb('ffffff'),
+            hex2rgb('ffffff'),
+            getStyle(document.getElementById('t-products'),'background-color'));
+
+        // LT03: .categories background = f4f4f2
+        addRow('LT03','.categories bg','Light', hex2rgb('f4f4f2'),
+            hex2rgb('f4f4f2'),
+            getStyle(document.getElementById('t-categories'),'background-color'));
+
+        // LT04: .best background ≠ dark
+        var bestBg = getStyle(document.getElementById('t-best'),'background-color');
+        var isLight = bestBg !== hex2rgb('121212') && bestBg !== hex2rgb('151515') && bestBg !== hex2rgb('0a0a0a');
+        addRow('LT04','.best bg','Light','not dark', isLight ? bestBg+' ✓' : bestBg, isLight ? bestBg+' ✓' : bestBg);
+        if(isLight) pass++; else fail++;
+        // Remove dummy row from above
+        var rows = document.getElementById('results-body').querySelectorAll('tr');
+        var lastRow = rows[rows.length-1];
+        lastRow.cells[5].textContent = isLight ? 'PASS' : 'FAIL';
+        lastRow.cells[5].className = isLight ? 'pass' : 'fail';
+        // Fix double count
+        if(isLight){ pass--; } else { fail--; }
+
+        // LT05: .product-preview bg = white
+        addRow('LT05','.product-preview bg','Light', hex2rgb('ffffff'),
+            hex2rgb('ffffff'),
+            getStyle(document.getElementById('t-preview'),'background-color'));
+
+        // LT06: .newsletter bg = white
+        addRow('LT06','.newsletter bg','Light', hex2rgb('ffffff'),
+            hex2rgb('ffffff'),
+            getStyle(document.getElementById('t-newsletter'),'background-color'));
+
+        // LT07: .filter-sort-bar bg ≠ dark
+        var filterBg = getStyle(document.getElementById('t-filter'),'background-color');
+        addRow('LT07','.filter-sort-bar bg','Light', '≈ light (#f8f8f6)',
+            hex2rgb('f8f8f6'), filterBg);
+
+        // LT08: .page-content bg = white
+        addRow('LT08','.page-content bg','Light', hex2rgb('ffffff'),
+            hex2rgb('ffffff'),
+            getStyle(document.getElementById('t-page-content'),'background-color'));
+
+        // LT09: .product-card text color = dark
+        addRow('LT09','.product-card color','Light', hex2rgb('101010'),
+            hex2rgb('101010'),
+            getStyle(document.getElementById('t-product-card'),'color'));
+
+        // LT10: .account-dropdown-menu bg = white
+        addRow('LT10','.dropdown bg','Light', hex2rgb('ffffff'),
+            hex2rgb('ffffff'),
+            getStyle(document.getElementById('t-dropdown'),'background-color'));
+
+        /* ── DARK MODE tests ───────────────────────────────────────── */
+        themeAPI.setTheme('dark');
+
+        // DT01: body background = dark
+        addRow('DT01','body bg','Dark', hex2rgb('121212'),
+            hex2rgb('121212'),
+            getStyle(document.body,'background-color'));
+
+        // DT02: .products bg = dark
+        addRow('DT02','.products bg','Dark', hex2rgb('121212'),
+            hex2rgb('121212'),
+            getStyle(document.getElementById('t-products'),'background-color'));
+
+        // DT03: .categories bg = dark (#1a1a1a)
+        addRow('DT03','.categories bg','Dark', hex2rgb('1a1a1a'),
+            hex2rgb('1a1a1a'),
+            getStyle(document.getElementById('t-categories'),'background-color'));
+
+        // DT04: .best bg = dark (#151515)
+        addRow('DT04','.best bg','Dark', hex2rgb('151515'),
+            hex2rgb('151515'),
+            getStyle(document.getElementById('t-best'),'background-color'));
+
+        // DT05: .product-preview bg = dark (#181818)
+        addRow('DT05','.product-preview bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-preview'),'background-color'));
+
+        // DT06: .newsletter bg = dark (#181818)
+        addRow('DT06','.newsletter bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-newsletter'),'background-color'));
+
+        // DT07: .filter-sort-bar bg = dark (#181818)
+        addRow('DT07','.filter-sort-bar bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-filter'),'background-color'));
+
+        // DT08: .page-content bg = dark (#181818)
+        addRow('DT08','.page-content bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-page-content'),'background-color'));
+
+        // DT09: .product-card color = light (#f3f4f6)
+        addRow('DT09','.product-card color','Dark', hex2rgb('f3f4f6'),
+            hex2rgb('f3f4f6'),
+            getStyle(document.getElementById('t-product-card'),'color'));
+
+        // DT10: .product-image bg = dark (#1e1e1e)
+        addRow('DT10','.product-image bg','Dark', hex2rgb('1e1e1e'),
+            hex2rgb('1e1e1e'),
+            getStyle(document.getElementById('t-product-image'),'background-color'));
+
+        // DT11: .account-dropdown-menu bg = dark (#181818)
+        addRow('DT11','.dropdown bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-dropdown'),'background-color'));
+
+        // DT12: .cart-summary-box bg = dark (#181818 in dark mode)
+        addRow('DT12','.cart-summary-box bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-cart-summary'),'background-color'));
+
+        // DT13: .wishlist-page-section bg = dark
+        addRow('DT13','.wishlist bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-wishlist'),'background-color'));
+
+        // DT14: .search-page-container bg = dark
+        addRow('DT14','.search bg','Dark', hex2rgb('181818'),
+            hex2rgb('181818'),
+            getStyle(document.getElementById('t-search'),'background-color'));
+
+        // DT15: .qv-modal bg = dark (#1a1a1a)
+        addRow('DT15','.qv-modal bg','Dark', hex2rgb('1a1a1a'),
+            hex2rgb('1a1a1a'),
+            getStyle(document.getElementById('t-qv-modal'),'background-color'));
+
+        // DT16: .header-search-form bg = dark (#1e1e1e)
+        addRow('DT16','.search-form bg','Dark', hex2rgb('1e1e1e'),
+            hex2rgb('1e1e1e'),
+            getStyle(document.getElementById('t-search-form'),'background-color'));
+
+        // DT17: .filter-select bg = dark (#222222)
+        addRow('DT17','.filter-select bg','Dark', hex2rgb('222222'),
+            hex2rgb('222222'),
+            getStyle(document.getElementById('t-filter-select'),'background-color'));
+
+        // DT18: body text color = light (#eeeeee)
+        addRow('DT18','body color','Dark', hex2rgb('eeeeee'),
+            hex2rgb('eeeeee'),
+            getStyle(document.body,'color'));
+
+        /* ── Persistence test ─────────────────────────────────────── */
+        // PT01: localStorage key = 'dark'
+        var stored = null;
+        try { stored = localStorage.getItem('bmw_theme'); } catch(e){}
+        addRow('PT01','localStorage bmw_theme after dark','Persist', 'dark',
+            'dark', stored || '(null)');
+
+        themeAPI.setTheme('light');
+        var stored2 = null;
+        try { stored2 = localStorage.getItem('bmw_theme'); } catch(e){}
+        addRow('PT02','localStorage bmw_theme after light','Persist', 'light',
+            'light', stored2 || '(null)');
+
+        /* ── Summary ──────────────────────────────────────────────── */
+        var total = pass + fail;
+        var summary = document.getElementById('summary');
+        summary.textContent = 'Result: ' + pass + '/' + total + (fail===0?' PASS':' ('+fail+' FAIL)');
+        summary.style.color = fail===0 ? '#16a34a' : '#dc2626';
+        summary.style.borderColor = fail===0 ? '#16a34a' : '#dc2626';
+    }
+
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', runTests);
+    } else {
+        runTests();
+    }
+</script>
+</body>
+</html>

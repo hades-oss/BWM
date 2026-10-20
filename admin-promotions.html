@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Quản Lý Khuyến Mãi & Mã Giảm Giá (Admin Promotions)</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+    <style>
+        .code-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--accent-blue, #2563eb);
+            border: 1px dashed rgba(37, 99, 235, 0.4);
+        }
+
+        .type-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .type-special { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .type-standard { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .type-limited { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-badge.active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-badge.upcoming { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-badge.expired { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-badge.out_of_stock { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-badge.disabled, .status-badge.draft { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-surface, #e2e8f0);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-blue, #2563eb);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR ───────────────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge">Admin</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Admin Navigation">
+                <div class="nav-section-title">Tổng quan</div>
+                <a href="admin-dashboard.html" class="dash-nav-item" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Bán hàng & Kho</div>
+                <a href="admin-orders.html" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Quản lý đơn hàng</span>
+                </a>
+                <a href="admin-products.html" class="dash-nav-item" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm & Kho</span>
+                </a>
+
+                <div class="nav-section-title">Khuyến mãi & Tiếp thị</div>
+                <a href="admin-promotions.html" class="dash-nav-item active" id="nav-promotions">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                    <span class="nav-text">Mã giảm giá & Khuyến mãi</span>
+                </a>
+
+                <div class="nav-section-title">Tài khoản & Phân quyền</div>
+                <a href="admin-users.html" class="dash-nav-item" id="nav-users">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Quản lý tài khoản</span>
+                </a>
+
+                <div class="nav-section-title">Hệ thống & Cá nhân</div>
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini" title="Xem hồ sơ">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">A</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Admin BMW</span>
+                        <span class="user-mini-role">Quản trị viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- Topbar -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="admin-dashboard.html">Admin</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current">Quản Lý Khuyến Mãi</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="index.html#promotions" class="btn-store-link" title="Xem ưu đãi ngoài cửa hàng">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                        <span>Trang Voucher</span>
+                    </a>
+
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar" title="Hồ sơ cá nhân">A</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="dash-content">
+                <!-- Page Header -->
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Quản Lý Khuyến Mãi & Mã Giảm Giá (Đợt 8.6)</h1>
+                        <p>Hệ thống voucher dùng chung giữa Admin, Trang chủ, Giỏ hàng và Thanh toán Checkout</p>
+                    </div>
+                    <div class="page-actions-box">
+                        <button class="btn-action primary" id="btn-open-create-promo">
+                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Tạo Khuyến Mãi Mới</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── 4 KPI STATS METRICS ─────────────────────────────────── -->
+                <section class="stats-grid" aria-label="Promotion Metrics">
+                    <div class="stat-card" id="card-total-promos">
+                        <div class="stat-header">
+                            <span class="stat-title">Tổng Chương Trình</span>
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-total-promos">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Bao gồm tất cả chiến dịch</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" id="card-active-promos">
+                        <div class="stat-header">
+                            <span class="stat-title">Đang Có Hiệu Lực</span>
+                            <div class="stat-icon green">
+                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-active-promos">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Sẵn sàng áp dụng tại Checkout</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" id="card-used-promos">
+                        <div class="stat-header">
+                            <span class="stat-title">Lượt Đã Sử Dụng</span>
+                            <div class="stat-icon purple">
+                                <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-used-promos">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Đã áp vào các đơn hàng</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" id="card-remaining-promos">
+                        <div class="stat-header">
+                            <span class="stat-title">Lượt Phát Hành Còn Lại</span>
+                            <div class="stat-icon amber">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-remaining-promos">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Hạn mức chưa dùng</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── PROMOTIONS TABLE & CONTROLS ────────────────────────── -->
+                <div class="dash-card">
+                    <div class="card-header-bar">
+                        <h2 class="card-title">
+                            <span>Danh Sách Mã Khuyến Mãi</span>
+                        </h2>
+                        <div class="table-controls" style="flex-wrap: wrap;">
+                            <!-- Filter Status -->
+                            <select class="filter-select" id="filter-promo-status" aria-label="Lọc trạng thái">
+                                <option value="ALL">Tất cả trạng thái</option>
+                                <option value="ACTIVE">Đang hiệu lực</option>
+                                <option value="UPCOMING">Sắp diễn ra</option>
+                                <option value="EXPIRED">Hết hiệu lực</option>
+                                <option value="OUT_OF_STOCK">Hết lượt sử dụng</option>
+                                <option value="DISABLED">Đã tắt</option>
+                            </select>
+
+                            <!-- Filter Type -->
+                            <select class="filter-select" id="filter-promo-type" aria-label="Lọc loại mã">
+                                <option value="ALL">Tất cả loại mã</option>
+                                <option value="SPECIAL">Đặc biệt (Special)</option>
+                                <option value="STANDARD">Thông dụng (Standard)</option>
+                                <option value="LIMITED">Giới hạn (Limited)</option>
+                            </select>
+
+                            <!-- Search -->
+                            <input type="text" class="filter-search-input" id="filter-promo-search" placeholder="Tìm tên chương trình, mã coupon...">
+                        </div>
+                    </div>
+
+                    <!-- Responsive Table -->
+                    <div class="table-responsive">
+                        <table class="dash-table" id="promotions-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã Coupon & Tên Chương Trình</th>
+                                    <th>Mức Giảm</th>
+                                    <th>Phạm Vi Áp Dụng</th>
+                                    <th>Lượt Sử Dụng</th>
+                                    <th>Thời Gian Hiệu Lực</th>
+                                    <th>Trạng Thái</th>
+                                    <th style="text-align: right;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promotions-table-body">
+                                <!-- Dynamic Promo Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="dash-empty" id="promos-table-empty" style="display: none;">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                        <h4>Không tìm thấy mã khuyến mãi nào</h4>
+                        <p>Thử điều chỉnh bộ lọc hoặc tạo mã khuyến mãi mới.</p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="dash-pagination" id="promos-pagination">
+                        <div id="promos-pagination-info">Hiển thị mã khuyến mãi</div>
+                        <div class="pagination-controls" id="promos-pagination-btns"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── MODAL: CREATE PROMOTION ────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-create-promo" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 620px;" role="dialog" aria-labelledby="create-promo-title">
+            <div class="modal-header">
+                <h3 id="create-promo-title">Tạo Chương Trình Khuyến Mãi & Mã Giảm Giá</h3>
+                <button class="btn-modal-close" id="btn-close-create-promo">&times;</button>
+            </div>
+            <form id="form-create-promo" novalidate>
+                <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <label class="form-label" for="promo-name">Tên chương trình khuyến mãi *</label>
+                        <input type="text" class="form-input" id="promo-name" placeholder="VD: SIÊU SALE MÙA HÈ 2026" required>
+                        <span class="field-error" id="err-promo-name" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="promo-code">Mã Coupon (6 ký tự chuẩn) *</label>
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" class="form-input" id="promo-code" placeholder="AB12CD" style="text-transform: uppercase; font-family: monospace; font-weight: 700; letter-spacing: 1px;" required>
+                                <button type="button" class="btn-action" id="btn-auto-gen-code" title="Tự động sinh mã 6 ký tự (4 chữ cái + 2 số)" style="white-space: nowrap;">
+                                    🎲 Tự sinh
+                                </button>
+                            </div>
+                            <span class="field-error" id="err-promo-code" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="promo-type">Loại mã khuyến mãi *</label>
+                            <select class="form-input" id="promo-type">
+                                <option value="STANDARD">Thông dụng (Standard)</option>
+                                <option value="SPECIAL">Đặc biệt (VIP / Tri ân)</option>
+                                <option value="LIMITED">Giới hạn (Flash Sale)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="promo-discount">Mức giảm theo phần trăm (%) *</label>
+                            <input type="number" class="form-input" id="promo-discount" min="1" max="100" placeholder="VD: 15" required>
+                            <span class="field-error" id="err-promo-discount" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="promo-usage-limit">Số lượng phát hành (Lượt dùng) *</label>
+                            <input type="number" class="form-input" id="promo-usage-limit" min="1" placeholder="VD: 100" required>
+                            <span class="field-error" id="err-promo-usage" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="promo-scope">Phạm vi áp dụng *</label>
+                            <select class="form-input" id="promo-scope">
+                                <option value="ALL">Toàn bộ sản phẩm</option>
+                                <option value="CATEGORY">Theo danh mục sản phẩm</option>
+                            </select>
+                        </div>
+                        <div id="promo-category-box" style="display: none;">
+                            <label class="form-label" for="promo-category">Chọn danh mục áp dụng</label>
+                            <select class="form-input" id="promo-category">
+                                <option value="Clothing">Clothing (Trang phục tập)</option>
+                                <option value="Accessories">Accessories (Phụ kiện tập)</option>
+                                <option value="Equipment">Equipment (Dụng cụ & Thiết bị)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="promo-start-date">Ngày bắt đầu *</label>
+                            <input type="date" class="form-input" id="promo-start-date" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="promo-end-date">Ngày kết thúc *</label>
+                            <input type="date" class="form-input" id="promo-end-date" required>
+                            <span class="field-error" id="err-promo-end-date" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="promo-desc">Mô tả chương trình</label>
+                        <textarea class="form-input" id="promo-desc" rows="2" placeholder="Ghi chú điều kiện hoặc thông tin hiển thị cho khách hàng..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="btn-cancel-create-promo">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="btn-submit-create-promo">Tạo Khuyến Mãi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── MODAL: EDIT PROMOTION ──────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-edit-promo" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 600px;" role="dialog" aria-labelledby="edit-promo-title">
+            <div class="modal-header">
+                <h3 id="edit-promo-title">Chỉnh Sửa Chương Trình Khuyến Mãi</h3>
+                <button class="btn-modal-close" id="btn-close-edit-promo">&times;</button>
+            </div>
+            <form id="form-edit-promo">
+                <input type="hidden" id="edit-promo-id">
+                <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <label class="form-label" for="edit-promo-name">Tên chương trình *</label>
+                        <input type="text" class="form-input" id="edit-promo-name" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label">Mã Coupon</label>
+                            <input type="text" class="form-input" id="edit-promo-code" readonly style="font-family: monospace; font-weight: 700; background: var(--bg-surface);">
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-promo-type">Loại mã</label>
+                            <select class="form-input" id="edit-promo-type">
+                                <option value="STANDARD">Thông dụng</option>
+                                <option value="SPECIAL">Đặc biệt</option>
+                                <option value="LIMITED">Giới hạn</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="edit-promo-discount">Mức giảm (%)</label>
+                            <input type="number" class="form-input" id="edit-promo-discount" min="1" max="100" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-promo-usage-limit">Hạn mức phát hành (Lượt)</label>
+                            <input type="number" class="form-input" id="edit-promo-usage-limit" min="1" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="edit-promo-start-date">Ngày bắt đầu</label>
+                            <input type="date" class="form-input" id="edit-promo-start-date">
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-promo-end-date">Ngày kết thúc</label>
+                            <input type="date" class="form-input" id="edit-promo-end-date">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="edit-promo-desc">Mô tả</label>
+                        <textarea class="form-input" id="edit-promo-desc" rows="2"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Trạng thái kích hoạt</label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="edit-promo-is-active">
+                            <span>Cho phép sử dụng (Bật chương trình)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="btn-cancel-edit-promo">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="btn-submit-edit-promo">Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── CONFIRMATION MODAL ─────────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-confirm" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 480px;" role="dialog" aria-labelledby="confirm-modal-title">
+            <div class="modal-header">
+                <h3 id="confirm-modal-title">Xác Nhận Thao Tác</h3>
+                <button class="btn-modal-close" id="btn-close-confirm">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="confirm-modal-message" style="font-size: 14px; line-height: 1.6;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" id="btn-confirm-cancel">Hủy</button>
+                <button class="btn-action danger" id="btn-confirm-accept">Đồng Ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js" data-require-role="admin"></script>
+    <script src="js/promotions.js"></script>
+    <script src="js/admin-promotions.js"></script>
+</body>
+</html>

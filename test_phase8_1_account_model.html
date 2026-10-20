@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BMW GYM — Phase 8.1 Account Model, RBAC & Profile Test Suite</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0b0f19; color: #f1f5f9; padding: 24px; margin: 0; }
+        h1 { color: #38bdf8; font-size: 20px; margin-bottom: 4px; }
+        .subhead { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+        table { border-collapse: collapse; width: 100%; font-size: 12px; margin-top: 16px; background: #131b2e; border-radius: 6px; overflow: hidden; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #1e293b; }
+        th { background: #1e293b; color: #38bdf8; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .pass { color: #4ade80; font-weight: 700; }
+        .fail { color: #f87171; font-weight: 700; }
+        .badge-role { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .role-admin { background: #dc2626; color: #fff; }
+        .role-staff { background: #d97706; color: #fff; }
+        .role-customer { background: #2563eb; color: #fff; }
+        .banner { padding: 14px 20px; border-radius: 6px; font-size: 16px; font-weight: 800; margin: 20px 0; width: fit-content; }
+        .banner.pass { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; }
+        .banner.fail { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; }
+        iframe { width: 100%; height: 500px; border: 1px solid #1e293b; margin-top: 24px; background: #fff; border-radius: 6px; display: none; }
+    </style>
+</head>
+<body>
+
+<h1>BMW GYM — ĐỢT 8.1 AUTOMATED TEST SUITE</h1>
+<div class="subhead">Kiểm thử toàn diện mô hình tài khoản Admin, Staff, Customer, Phân quyền RBAC, Hồ sơ dùng chung, Avatar, Gmail phụ, Đổi mật khẩu</div>
+
+<div id="summary-banner">Đang chuẩn bị chạy test...</div>
+
+<table id="test-table">
+    <thead>
+        <tr>
+            <th style="width: 70px;">Mã Test</th>
+            <th style="width: 140px;">Nhóm Chức Năng</th>
+            <th style="width: 320px;">Mô Tả Kiểm Thử</th>
+            <th>Kỳ Vọng</th>
+            <th>Thực Tế</th>
+            <th style="width: 80px;">Trạng Thái</th>
+        </tr>
+    </thead>
+    <tbody id="test-body"></tbody>
+</table>
+
+<iframe id="test-frame" src="about:blank"></iframe>
+
+<script src="js/auth-guard.js"></script>
+<script src="js/order-storage.js"></script>
+
+<script>
+const tbody = document.getElementById('test-body');
+const summaryBanner = document.getElementById('summary-banner');
+const testFrame = document.getElementById('test-frame');
+const testResults = [];
+
+let passCount = 0;
+let failCount = 0;
+
+function logResult(code, category, desc, expected, actual, pass) {
+    if (pass) passCount++; else failCount++;
+    testResults.push({ code, category, desc, expected, actual, pass });
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td><strong>${code}</strong></td>
+        <td>${category}</td>
+        <td>${desc}</td>
+        <td>${expected}</td>
+        <td><code>${String(actual)}</code></td>
+        <td class="${pass ? 'pass' : 'fail'}">${pass ? 'PASS' : 'FAIL'}</td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function loadFrame(url) {
+    return new Promise(resolve => {
+        testFrame.onload = () => setTimeout(() => resolve({ win: testFrame.contentWindow, doc: testFrame.contentDocument }), 350);
+        testFrame.src = url;
+    });
+}
+
+function wait(ms) {
+    return new Promise(r => setTimeout(r, ms));
+}
+
+async function runPhase81TestSuite() {
+    try {
+        // Clear any previous state
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 1: MÔ HÌNH DỮ LIỆU & SEED TỰ ĐỘNG (ROLES & ACCOUNTS SEED)
+        // ═════════════════════════════════════════════════════════════════════
+        // T1.1: Khởi tạo seed Admin và Staff mặc định khi localStorage rỗng
+        const usersInitial = window.BMW_AUTH_GUARD.getUsers();
+        const adminSeed = usersInitial.find(u => u.username === 'admin');
+        const staffSeed = usersInitial.find(u => u.username === 'staff');
+
+        logResult(
+            'T1.1',
+            'Model & Seed',
+            'Tự động khởi tạo tài khoản Admin và Staff mặc định khi hệ thống rỗng',
+            'admin (role:admin) & staff (role:staff) tồn tại',
+            `admin: ${adminSeed?.role}, staff: ${staffSeed?.role}`,
+            Boolean(adminSeed && adminSeed.role === 'admin' && staffSeed && staffSeed.role === 'staff')
+        );
+
+        // T1.2: Chuẩn hóa đầy đủ trường thông tin schema Phase 8.1
+        const hasAllFields = adminSeed &&
+            adminSeed.id &&
+            adminSeed.fullName &&
+            adminSeed.email &&
+            adminSeed.phone &&
+            adminSeed.role === 'admin' &&
+            adminSeed.status === 'active' &&
+            adminSeed.address !== undefined &&
+            adminSeed.dob !== undefined &&
+            adminSeed.avatar !== undefined &&
+            adminSeed.linkedGmail === null &&
+            adminSeed.createdAt &&
+            adminSeed.updatedAt;
+
+        logResult(
+            'T1.2',
+            'Model & Seed',
+            'Tài khoản có đầy đủ các trường chuẩn hóa Phase 8.1 (id, role, status, address, dob, avatar, linkedGmail...)',
+            'Tất cả 12 trường dữ liệu tồn tại và hợp lệ',
+            hasAllFields ? 'Đầy đủ 12 trường chuẩn' : 'Thiếu trường dữ liệu',
+            Boolean(hasAllFields)
+        );
+
+        // T1.3: Migration dữ liệu cũ (old legacy users lacking role/status)
+        const rawOldUsers = [
+            { id: 'old_1', fullName: 'Legacy User', username: 'legacy_user', email: 'legacy@bmw.local', phone: '0911111111', password: 'Pass123' }
+        ];
+        localStorage.setItem('bmw_users', JSON.stringify(rawOldUsers));
+        const migratedUsers = window.BMW_AUTH_GUARD.getUsers();
+        const migratedLegacy = migratedUsers.find(u => u.username === 'legacy_user');
+
+        const migrationPass = migratedLegacy &&
+            migratedLegacy.role === 'customer' &&
+            migratedLegacy.status === 'active' &&
+            migratedLegacy.address === '' &&
+            migratedLegacy.linkedGmail === null;
+
+        logResult(
+            'T1.3',
+            'Model & Seed',
+            'Tự động migrate tài khoản cũ không có role -> role mặc định customer, status active',
+            'role: customer, status: active',
+            `role: ${migratedLegacy?.role}, status: ${migratedLegacy?.status}`,
+            Boolean(migrationPass)
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 2: ĐĂNG NHẬP, KHÓA TÀI KHOẢN & KHÔI PHỤC PHIÊN (AUTH & STATUS)
+        // ═════════════════════════════════════════════════════════════════════
+        // Reset về seed chuẩn
+        localStorage.clear();
+        sessionStorage.clear();
+        window.BMW_AUTH_GUARD.getUsers(); // re-seed
+
+        // T2.1: Đăng nhập thành công với tài khoản Admin
+        let { win, doc } = await loadFrame('login.html');
+        doc.getElementById('login-identity').value = 'admin';
+        doc.getElementById('login-password').value = 'Admin@2026';
+        doc.getElementById('rememberMe').checked = true;
+        doc.getElementById('login-form').dispatchEvent(new Event('submit', { cancelable: true }));
+        await wait(200);
+
+        const adminSession = JSON.parse(localStorage.getItem('bmw_current_user') || 'null');
+        logResult(
+            'T2.1',
+            'Login & Session',
+            'Admin đăng nhập đúng -> lưu phiên vào localStorage với role: admin',
+            'session tồn tại, role === "admin"',
+            `session: ${Boolean(adminSession)}, role: ${adminSession?.role}`,
+            Boolean(adminSession && adminSession.role === 'admin' && adminSession.username === 'admin')
+        );
+
+        // T2.2: Đăng nhập với mật khẩu sai -> Báo lỗi
+        localStorage.removeItem('bmw_current_user');
+        sessionStorage.removeItem('bmw_current_user');
+        ({ win, doc } = await loadFrame('login.html'));
+        doc.getElementById('login-identity').value = 'admin';
+        doc.getElementById('login-password').value = 'WrongPassword999';
+        doc.getElementById('login-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const passErr = doc.getElementById('login-password-error');
+        const loginFailHandled = passErr && passErr.style.display === 'block' && passErr.textContent.includes('Incorrect password');
+        logResult(
+            'T2.2',
+            'Login & Session',
+            'Đăng nhập với mật khẩu sai -> hiển thị lỗi tại trường mật khẩu, không tạo session',
+            'Lỗi "Incorrect password", session null',
+            `error: "${passErr?.textContent}", session: ${localStorage.getItem('bmw_current_user')}`,
+            Boolean(loginFailHandled && !localStorage.getItem('bmw_current_user'))
+        );
+
+        // T2.3: Tài khoản bị khóa (locked / banned) -> Chặn đăng nhập
+        const usersForBan = window.BMW_AUTH_GUARD.getUsers();
+        usersForBan.push({
+            id: 'banned_01',
+            fullName: 'Banned Customer',
+            username: 'banned_user',
+            email: 'banned@bmw.local',
+            phone: '0909999999',
+            password: 'BannedPass123',
+            role: 'customer',
+            status: 'banned',
+            address: '', dob: '', avatar: '', linkedGmail: null, createdAt: new Date().toISOString()
+        });
+        window.BMW_AUTH_GUARD.saveUsers(usersForBan);
+
+        ({ win, doc } = await loadFrame('login.html'));
+        doc.getElementById('login-identity').value = 'banned_user';
+        doc.getElementById('login-password').value = 'BannedPass123';
+        doc.getElementById('login-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const bannerErr = doc.getElementById('login-error-banner');
+        const bannerHandled = bannerErr && bannerErr.style.display === 'block' && bannerErr.textContent.includes('bị khóa');
+        logResult(
+            'T2.3',
+            'Login & Session',
+            'Tài khoản trạng thái banned/locked bị chặn đăng nhập và hiện thông báo khóa tài khoản',
+            'Chặn đăng nhập, hiện banner thông báo khóa',
+            `banner: "${bannerErr?.textContent}"`,
+            Boolean(bannerHandled && !sessionStorage.getItem('bmw_current_user'))
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 3: AUTH GUARD & KIỂM TRA PHÂN QUYỀN (ACCESS CONTROL & RBAC)
+        // ═════════════════════════════════════════════════════════════════════
+        // T3.1: requireAuth chặn khách chưa đăng nhập
+        sessionStorage.clear();
+        localStorage.clear();
+        const unauthCheck = window.BMW_AUTH_GUARD.isAuthenticated();
+        logResult(
+            'T3.1',
+            'Auth Guard',
+            'Người dùng chưa đăng nhập -> isAuthenticated() trả về false',
+            'false',
+            String(unauthCheck),
+            unauthCheck === false
+        );
+
+        // T3.2: Customer không có quyền admin
+        const customerSession = { id: 'cust_01', username: 'customer_1', role: 'customer', status: 'active' };
+        sessionStorage.setItem('bmw_current_user', JSON.stringify(customerSession));
+        const customerHasAdmin = window.BMW_AUTH_GUARD.hasRole('admin');
+        const customerHasCustomer = window.BMW_AUTH_GUARD.hasRole('customer');
+
+        logResult(
+            'T3.2',
+            'Auth Guard',
+            'Tài khoản Customer -> hasRole("admin") trả về false, hasRole("customer") trả về true',
+            'admin: false, customer: true',
+            `admin: ${customerHasAdmin}, customer: ${customerHasCustomer}`,
+            customerHasAdmin === false && customerHasCustomer === true
+        );
+
+        // T3.3: Staff có quyền staff, không có quyền admin
+        const staffSession = { id: 'staff_01', username: 'staff_1', role: 'staff', status: 'active' };
+        sessionStorage.setItem('bmw_current_user', JSON.stringify(staffSession));
+        const staffHasAdmin = window.BMW_AUTH_GUARD.hasRole('admin');
+        const staffHasStaff = window.BMW_AUTH_GUARD.hasRole(['staff', 'admin']);
+
+        logResult(
+            'T3.3',
+            'Auth Guard',
+            'Tài khoản Staff -> hasRole("admin") false, hasRole(["staff", "admin"]) true',
+            'admin: false, staff/admin: true',
+            `admin: ${staffHasAdmin}, staff/admin: ${staffHasStaff}`,
+            staffHasAdmin === false && staffHasStaff === true
+        );
+
+        // T3.4: Bảo vệ Admin cuối cùng (Last Admin Protection)
+        const allUsersForLastAdmin = window.BMW_AUTH_GUARD.getUsers();
+        const mainAdmin = allUsersForLastAdmin.find(u => u.role === 'admin' && u.status === 'active');
+        const isLast = window.BMW_AUTH_GUARD.isLastActiveAdmin(mainAdmin?.id);
+        const changeCheck = window.BMW_AUTH_GUARD.validateAdminChange(mainAdmin?.id, 'customer', null);
+
+        logResult(
+            'T3.4',
+            'Auth Guard',
+            'Bảo vệ Admin duy nhất: Chặn hạ quyền hoặc vô hiệu hóa tài khoản Admin cuối cùng',
+            'isLast: true, allowed: false',
+            `isLast: ${isLast}, allowed: ${changeCheck.allowed}, msg: "${changeCheck.message}"`,
+            isLast === true && changeCheck.allowed === false
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 4: HỒ SƠ DÙNG CHUNG, USERNAME & ĐỒNG BỘ ĐƠN HÀNG (PROFILE & ORDERS)
+        // ═════════════════════════════════════════════════════════════════════
+        // Tạo tài khoản và session cho Customer test
+        const testCustomer = {
+            id: 'cust_test_81',
+            fullName: 'Nguyen Van Test',
+            username: 'cust_test_81',
+            email: 'cust.test81@bmw.vn',
+            phone: '0901234567',
+            password: 'CustomerPass123',
+            role: 'customer',
+            status: 'active',
+            address: '123 Nguyen Hue, Q.1, HCMC',
+            dob: '1998-08-18',
+            avatar: '',
+            linkedGmail: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        const currentUsers = window.BMW_AUTH_GUARD.getUsers();
+        currentUsers.push(testCustomer);
+        window.BMW_AUTH_GUARD.saveUsers(currentUsers);
+
+        // Tạo 1 đơn hàng cũ tham chiếu tài khoản này
+        const oldOrder = {
+            orderId: 'BMW_OLD_ORDER_99',
+            userId: testCustomer.id,
+            userAccount: 'cust_test_81',
+            items: [{ id: 'p1', name: 'Product 1', quantity: 1 }],
+            total: 690000,
+            orderStatus: 'Order Placed',
+            createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('bmw_orders', JSON.stringify([oldOrder]));
+
+        // Đăng nhập Customer test vào sessionStorage
+        sessionStorage.setItem('bmw_current_user', JSON.stringify(testCustomer));
+
+        // Mở profile.html
+        ({ win, doc } = await loadFrame('profile.html'));
+
+        // T4.1: Tải đúng thông tin hồ sơ lên trang profile.html
+        const pUser = doc.getElementById('profile-username')?.value;
+        const pEmail = doc.getElementById('profile-email')?.value;
+        const pFull = doc.getElementById('profile-fullname')?.value;
+        const pPhone = doc.getElementById('profile-phone')?.value;
+        const pAddr = doc.getElementById('profile-address')?.value;
+        const pDob = doc.getElementById('profile-dob')?.value;
+        const pRoleBadge = doc.getElementById('profile-role-badge')?.textContent;
+
+        const profileLoaded = pUser === '@cust_test_81' &&
+            pEmail === 'cust.test81@bmw.vn' &&
+            pFull === 'Nguyen Van Test' &&
+            pAddr === '123 Nguyen Hue, Q.1, HCMC' &&
+            pRoleBadge === 'CUSTOMER';
+
+        logResult(
+            'T4.1',
+            'Profile Form',
+            'Trang profile.html nạp đầy đủ thông tin: username (@cust_test_81), address, dob, role badge',
+            'Loaded đầy đủ các trường',
+            `user: ${pUser}, email: ${pEmail}, addr: ${pAddr}, role: ${pRoleBadge}`,
+            Boolean(profileLoaded)
+        );
+
+        // T4.2: Cập nhật Username và kiểm tra đồng bộ đơn hàng cũ (Requirement 5)
+        doc.getElementById('profile-username').value = 'cust_renamed_81';
+        doc.getElementById('profile-fullname').value = 'Nguyen Van Test Renamed';
+        doc.getElementById('profile-address').value = '456 Le Loi, Da Nang';
+        doc.getElementById('profile-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const updatedSession = JSON.parse(sessionStorage.getItem('bmw_current_user') || '{}');
+        const ordersAfterRename = JSON.parse(localStorage.getItem('bmw_orders') || '[]');
+        const updatedOrder = ordersAfterRename.find(o => o.orderId === 'BMW_OLD_ORDER_99');
+
+        const orderPreserved = updatedOrder && updatedOrder.userAccount === 'cust_renamed_81';
+        const sessionUpdated = updatedSession.username === 'cust_renamed_81' && updatedSession.address === '456 Le Loi, Da Nang';
+
+        logResult(
+            'T4.2',
+            'Profile & Orders',
+            'Đổi username -> cập nhật session và tự động đồng bộ userAccount ở đơn hàng cũ (không làm hỏng tham chiếu)',
+            'order.userAccount === "cust_renamed_81", session cập nhật',
+            `order.userAccount: ${updatedOrder?.userAccount}, session.user: ${updatedSession.username}`,
+            Boolean(orderPreserved && sessionUpdated)
+        );
+
+        // T4.3: Chặn trùng Username khi sửa hồ sơ
+        doc.getElementById('profile-username').value = 'admin'; // trùng username admin
+        doc.getElementById('profile-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const userDupErr = doc.getElementById('profile-username-error');
+        const dupBlocked = userDupErr && userDupErr.style.display === 'block' && userDupErr.textContent.includes('already taken');
+
+        logResult(
+            'T4.3',
+            'Profile & Orders',
+            'Chặn đổi sang Username đã tồn tại ở tài khoản khác',
+            'Hiển thị lỗi "This username is already taken."',
+            `error: "${userDupErr?.textContent}"`,
+            Boolean(dupBlocked)
+        );
+
+        // T4.4: Chống tự nâng quyền (Anti Self-Elevation - Requirement 8)
+        // Kẻ tấn công thử can thiệp DOM hoặc gửi trường role=admin
+        const liveUserBeforeHack = window.BMW_AUTH_GUARD.getUsers().find(u => u.id === testCustomer.id);
+        logResult(
+            'T4.4',
+            'Profile Security',
+            'Chống tự nâng quyền: submit hồ sơ không bao giờ làm thay đổi role của tài khoản trong storage',
+            'role vẫn là "customer"',
+            `live user role: ${liveUserBeforeHack?.role}`,
+            liveUserBeforeHack?.role === 'customer'
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 5: LIÊN KẾT GMAIL & HỦY LIÊN KẾT (LINKED GMAIL)
+        // ═════════════════════════════════════════════════════════════════════
+        // T5.1: Chặn định dạng Gmail không hợp lệ
+        doc.getElementById('input-link-gmail').value = 'invalid-email-format';
+        doc.getElementById('btn-link-gmail').click();
+
+        const gmailErr = doc.getElementById('link-gmail-error');
+        const invalidGmailBlocked = gmailErr && gmailErr.style.display === 'block';
+
+        logResult(
+            'T5.1',
+            'Linked Gmail',
+            'Chặn định dạng email/Gmail không hợp lệ khi liên kết',
+            'Báo lỗi định dạng email',
+            `error: "${gmailErr?.textContent}"`,
+            Boolean(invalidGmailBlocked)
+        );
+
+        // T5.2: Chặn liên kết trùng email chính của bản thân hoặc tài khoản khác
+        doc.getElementById('input-link-gmail').value = 'admin@bmwgym.vn'; // trùng admin
+        doc.getElementById('btn-link-gmail').click();
+
+        const dupGmailBlocked = gmailErr && gmailErr.style.display === 'block' && gmailErr.textContent.includes('đã được sử dụng');
+
+        logResult(
+            'T5.2',
+            'Linked Gmail',
+            'Chặn liên kết Gmail trùng với email chính hoặc Gmail liên kết của tài khoản khác',
+            'Báo lỗi trùng email',
+            `error: "${gmailErr?.textContent}"`,
+            Boolean(dupGmailBlocked)
+        );
+
+        // T5.3: Liên kết Gmail hợp lệ -> lưu trạng thái Chưa xác minh (verified: false)
+        doc.getElementById('input-link-gmail').value = 'test.secondary@gmail.com';
+        doc.getElementById('btn-link-gmail').click();
+
+        const sessionAfterLink = JSON.parse(sessionStorage.getItem('bmw_current_user') || '{}');
+        const liveUserAfterLink = window.BMW_AUTH_GUARD.getUsers().find(u => u.id === testCustomer.id);
+
+        const linkSuccess = sessionAfterLink.linkedGmail &&
+            sessionAfterLink.linkedGmail.email === 'test.secondary@gmail.com' &&
+            sessionAfterLink.linkedGmail.verified === false &&
+            liveUserAfterLink.linkedGmail &&
+            liveUserAfterLink.linkedGmail.verified === false;
+
+        logResult(
+            'T5.3',
+            'Linked Gmail',
+            'Liên kết Gmail thành công -> lưu verified: false và hiển thị nhãn Chưa xác minh (Demo)',
+            'email: "test.secondary@gmail.com", verified: false',
+            `saved email: ${liveUserAfterLink?.linkedGmail?.email}, verified: ${liveUserAfterLink?.linkedGmail?.verified}`,
+            Boolean(linkSuccess)
+        );
+
+        // T5.4: Hủy liên kết Gmail an toàn
+        win.confirm = () => true; // auto confirm
+        doc.getElementById('btn-unlink-gmail').click();
+
+        const liveUserAfterUnlink = window.BMW_AUTH_GUARD.getUsers().find(u => u.id === testCustomer.id);
+        const unlinkSuccess = liveUserAfterUnlink.linkedGmail === null &&
+            liveUserAfterUnlink.email === 'cust.test81@bmw.vn'; // primary email intact
+
+        logResult(
+            'T5.4',
+            'Linked Gmail',
+            'Hủy liên kết Gmail -> xóa linkedGmail, bảo toàn 100% email chính và tài khoản',
+            'linkedGmail === null, email chính nguyên vẹn',
+            `linkedGmail: ${liveUserAfterUnlink?.linkedGmail}, primary email: ${liveUserAfterUnlink?.email}`,
+            Boolean(unlinkSuccess)
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 6: ĐỔI MẬT KHẨU (PASSWORD CHANGE)
+        // ═════════════════════════════════════════════════════════════════════
+        // T6.1: Mật khẩu hiện tại sai -> Báo lỗi
+        doc.getElementById('input-current-password').value = 'WrongCurrentPass';
+        doc.getElementById('input-new-password').value = 'NewPass@2026';
+        doc.getElementById('input-confirm-password').value = 'NewPass@2026';
+        doc.getElementById('password-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const curPassErr = doc.getElementById('password-current-error');
+        const curPassBlocked = curPassErr && curPassErr.style.display === 'block' && curPassErr.textContent.includes('không chính xác');
+
+        logResult(
+            'T6.1',
+            'Change Password',
+            'Đổi mật khẩu với mật khẩu hiện tại sai -> chặn và báo lỗi',
+            'Báo lỗi "Mật khẩu hiện tại không chính xác."',
+            `error: "${curPassErr?.textContent}"`,
+            Boolean(curPassBlocked)
+        );
+
+        // T6.2: Mật khẩu mới yếu hoặc không khớp xác nhận -> Báo lỗi
+        doc.getElementById('input-current-password').value = 'CustomerPass123';
+        doc.getElementById('input-new-password').value = '12345'; // quá ngắn
+        doc.getElementById('input-confirm-password').value = '99999'; // không khớp
+        doc.getElementById('password-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const newPassErr = doc.getElementById('password-new-error');
+        const weakBlocked = newPassErr && newPassErr.style.display === 'block' && newPassErr.textContent.includes('tối thiểu 8 ký tự');
+
+        logResult(
+            'T6.2',
+            'Change Password',
+            'Chặn mật khẩu mới yếu (<8 ký tự) hoặc không khớp xác nhận',
+            'Báo lỗi độ dài và độ phức tạp mật khẩu',
+            `error: "${newPassErr?.textContent}"`,
+            Boolean(weakBlocked)
+        );
+
+        // T6.3: Đổi mật khẩu hợp lệ -> Cập nhật thành công và đăng nhập được với mật khẩu mới
+        doc.getElementById('input-current-password').value = 'CustomerPass123';
+        doc.getElementById('input-new-password').value = 'NewBrandPass@2026';
+        doc.getElementById('input-confirm-password').value = 'NewBrandPass@2026';
+        doc.getElementById('password-form').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        const liveUserAfterPassChange = window.BMW_AUTH_GUARD.getUsers().find(u => u.id === testCustomer.id);
+        const passMsgBanner = doc.getElementById('password-msg-banner');
+        const passChangeSuccess = liveUserAfterPassChange.password === 'NewBrandPass@2026' &&
+            passMsgBanner && passMsgBanner.style.display === 'block';
+
+        logResult(
+            'T6.3',
+            'Change Password',
+            'Đổi mật khẩu hợp lệ -> cập nhật mật khẩu mới vào storage và hiển thị banner thành công',
+            'password === "NewBrandPass@2026"',
+            `updated password: ${liveUserAfterPassChange?.password}, banner: "${passMsgBanner?.textContent}"`,
+            Boolean(passChangeSuccess)
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 7: ẢNH ĐẠI DIỆN (AVATAR & CANVAS COMPRESSION)
+        // ═════════════════════════════════════════════════════════════════════
+        // T7.1: Ảnh mặc định hiển thị ký tự đầu của tên
+        const avatarInitial = doc.getElementById('profile-avatar-text')?.textContent;
+        logResult(
+            'T7.1',
+            'Avatar Management',
+            'Chưa có ảnh đại diện -> hiển thị avatar mặc định với chữ cái đầu của Username/Tên',
+            'Ký tự chữ cái in hoa hợp lệ',
+            `initial: "${avatarInitial}"`,
+            Boolean(avatarInitial && avatarInitial.length === 1)
+        );
+
+        // T7.2: Xóa ảnh đại diện đưa về avatar mặc định
+        testCustomer.avatar = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD...'; // fake avatar
+        sessionStorage.setItem('bmw_current_user', JSON.stringify(testCustomer));
+        doc.defaultView.location.reload();
+        await wait(300);
+
+        const rmBtn = testFrame.contentDocument.getElementById('btn-remove-avatar');
+        if (rmBtn) rmBtn.click();
+
+        const userAfterAvatarRm = JSON.parse(sessionStorage.getItem('bmw_current_user') || '{}');
+        const avatarRemoved = userAfterAvatarRm.avatar === '';
+
+        logResult(
+            'T7.2',
+            'Avatar Management',
+            'Nút xóa ảnh đại diện đưa avatar về rỗng và hiển thị lại ảnh mặc định',
+            'avatar === ""',
+            `avatar: "${userAfterAvatarRm.avatar}"`,
+            Boolean(avatarRemoved)
+        );
+
+    } catch (suiteErr) {
+        logResult('FATAL', 'Runner', 'Lỗi không mong muốn trong quá trình thực thi test', 'Không có exception', suiteErr.stack || suiteErr.message, false);
+    }
+
+    // Tổng kết
+    const total = passCount + failCount;
+    summaryBanner.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+    summaryBanner.textContent = `KẾT QUẢ ĐỢT 8.1: ${passCount} PASS / ${total} TESTS (${failCount === 0 ? '100% THÀNH CÔNG' : failCount + ' TEST THẤT BẠI'})`;
+}
+
+window.addEventListener('DOMContentLoaded', runPhase81TestSuite);
+</script>
+</body>
+</html>

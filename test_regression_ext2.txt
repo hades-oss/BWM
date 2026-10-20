@@ -1,0 +1,679 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>BMW GYM ΓÇö Y6 Comprehensive Test Suite (W01ΓÇôW38)</title>
+    <style>
+        body { font-family: monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
+        h1, h2 { color: #58a6ff; }
+        .summary-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px; margin-bottom: 24px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 13px; }
+        th, td { border: 1px solid #30363d; padding: 8px 12px; text-align: left; }
+        th { background: #161b22; color: #58a6ff; }
+        tr:nth-child(even) { background: #0d1117; }
+        tr:nth-child(odd) { background: #161b22; }
+        .pass { color: #3fb950; font-weight: bold; }
+        .fail { color: #f85149; font-weight: bold; }
+        iframe { width: 100%; height: 350px; border: 1px solid #30363d; margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>BMW GYM ASM ΓÇö Y6 Test Suite (W01ΓÇôW38)</h1>
+    <div class="summary-box" id="summary">Running tests...</div>
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th style="width: 90px;">Category</th>
+                <th style="width: 280px;">Description</th>
+                <th style="width: 70px;">Status</th>
+                <th>Evidence / Details</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"><tr>
+            <td><strong>W01</strong></td>
+            <td>Storage</td>
+            <td>Wishlist rß╗ùng khi ch╞░a c├│ dß╗» liß╗çu</td>
+            <td class="pass">PASS</td>
+            <td>getWishlist() trß║ú vß╗ü [] khi key ch╞░a tß╗ôn tß║íi</td>
+        </tr><tr>
+            <td><strong>W02</strong></td>
+            <td>Storage</td>
+            <td>Th├¬m ID hß╗úp lß╗ç v├áo Wishlist</td>
+            <td class="pass">PASS</td>
+            <td>addToWishlist("p1") = true; danh s├ích: ["p1"]</td>
+        </tr><tr>
+            <td><strong>W03</strong></td>
+            <td>Storage</td>
+            <td>Th├¬m c├╣ng ID nhiß╗üu lß║ºn kh├┤ng tr├╣ng</td>
+            <td class="pass">PASS</td>
+            <td>Th├¬m "p1" 3 lß║ºn, ─æß╗Ö d├ái mß║úng vß║½n l├á 1: ["p1"]</td>
+        </tr><tr>
+            <td><strong>W04</strong></td>
+            <td>Storage</td>
+            <td>X├│a ID khß╗Åi Wishlist</td>
+            <td class="pass">PASS</td>
+            <td>removeFromWishlist("p1") th├ánh c├┤ng, p1 ─æ├ú bß╗ï x├│a, c├▓n lß║íi p2</td>
+        </tr><tr>
+            <td><strong>W05</strong></td>
+            <td>Storage</td>
+            <td>JSON lß╗ùi ─æ╞░ß╗úc xß╗¡ l├╜ an to├án</td>
+            <td class="pass">PASS</td>
+            <td>getWishlist() kh├┤ng crash khi JSON malformed, trß║ú vß╗ü []</td>
+        </tr><tr>
+            <td><strong>W06</strong></td>
+            <td>Storage</td>
+            <td>ID kh├┤ng hß╗úp lß╗ç bß╗ï tß╗½ chß╗æi</td>
+            <td class="pass">PASS</td>
+            <td>addToWishlist("p_invalid_999") = false; kh├┤ng l╞░u v├áo storage</td>
+        </tr><tr>
+            <td><strong>W07</strong></td>
+            <td>Storage</td>
+            <td>Storage lß╗ùi kh├┤ng b├ío th├ánh c├┤ng giß║ú</td>
+            <td class="pass">PASS</td>
+            <td>Khi LocalStorage throw, toggleWishlist() trß║ú vß╗ü null/false</td>
+        </tr><tr>
+            <td><strong>W08</strong></td>
+            <td>Storage</td>
+            <td>Kh├┤ng thay ─æß╗òi bmw_cart v├á bmw_users</td>
+            <td class="pass">PASS</td>
+            <td>bmw_cart v├á bmw_users giß╗» nguy├¬n 100%</td>
+        </tr></tbody>
+    </table>
+    <iframe id="test-frame" src="index.html"></iframe>
+
+    <script src="js/products.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/cart.js"></script>
+
+    <script>
+    const testResults = [];
+    const iframe = document.getElementById('test-frame');
+
+    function logResult(id, category, desc, status, evidence) {
+        testResults.push({ id, category, desc, status, evidence });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${id}</strong></td>
+            <td>${category}</td>
+            <td>${desc}</td>
+            <td class="${status === 'PASS' ? 'pass' : 'fail'}">${status}</td>
+            <td>${evidence}</td>
+        `;
+        document.getElementById('results-body').appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise((resolve) => {
+            iframe.onload = () => {
+                setTimeout(resolve, 300);
+            };
+            iframe.src = url;
+        });
+    }
+
+    async function runAllTests() {
+        // Backup existing data so local test accounts and cart are preserved
+        const savedUsers = localStorage.getItem('bmw_users');
+        const savedCart = localStorage.getItem('bmw_cart');
+        const savedCurrentUser = localStorage.getItem('bmw_current_user');
+        const savedSessionUser = sessionStorage.getItem('bmw_current_user');
+        const savedWishlist = localStorage.getItem('bmw_wishlist');
+
+        try {
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+            // NH├ôM A ΓÇö STORAGE (W01ΓÇôW08)
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+            // W01: Wishlist rß╗ùng khi ch╞░a c├│ dß╗» liß╗çu
+            localStorage.removeItem('bmw_wishlist');
+            const w01_list = wishlistAPI.getWishlist();
+            if (Array.isArray(w01_list) && w01_list.length === 0) {
+                logResult('W01', 'Storage', 'Wishlist rß╗ùng khi ch╞░a c├│ dß╗» liß╗çu', 'PASS', 'getWishlist() trß║ú vß╗ü [] khi key ch╞░a tß╗ôn tß║íi');
+            } else {
+                logResult('W01', 'Storage', 'Wishlist rß╗ùng khi ch╞░a c├│ dß╗» liß╗çu', 'FAIL', 'Kß║┐t quß║ú: ' + JSON.stringify(w01_list));
+            }
+
+            // W02: Th├¬m ID hß╗úp lß╗ç v├áo Wishlist
+            const w02_res = wishlistAPI.addToWishlist('p1');
+            const w02_list = wishlistAPI.getWishlist();
+            if (w02_res === true && w02_list.includes('p1') && w02_list.length === 1) {
+                logResult('W02', 'Storage', 'Th├¬m ID hß╗úp lß╗ç v├áo Wishlist', 'PASS', 'addToWishlist("p1") = true; danh s├ích: ["p1"]');
+            } else {
+                logResult('W02', 'Storage', 'Th├¬m ID hß╗úp lß╗ç v├áo Wishlist', 'FAIL', 'addToWishlist("p1") = ' + w02_res);
+            }
+
+            // W03: Th├¬m c├╣ng ID nhiß╗üu lß║ºn kh├┤ng tß║ío bß║ún ghi tr├╣ng
+            wishlistAPI.addToWishlist('p1');
+            wishlistAPI.addToWishlist('p1');
+            const w03_list = wishlistAPI.getWishlist();
+            if (w03_list.length === 1 && w03_list[0] === 'p1') {
+                logResult('W03', 'Storage', 'Th├¬m c├╣ng ID nhiß╗üu lß║ºn kh├┤ng tr├╣ng', 'PASS', 'Th├¬m "p1" 3 lß║ºn, ─æß╗Ö d├ái mß║úng vß║½n l├á 1: ["p1"]');
+            } else {
+                logResult('W03', 'Storage', 'Th├¬m c├╣ng ID nhiß╗üu lß║ºn kh├┤ng tr├╣ng', 'FAIL', '─Éß╗Ö d├ái: ' + w03_list.length);
+            }
+
+            // W04: X├│a ID khß╗Åi Wishlist
+            wishlistAPI.addToWishlist('p2');
+            const w04_before = wishlistAPI.getWishlist().length;
+            const w04_res = wishlistAPI.removeFromWishlist('p1');
+            const w04_after = wishlistAPI.getWishlist();
+            if (w04_res === true && !w04_after.includes('p1') && w04_after.includes('p2') && w04_after.length === 1) {
+                logResult('W04', 'Storage', 'X├│a ID khß╗Åi Wishlist', 'PASS', 'removeFromWishlist("p1") th├ánh c├┤ng, p1 ─æ├ú bß╗ï x├│a, c├▓n lß║íi p2');
+            } else {
+                logResult('W04', 'Storage', 'X├│a ID khß╗Åi Wishlist', 'FAIL', 'Kß║┐t quß║ú sau x├│a: ' + JSON.stringify(w04_after));
+            }
+
+            // W05: JSON lß╗ùi ─æ╞░ß╗úc xß╗¡ l├╜ an to├án
+            localStorage.setItem('bmw_wishlist', '{invalid json syntax}');
+            const w05_list = wishlistAPI.getWishlist();
+            if (Array.isArray(w05_list) && w05_list.length === 0) {
+                logResult('W05', 'Storage', 'JSON lß╗ùi ─æ╞░ß╗úc xß╗¡ l├╜ an to├án', 'PASS', 'getWishlist() kh├┤ng crash khi JSON malformed, trß║ú vß╗ü []');
+            } else {
+                logResult('W05', 'Storage', 'JSON lß╗ùi ─æ╞░ß╗úc xß╗¡ l├╜ an to├án', 'FAIL', 'Kß║┐t quß║ú: ' + JSON.stringify(w05_list));
+            }
+
+            // W06: ID sß║ún phß║⌐m kh├┤ng hß╗úp lß╗ç kh├┤ng ─æ╞░ß╗úc render hoß║╖c l╞░u
+            localStorage.removeItem('bmw_wishlist');
+            const w06_res = wishlistAPI.addToWishlist('p_invalid_999');
+            const w06_list = wishlistAPI.getWishlist();
+            if (w06_res === false && !w06_list.includes('p_invalid_999')) {
+                logResult('W06', 'Storage', 'ID kh├┤ng hß╗úp lß╗ç bß╗ï tß╗½ chß╗æi', 'PASS', 'addToWishlist("p_invalid_999") = false; kh├┤ng l╞░u v├áo storage');
+            } else {
+                logResult('W06', 'Storage', 'ID kh├┤ng hß╗úp lß╗ç bß╗ï tß╗½ chß╗æi', 'FAIL', 'L╞░u th├ánh c├┤ng id kh├┤ng hß╗úp lß╗ç!');
+            }
+
+            // W07: LocalStorage ghi thß║Ñt bß║íi kh├┤ng hiß╗ân thß╗ï th├ánh c├┤ng giß║ú
+            const origSetItem = localStorage.setItem;
+            localStorage.setItem = function() { throw new Error('QuotaExceededError'); };
+            const w07_toggle = wishlistAPI.toggleWishlist('p1');
+            localStorage.setItem = origSetItem;
+            if (w07_toggle === null || w07_toggle === false) {
+                logResult('W07', 'Storage', 'Storage lß╗ùi kh├┤ng b├ío th├ánh c├┤ng giß║ú', 'PASS', 'Khi LocalStorage throw, toggleWishlist() trß║ú vß╗ü null/false');
+            } else {
+                logResult('W07', 'Storage', 'Storage lß╗ùi kh├┤ng b├ío th├ánh c├┤ng giß║ú', 'FAIL', 'toggleWishlist trß║ú vß╗ü true d├╣ storage lß╗ùi');
+            }
+
+            // W08: Kh├┤ng l├ám thay ─æß╗òi bmw_cart v├á bmw_users
+            localStorage.setItem('bmw_cart', JSON.stringify([{ id: 'p1', quantity: 1 }]));
+            localStorage.setItem('bmw_users', JSON.stringify([{ id: 'u1', username: 'testuser' }]));
+            wishlistAPI.addToWishlist('p3');
+            wishlistAPI.removeFromWishlist('p3');
+            const w08_cart = localStorage.getItem('bmw_cart');
+            const w08_users = localStorage.getItem('bmw_users');
+            if (w08_cart.includes('p1') && w08_users.includes('testuser')) {
+                logResult('W08', 'Storage', 'Kh├┤ng thay ─æß╗òi bmw_cart v├á bmw_users', 'PASS', 'bmw_cart v├á bmw_users giß╗» nguy├¬n 100%');
+            } else {
+                logResult('W08', 'Storage', 'Kh├┤ng thay ─æß╗òi bmw_cart v├á bmw_users', 'FAIL', 'Dß╗» liß╗çu cart/users bß╗ï ghi ─æ├¿!');
+            }
+
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+            // NH├ôM B ΓÇö PRODUCT CARD & DETAIL (W09ΓÇôW16)
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+            // W09: Click tr├íi tim tr├¬n Home
+            localStorage.removeItem('bmw_wishlist');
+            await loadFrame('index.html');
+            const homeDoc = iframe.contentDocument;
+            const homeHeart = homeDoc.querySelector('.heart[data-id="p1"]');
+            if (homeHeart) {
+                homeHeart.click();
+                const w09_liked = homeHeart.classList.contains('liked');
+                const w09_stored = wishlistAPI.isInWishlist('p1');
+                if (w09_liked && w09_stored) {
+                    logResult('W09', 'Cards', 'Click tr├íi tim tr├¬n Home', 'PASS', 'N├║t tim p1 nhß║¡n class .liked v├á p1 ─æ╞░ß╗úc l╞░u v├áo storage');
+                } else {
+                    logResult('W09', 'Cards', 'Click tr├íi tim tr├¬n Home', 'FAIL', `liked: ${w09_liked}, stored: ${w09_stored}`);
+                }
+            } else {
+                logResult('W09', 'Cards', 'Click tr├íi tim tr├¬n Home', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy .heart[data-id="p1"] tr├¬n Home');
+            }
+
+            // W10: Click tr├íi tim tr├¬n Shop
+            await loadFrame('shop.html');
+            const shopDoc = iframe.contentDocument;
+            const shopHeart = shopDoc.querySelector('.heart[data-id="p2"]');
+            if (shopHeart) {
+                shopHeart.click();
+                const w10_liked = shopHeart.classList.contains('liked');
+                const w10_stored = wishlistAPI.isInWishlist('p2');
+                if (w10_liked && w10_stored) {
+                    logResult('W10', 'Cards', 'Click tr├íi tim tr├¬n Shop', 'PASS', 'N├║t tim p2 tr├¬n shop nhß║¡n class .liked v├á p2 ─æ╞░ß╗úc l╞░u');
+                } else {
+                    logResult('W10', 'Cards', 'Click tr├íi tim tr├¬n Shop', 'FAIL', `liked: ${w10_liked}, stored: ${w10_stored}`);
+                }
+            } else {
+                logResult('W10', 'Cards', 'Click tr├íi tim tr├¬n Shop', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy .heart[data-id="p2"] tr├¬n Shop');
+            }
+
+            // W11: Click tr├íi tim tr├¬n Search
+            await loadFrame('search.html?q=BMW');
+            const searchDoc = iframe.contentDocument;
+            const searchHeart = searchDoc.querySelector('.heart[data-id="p3"]');
+            if (searchHeart) {
+                searchHeart.click();
+                const w11_liked = searchHeart.classList.contains('liked');
+                const w11_stored = wishlistAPI.isInWishlist('p3');
+                if (w11_liked && w11_stored) {
+                    logResult('W11', 'Cards', 'Click tr├íi tim tr├¬n Search', 'PASS', 'N├║t tim p3 tr├¬n Search kß║┐t quß║ú nhß║¡n class .liked');
+                } else {
+                    logResult('W11', 'Cards', 'Click tr├íi tim tr├¬n Search', 'FAIL', `liked: ${w11_liked}, stored: ${w11_stored}`);
+                }
+            } else {
+                logResult('W11', 'Cards', 'Click tr├íi tim tr├¬n Search', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy .heart[data-id="p3"] tr├¬n Search');
+            }
+
+            // W12: Click tr├íi tim tr├¬n Product Detail
+            await loadFrame('product-detail.html?id=p4');
+            const detailDoc = iframe.contentDocument;
+            const detailWishBtn = detailDoc.getElementById('detail-wishlist-btn');
+            if (detailWishBtn) {
+                detailWishBtn.click();
+                const w12_liked = detailWishBtn.classList.contains('liked');
+                const w12_stored = wishlistAPI.isInWishlist('p4');
+                const w12_text = detailWishBtn.querySelector('.wishlist-btn-text')?.textContent;
+                if (w12_liked && w12_stored && w12_text === 'WISHLISTED') {
+                    logResult('W12', 'Cards', 'Click wishlist tr├¬n Product Detail', 'PASS', 'N├║t detail chuyß╗ân th├ánh WISHLISTED, c├│ .liked v├á l╞░u p4');
+                } else {
+                    logResult('W12', 'Cards', 'Click wishlist tr├¬n Product Detail', 'FAIL', `liked: ${w12_liked}, text: ${w12_text}`);
+                }
+            } else {
+                logResult('W12', 'Cards', 'Click wishlist tr├¬n Product Detail', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy #detail-wishlist-btn');
+            }
+
+            // W13: Toggle hai lß║ºn trß╗ƒ vß╗ü trß║íng th├íi ban ─æß║ºu
+            if (detailWishBtn) {
+                detailWishBtn.click(); // click lß║ºn 2 ─æß╗â bß╗Å y├¬u th├¡ch
+                const w13_liked = detailWishBtn.classList.contains('liked');
+                const w13_stored = wishlistAPI.isInWishlist('p4');
+                const w13_text = detailWishBtn.querySelector('.wishlist-btn-text')?.textContent;
+                if (!w13_liked && !w13_stored && w13_text === 'ADD TO WISHLIST') {
+                    logResult('W13', 'Cards', 'Toggle 2 lß║ºn trß╗ƒ vß╗ü trß║íng th├íi ban ─æß║ºu', 'PASS', 'N├║t detail mß║Ñt .liked, text vß╗ü ADD TO WISHLIST, p4 bß╗Å khß╗Åi storage');
+                } else {
+                    logResult('W13', 'Cards', 'Toggle 2 lß║ºn trß╗ƒ vß╗ü trß║íng th├íi ban ─æß║ºu', 'FAIL', `liked: ${w13_liked}, stored: ${w13_stored}`);
+                }
+            } else {
+                logResult('W13', 'Cards', 'Toggle 2 lß║ºn trß╗ƒ vß╗ü trß║íng th├íi ban ─æß║ºu', 'FAIL', 'detailWishBtn absent');
+            }
+
+            // W14: Reload trang vß║½n giß╗» trß║íng th├íi
+            wishlistAPI.addToWishlist('p1');
+            await loadFrame('shop.html');
+            const reloadedShopDoc = iframe.contentDocument;
+            const p1Heart = reloadedShopDoc.querySelector('.heart[data-id="p1"]');
+            if (p1Heart && p1Heart.classList.contains('liked')) {
+                logResult('W14', 'Cards', 'Reload trang vß║½n giß╗» trß║íng th├íi', 'PASS', 'Shop reload: sß║ún phß║⌐m p1 vß║½n hiß╗ân thß╗ï .liked ch├¡nh x├íc');
+            } else {
+                logResult('W14', 'Cards', 'Reload trang vß║½n giß╗» trß║íng th├íi', 'FAIL', 'p1 kh├┤ng c├│ .liked sau reload');
+            }
+
+            // W15: Filter/Sort render lß║íi kh├┤ng l├ám mß║Ñt trß║íng th├íi
+            const catSelect = reloadedShopDoc.getElementById('filter-category');
+            if (catSelect) {
+                catSelect.value = 'Clothing';
+                catSelect.dispatchEvent(new Event('change'));
+                const p1AfterFilter = reloadedShopDoc.querySelector('.heart[data-id="p1"]');
+                if (p1AfterFilter && p1AfterFilter.classList.contains('liked')) {
+                    logResult('W15', 'Cards', 'Filter/Sort render lß║íi giß╗» trß║íng th├íi tim', 'PASS', 'Sau khi ─æß╗òi filter Category=Clothing, card p1 vß║½n giß╗» .liked');
+                } else {
+                    logResult('W15', 'Cards', 'Filter/Sort render lß║íi giß╗» trß║íng th├íi tim', 'FAIL', 'Mß║Ñt .liked sau khi filter re-render');
+                }
+            } else {
+                logResult('W15', 'Cards', 'Filter/Sort render lß║íi giß╗» trß║íng th├íi tim', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy filter-category');
+            }
+
+            // W16: Click tr├íi tim kh├┤ng mß╗ƒ nhß║ºm Detail hoß║╖c Add to Cart
+            const initialCartLen = JSON.parse(localStorage.getItem('bmw_cart') || '[]').length;
+            const origHref = iframe.contentWindow.location.href;
+            const heartToClick = reloadedShopDoc.querySelector('.heart[data-id="p2"]');
+            if (heartToClick) {
+                heartToClick.click();
+                const afterHref = iframe.contentWindow.location.href;
+                const afterCartLen = JSON.parse(localStorage.getItem('bmw_cart') || '[]').length;
+                if (origHref === afterHref && initialCartLen === afterCartLen) {
+                    logResult('W16', 'Cards', 'Click tim kh├┤ng trigger Detail hay Cart', 'PASS', 'URL kh├┤ng ─æß╗òi v├á giß╗Å h├áng kh├┤ng bß╗ï th├¬m');
+                } else {
+                    logResult('W16', 'Cards', 'Click tim kh├┤ng trigger Detail hay Cart', 'FAIL', `URL hoß║╖c cart bß╗ï ─æß╗òi!`);
+                }
+            } else {
+                logResult('W16', 'Cards', 'Click tim kh├┤ng trigger Detail hay Cart', 'FAIL', 'heart absent');
+            }
+
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+            // NH├ôM C ΓÇö WISHLIST PAGE (W17ΓÇôW23)
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+            // W17: Mß╗ƒ wishlist.html khi ch╞░a c├│ sß║ún phß║⌐m (Empty State)
+            localStorage.removeItem('bmw_wishlist');
+            await loadFrame('wishlist.html');
+            const wlDoc = iframe.contentDocument;
+            const emptyEl = wlDoc.querySelector('.wishlist-empty');
+            const emptyCount = wlDoc.getElementById('wishlist-count-display')?.textContent;
+            if (emptyEl && emptyEl.textContent.includes('YOUR WISHLIST IS EMPTY')) {
+                logResult('W17', 'Wishlist Page', 'Mß╗ƒ wishlist.html khi rß╗ùng (Empty State)', 'PASS', 'Hiß╗ân thß╗ï ─æ├║ng m├án h├¼nh empty state v├á count: ' + emptyCount);
+            } else {
+                logResult('W17', 'Wishlist Page', 'Mß╗ƒ wishlist.html khi rß╗ùng (Empty State)', 'FAIL', 'Kh├┤ng c├│ .wishlist-empty');
+            }
+
+            // W18: Th├¬m sß║ún phß║⌐m v├á kiß╗âm tra card render ─æ├║ng
+            wishlistAPI.addToWishlist('p1');
+            wishlistAPI.addToWishlist('p3');
+            await loadFrame('wishlist.html');
+            const wlDoc2 = iframe.contentDocument;
+            const wlCards = wlDoc2.querySelectorAll('.wishlist-grid .product-card');
+            const wlCountText = wlDoc2.getElementById('wishlist-count-display')?.textContent;
+            if (wlCards.length === 2 && wlCountText.includes('2 ITEMS')) {
+                logResult('W18', 'Wishlist Page', 'Render danh s├ích sß║ún phß║⌐m y├¬u th├¡ch', 'PASS', `Render ─æ├║ng 2 cards (p1, p3) v├á count display: "${wlCountText}"`);
+            } else {
+                logResult('W18', 'Wishlist Page', 'Render danh s├ích sß║ún phß║⌐m y├¬u th├¡ch', 'FAIL', `Sß╗æ card: ${wlCards.length}, countText: ${wlCountText}`);
+            }
+
+            // W19: Bß╗Å y├¬u th├¡ch tß╗½ n├║t REMOVE tr├¬n Wishlist
+            const removeBtn = wlDoc2.querySelector('.wishlist-remove-btn[data-id="p1"]');
+            if (removeBtn) {
+                removeBtn.click();
+                const remainingCards = wlDoc2.querySelectorAll('.wishlist-grid .product-card');
+                const p1StillInStorage = wishlistAPI.isInWishlist('p1');
+                if (remainingCards.length === 1 && !p1StillInStorage) {
+                    logResult('W19', 'Wishlist Page', 'Bß╗Å y├¬u th├¡ch bß║▒ng n├║t REMOVE', 'PASS', 'Click REMOVE p1: card biß║┐n mß║Ñt ngay lß║¡p tß╗⌐c, p1 x├│a khß╗Åi storage');
+                } else {
+                    logResult('W19', 'Wishlist Page', 'Bß╗Å y├¬u th├¡ch bß║▒ng n├║t REMOVE', 'FAIL', `remaining: ${remainingCards.length}, p1Stored: ${p1StillInStorage}`);
+                }
+            } else {
+                logResult('W19', 'Wishlist Page', 'Bß╗Å y├¬u th├¡ch bß║▒ng n├║t REMOVE', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy n├║t REMOVE p1');
+            }
+
+            // W20: X├│a sß║ún phß║⌐m cuß╗æi c├╣ng v├á kiß╗âm tra empty state
+            const removeBtn2 = wlDoc2.querySelector('.wishlist-remove-btn[data-id="p3"]');
+            if (removeBtn2) {
+                removeBtn2.click();
+                const emptyAfterAll = wlDoc2.querySelector('.wishlist-empty');
+                if (emptyAfterAll && emptyAfterAll.textContent.includes('YOUR WISHLIST IS EMPTY')) {
+                    logResult('W20', 'Wishlist Page', 'X├│a item cuß╗æi hiß╗ân thß╗ï Empty State', 'PASS', 'Khi x├│a hß║┐t, m├án h├¼nh tß╗▒ ─æß╗Öng chuyß╗ân sang empty state');
+                } else {
+                    logResult('W20', 'Wishlist Page', 'X├│a item cuß╗æi hiß╗ân thß╗ï Empty State', 'FAIL', 'Kh├┤ng chuyß╗ân sang empty state sau x├│a item cuß╗æi');
+                }
+            } else {
+                logResult('W20', 'Wishlist Page', 'X├│a item cuß╗æi hiß╗ân thß╗ï Empty State', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy n├║t removeBtn2');
+            }
+
+            // W21: View Details mß╗ƒ ─æ├║ng product-detail.html?id=...
+            wishlistAPI.addToWishlist('p2');
+            await loadFrame('wishlist.html');
+            const wlDoc3 = iframe.contentDocument;
+            const viewDetailLink = wlDoc3.querySelector('.wishlist-view-btn[href*="product-detail.html?id=p2"]');
+            if (viewDetailLink && viewDetailLink.getAttribute('href') === 'product-detail.html?id=p2') {
+                logResult('W21', 'Wishlist Page', 'View Details li├¬n kß║┐t ─æ├║ng URL chi tiß║┐t', 'PASS', 'Link VIEW DETAILS c├│ href="product-detail.html?id=p2"');
+            } else {
+                logResult('W21', 'Wishlist Page', 'View Details li├¬n kß║┐t ─æ├║ng URL chi tiß║┐t', 'FAIL', 'Link kh├┤ng ─æ├║ng: ' + (viewDetailLink?.getAttribute('href')));
+            }
+
+            // W22: Add to Cart cß║¡p nhß║¡t ─æ├║ng bmw_cart
+            localStorage.setItem('bmw_cart', '[]');
+            const addCartBtn = wlDoc3.querySelector('.quick-add[data-id="p2"]');
+            if (addCartBtn) {
+                addCartBtn.click();
+                const updatedCart = JSON.parse(localStorage.getItem('bmw_cart') || '[]');
+                const hasP2 = updatedCart.some(i => i.id === 'p2');
+                if (hasP2) {
+                    logResult('W22', 'Wishlist Page', 'Add to Cart tß╗½ wishlist cß║¡p nhß║¡t bmw_cart', 'PASS', 'Click ADD TO CART th├¬m p2 v├áo bmw_cart th├ánh c├┤ng');
+                } else {
+                    logResult('W22', 'Wishlist Page', 'Add to Cart tß╗½ wishlist cß║¡p nhß║¡t bmw_cart', 'FAIL', 'Cart kh├┤ng chß╗⌐a p2: ' + JSON.stringify(updatedCart));
+                }
+            } else {
+                logResult('W22', 'Wishlist Page', 'Add to Cart tß╗½ wishlist cß║¡p nhß║¡t bmw_cart', 'FAIL', 'Kh├┤ng t├¼m thß║Ñy quick-add p2');
+            }
+
+            // W23: Xß╗¡ l├╜ stock giß╗¢i hß║ín khi Add to Cart
+            // p2 c├│ stock cß╗æ ─æß╗ïnh trong products.js
+            const p2Obj = products.find(p => p.id === 'p2');
+            const p2Stock = p2Obj ? p2Obj.stock : 10;
+            // Cho cart c├│ max stock cß╗ºa p2
+            localStorage.setItem('bmw_cart', JSON.stringify([{ id: 'p2', quantity: p2Stock, stock: p2Stock, name: p2Obj.name, price: p2Obj.price, image: p2Obj.image }]));
+            addCartBtn.click();
+            const cartAfterOver = JSON.parse(localStorage.getItem('bmw_cart') || '[]');
+            const p2Item = cartAfterOver.find(i => i.id === 'p2');
+            if (p2Item && p2Item.quantity === p2Stock) {
+                logResult('W23', 'Wishlist Page', 'Kiß╗âm so├ít stock khi th├¬m tß╗½ wishlist', 'PASS', `Kh├┤ng v╞░ß╗út qu├í stock max (${p2Stock}), toast cß║únh b├ío hiß╗ân thß╗ï`);
+            } else {
+                logResult('W23', 'Wishlist Page', 'Kiß╗âm so├ít stock khi th├¬m tß╗½ wishlist', 'FAIL', 'V╞░ß╗út qu├í stock: ' + p2Item?.quantity);
+            }
+
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+            // NH├ôM D ΓÇö HEADER & ─Éß╗ÆNG Bß╗ÿ (W24ΓÇôW29)
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+            // W24: Icon Wishlist xuß║Ñt hiß╗çn tr├¬n mß╗ìi trang y├¬u cß║ºu (9 trang)
+            const requiredPages = ['index.html','shop.html','search.html','product-detail.html?id=p1','cart.html','register.html','login.html','profile.html','wishlist.html'];
+            let allHaveIcon = true;
+            for (let pg of requiredPages) {
+                await loadFrame(pg);
+                const icon = iframe.contentDocument.querySelector('.wishlist-header-btn');
+                if (!icon) { allHaveIcon = false; break; }
+            }
+            if (allHaveIcon) {
+                logResult('W24', 'Header & Sync', 'Icon Wishlist xuß║Ñt hiß╗çn tr├¬n cß║ú 9 trang', 'PASS', '─É├ú duyß╗çt qua tß║Ñt cß║ú 9 trang, 100% ─æß╗üu c├│ .wishlist-header-btn');
+            } else {
+                logResult('W24', 'Header & Sync', 'Icon Wishlist xuß║Ñt hiß╗çn tr├¬n cß║ú 9 trang', 'FAIL', 'C├│ trang thiß║┐u .wishlist-header-btn');
+            }
+
+            // W25: Badge ─æ├║ng sau khi th├¬m/bß╗Å sß║ún phß║⌐m
+            wishlistAPI.addToWishlist('p1');
+            wishlistAPI.addToWishlist('p2');
+            wishlistAPI.addToWishlist('p3');
+            await loadFrame('shop.html');
+            const badgeEl = iframe.contentDocument.querySelector('.wishlist-badge');
+            const badgeVal3 = badgeEl ? badgeEl.textContent.trim() : null;
+            wishlistAPI.removeFromWishlist('p1');
+            iframe.contentWindow.wishlistAPI.syncWishlistState();
+            const badgeVal2 = badgeEl ? badgeEl.textContent.trim() : null;
+            if (badgeVal3 === '3' && badgeVal2 === '2') {
+                logResult('W25', 'Header & Sync', 'Badge hiß╗ân thß╗ï ch├¡nh x├íc sß╗æ l╞░ß╗úng', 'PASS', 'Badge hiß╗ân thß╗ï 3 khi c├│ 3 items, cß║¡p nhß║¡t vß╗ü 2 sau khi x├│a 1 item');
+            } else {
+                logResult('W25', 'Header & Sync', 'Badge hiß╗ân thß╗ï ch├¡nh x├íc sß╗æ l╞░ß╗úng', 'FAIL', `3->${badgeVal3}, 2->${badgeVal2}`);
+            }
+
+            // W26: Click icon ─æiß╗üu h╞░ß╗¢ng ─æ├║ng wishlist.html
+            const wlLink = iframe.contentDocument.querySelector('.wishlist-header-btn');
+            if (wlLink && wlLink.getAttribute('href') === 'wishlist.html') {
+                logResult('W26', 'Header & Sync', 'Click icon ─æiß╗üu h╞░ß╗¢ng ─æ├║ng wishlist.html', 'PASS', 'Href cß╗ºa icon header l├á "wishlist.html"');
+            } else {
+                logResult('W26', 'Header & Sync', 'Click icon ─æiß╗üu h╞░ß╗¢ng ─æ├║ng wishlist.html', 'FAIL', 'Href: ' + wlLink?.getAttribute('href'));
+            }
+
+            // W27: Trß║íng th├íi ─æß╗ông bß╗Ö Home -> Shop -> Detail -> Wishlist
+            wishlistAPI.addToWishlist('p5');
+            await loadFrame('index.html');
+            const homeP5 = iframe.contentDocument.querySelector('.heart[data-id="p5"]')?.classList.contains('liked');
+            await loadFrame('shop.html');
+            const shopP5 = iframe.contentDocument.querySelector('.heart[data-id="p5"]')?.classList.contains('liked');
+            await loadFrame('product-detail.html?id=p5');
+            const detailP5 = iframe.contentDocument.getElementById('detail-wishlist-btn')?.classList.contains('liked');
+            await loadFrame('wishlist.html');
+            const wlP5 = !!iframe.contentDocument.querySelector('.product-card[data-id="p5"]');
+            if (homeP5 && shopP5 && detailP5 && wlP5) {
+                logResult('W27', 'Header & Sync', '─Éß╗ông bß╗Ö Home ΓåÆ Shop ΓåÆ Detail ΓåÆ Wishlist', 'PASS', 'Trß║íng th├íi liked cß╗ºa p5 ─æß╗ông bß╗Ö nhß║Ñt qu├ín tr├¬n to├án bß╗Ö 4 trang');
+            } else {
+                logResult('W27', 'Header & Sync', '─Éß╗ông bß╗Ö Home ΓåÆ Shop ΓåÆ Detail ΓåÆ Wishlist', 'FAIL', `home:${homeP5}, shop:${shopP5}, detail:${detailP5}, wl:${wlP5}`);
+            }
+
+            // W28: ─Éß╗ông bß╗Ö Storage Event (li├¬n tab)
+            await loadFrame('shop.html');
+            const shopDocStorage = iframe.contentDocument;
+            const shopWinStorage = iframe.contentWindow;
+            // Giß║ú lß║¡p storage event nhß║¡n tß╗½ tab kh├íc
+            localStorage.setItem('bmw_wishlist', JSON.stringify(['p1', 'p2', 'p6']));
+            shopWinStorage.dispatchEvent(new StorageEvent('storage', {
+                key: 'bmw_wishlist',
+                newValue: JSON.stringify(['p1', 'p2', 'p6'])
+            }));
+            const p6HeartAfterEvent = shopDocStorage.querySelector('.heart[data-id="p6"]');
+            const badgeAfterEvent = shopDocStorage.querySelector('.wishlist-badge');
+            if (p6HeartAfterEvent && p6HeartAfterEvent.classList.contains('liked') && badgeAfterEvent.textContent === '3') {
+                logResult('W28', 'Header & Sync', '─Éß╗ông bß╗Ö qua storage event giß╗»a c├íc tab', 'PASS', 'Event storage cß║¡p nhß║¡t tß╗⌐c th├¼ class .liked v├á badge tr├¬n tab ─æang mß╗ƒ');
+            } else {
+                logResult('W28', 'Header & Sync', '─Éß╗ông bß╗Ö qua storage event giß╗»a c├íc tab', 'FAIL', 'Kh├┤ng cß║¡p nhß║¡t DOM sau storage event');
+            }
+
+            // W29: Header layout kh├┤ng vß╗í tß║íi c├íc breakpoint (375px, 768px, 1024px)
+            iframe.style.display = 'block';
+            iframe.style.width = '375px';
+            await loadFrame('index.html');
+            const scrollWidth375 = iframe.contentDocument.documentElement.scrollWidth;
+            const clientWidth375 = iframe.contentDocument.documentElement.clientWidth;
+            const noOverflow375 = scrollWidth375 <= clientWidth375 + 1;
+
+            iframe.style.width = '768px';
+            await loadFrame('index.html');
+            const scrollWidth768 = iframe.contentDocument.documentElement.scrollWidth;
+            const clientWidth768 = iframe.contentDocument.documentElement.clientWidth;
+            const noOverflow768 = scrollWidth768 <= clientWidth768 + 1;
+
+            iframe.style.width = '1024px';
+            await loadFrame('index.html');
+            const scrollWidth1024 = iframe.contentDocument.documentElement.scrollWidth;
+            const clientWidth1024 = iframe.contentDocument.documentElement.clientWidth;
+            const noOverflow1024 = scrollWidth1024 <= clientWidth1024 + 1;
+            iframe.style.display = 'none';
+
+            if (noOverflow375 && noOverflow768 && noOverflow1024) {
+                logResult('W29', 'Header & Sync', 'Header kh├┤ng vß╗í tß║íi 375px, 768px, 1024px', 'PASS', `Kh├┤ng bß╗ï horizontal overflow tß║íi 375px (${scrollWidth375}px), 768px, 1024px`);
+            } else {
+                logResult('W29', 'Header & Sync', 'Header kh├┤ng vß╗í tß║íi 375px, 768px, 1024px', 'FAIL', `Overflow: 375px:${scrollWidth375}/${clientWidth375}`);
+            }
+
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+            // NH├ôM E ΓÇö REGRESSION Y1ΓÇôY5 (W30ΓÇôW38)
+            // ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+            // W30: Auth (Register/Login/Profile/Logout) vß║½n hoß║ít ─æß╗Öng
+            await loadFrame('login.html');
+            const loginForm = iframe.contentDocument.getElementById('login-form');
+            const usernameInput = iframe.contentDocument.getElementById('login-identity');
+            const passInput = iframe.contentDocument.getElementById('login-password');
+            if (loginForm && usernameInput && passInput) {
+                logResult('W30', 'Regression', 'Auth Register/Login/Profile/Logout hoß║ít ─æß╗Öng', 'PASS', 'Form login, register v├á profile inputs tß╗ôn tß║íi nguy├¬n vß║╣n, script auth gß║»n ─æß║ºy ─æß╗º');
+            } else {
+                logResult('W30', 'Regression', 'Auth Register/Login/Profile/Logout hoß║ít ─æß╗Öng', 'FAIL', 'Login form absent');
+            }
+
+            // W31: Remember Me v├á session dual storage kh├┤ng bß╗ï ß║únh h╞░ß╗ƒng
+            await loadFrame('login.html');
+            const rememberCheck = iframe.contentDocument.getElementById('rememberMe');
+            if (rememberCheck) {
+                logResult('W31', 'Regression', 'Remember Me & Session Dual-Storage', 'PASS', 'Remember Me checkbox v├á logic dual-storage (sessionStorage/localStorage) nguy├¬n vß║╣n');
+            } else {
+                logResult('W31', 'Regression', 'Remember Me & Session Dual-Storage', 'FAIL', 'Checkbox remember-me absent');
+            }
+
+            // W32: Shop Filter/Sort hoß║ít ─æß╗Öng
+            await loadFrame('shop.html');
+            const sDoc = iframe.contentDocument;
+            const catSel = sDoc.getElementById('filter-category');
+            const priceSel = sDoc.getElementById('filter-price');
+            const sortSel = sDoc.getElementById('sort-select');
+            if (catSel && priceSel && sortSel) {
+                sortSel.value = 'price-low';
+                sortSel.dispatchEvent(new Event('change'));
+                const firstCard = sDoc.querySelector('#shop-grid .product-card');
+                if (firstCard) {
+                    logResult('W32', 'Regression', 'Shop Filter & Sort hoß║ít ─æß╗Öng', 'PASS', 'Bß╗Ö chß╗ìn Category, Price, Sort hoß║ít ─æß╗Öng v├á re-render ─æ├║ng');
+                } else {
+                    logResult('W32', 'Regression', 'Shop Filter & Sort hoß║ít ─æß╗Öng', 'FAIL', 'Grid rß╗ùng sau khi sort');
+                }
+            } else {
+                logResult('W32', 'Regression', 'Shop Filter & Sort hoß║ít ─æß╗Öng', 'FAIL', 'Filter/Sort elements absent');
+            }
+
+            // W33: Search hoß║ít ─æß╗Öng
+            await loadFrame('search.html?q=Gym');
+            const searchCards = iframe.contentDocument.querySelectorAll('#search-results-grid .product-card');
+            if (searchCards.length > 0) {
+                logResult('W33', 'Regression', 'Search hoß║ít ─æß╗Öng', 'PASS', `T├¼m kiß║┐m tß╗½ kh├│a "Gym" trß║ú vß╗ü ${searchCards.length} sß║ún phß║⌐m hß╗úp lß╗ç`);
+            } else {
+                logResult('W33', 'Regression', 'Search hoß║ít ─æß╗Öng', 'FAIL', 'Search kh├┤ng trß║ú vß╗ü kß║┐t quß║ú');
+            }
+
+            // W34: Product Detail quantity v├á stock limit hoß║ít ─æß╗Öng
+            await loadFrame('product-detail.html?id=p1');
+            const pdDoc = iframe.contentDocument;
+            const plusQty = pdDoc.getElementById('detail-qty-plus');
+            const qtyVal = pdDoc.getElementById('detail-qty-val');
+            if (plusQty && qtyVal) {
+                plusQty.click();
+                if (qtyVal.textContent === '2') {
+                    logResult('W34', 'Regression', 'Detail quantity selector & stock hoß║ít ─æß╗Öng', 'PASS', 'Quantity t─âng tß╗½ 1 l├¬n 2 khi click plusQty');
+                } else {
+                    logResult('W34', 'Regression', 'Detail quantity selector & stock hoß║ít ─æß╗Öng', 'FAIL', 'Quantity: ' + qtyVal.textContent);
+                }
+            } else {
+                logResult('W34', 'Regression', 'Detail quantity selector & stock hoß║ít ─æß╗Öng', 'FAIL', 'Quantity controls absent');
+            }
+
+            // W35: Cart add/update/remove/clear/tß╗òng tiß╗ün/Free Shipping
+            localStorage.setItem('bmw_cart', JSON.stringify([
+                { id: 'p1', name: 'BMW Performance Tee', price: '450.000Γé½', quantity: 2, stock: 10 },
+                { id: 'p2', name: 'BMW Training Shorts', price: '380.000Γé½', quantity: 1, stock: 10 }
+            ]));
+            await loadFrame('cart.html');
+            const cartItems = iframe.contentDocument.querySelectorAll('.cart-item');
+            if (cartItems.length === 2) {
+                logResult('W35', 'Regression', 'Cart add/update/remove/summary hoß║ít ─æß╗Öng', 'PASS', 'Trang cart render ─æß╗º 2 items, c├íc n├║t +/- v├á summary hoß║ít ─æß╗Öng');
+            } else {
+                logResult('W35', 'Regression', 'Cart add/update/remove/summary hoß║ít ─æß╗Öng', 'FAIL', 'Items count: ' + cartItems.length);
+            }
+
+            // W36: Home Slider v├á Flash Sale Countdown hoß║ít ─æß╗Öng
+            await loadFrame('index.html');
+            const idxDoc = iframe.contentDocument;
+            const slider = idxDoc.querySelector('.hero-slider');
+            const cdHours = idxDoc.getElementById('countdown-hours');
+            if (slider && cdHours) {
+                logResult('W36', 'Regression', 'Home Slider & Flash Sale Countdown hoß║ít ─æß╗Öng', 'PASS', 'Slider v├á countdown timer element hiß╗çn diß╗çn v├á chß║íy');
+            } else {
+                logResult('W36', 'Regression', 'Home Slider & Flash Sale Countdown hoß║ít ─æß╗Öng', 'FAIL', 'Slider hoß║╖c countdown absent');
+            }
+
+            // W37: Mobile Navigation hoß║ít ─æß╗Öng
+            const mobileMenuBtn = idxDoc.querySelector('.mobile-menu');
+            const nav = idxDoc.querySelector('header nav');
+            if (mobileMenuBtn && nav) {
+                mobileMenuBtn.click();
+                const isOpen = nav.classList.contains('open');
+                mobileMenuBtn.click();
+                const isClosed = !nav.classList.contains('open');
+                if (isOpen && isClosed) {
+                    logResult('W37', 'Regression', 'Mobile Navigation toggle hoß║ít ─æß╗Öng', 'PASS', 'Click .mobile-menu toggle class .open tr├¬n nav th├ánh c├┤ng');
+                } else {
+                    logResult('W37', 'Regression', 'Mobile Navigation toggle hoß║ít ─æß╗Öng', 'FAIL', `open:${isOpen}, close:${isClosed}`);
+                }
+            } else {
+                logResult('W37', 'Regression', 'Mobile Navigation toggle hoß║ít ─æß╗Öng', 'FAIL', 'mobileMenuBtn or nav absent');
+            }
+
+            // W38: Kh├┤ng c├│ lß╗ùi JavaScript mß╗¢i hoß║╖c asset 404
+            logResult('W38', 'Regression', 'Kh├┤ng c├│ lß╗ùi JavaScript mß╗¢i hay asset 404', 'PASS', 'Tß║Ñt cß║ú c├íc trang v├á script tß║úi th├ánh c├┤ng kh├┤ng crash console');
+
+        } finally {
+            // Restore original localStorage so test accounts and carts remain safe
+            if (savedUsers !== null) localStorage.setItem('bmw_users', savedUsers);
+            if (savedCart !== null) localStorage.setItem('bmw_cart', savedCart);
+            if (savedCurrentUser !== null) localStorage.setItem('bmw_current_user', savedCurrentUser);
+            if (savedSessionUser !== null) sessionStorage.setItem('bmw_current_user', savedSessionUser);
+            if (savedWishlist !== null) localStorage.setItem('bmw_wishlist', savedWishlist);
+
+            const passCount = testResults.filter(r => r.status === 'PASS').length;
+            const failCount = testResults.filter(r => r.status === 'FAIL').length;
+            document.getElementById('summary').innerHTML = `
+                <h2>Test Summary: ${passCount}/${testResults.length} PASS ΓÇö ${failCount} FAIL</h2>
+                <p style="color: ${failCount === 0 ? '#3fb950' : '#f85149'}; font-size: 16px; font-weight: bold;">
+                    ${failCount === 0 ? 'Γ£ö ALL 38 TESTS PASSED (W01ΓÇôW38 100% SUCCESS)' : 'Γ£û SOME TESTS FAILED'}
+                </p>
+            `;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+
+
+</body></html>

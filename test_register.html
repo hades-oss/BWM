@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BMW GYM - Y5 Automated Test Suite</title>
+</head>
+<body>
+    <div id="results">Running Y5 test suite...</div>
+    <iframe id="test-frame" style="width: 1000px; height: 800px;"></iframe>
+
+    <script>
+        const results = [];
+        function log(testId, testName, passed, details = '') {
+            results.push({ testId, testName, passed, details });
+        }
+
+        function loadFrame(url) {
+            return new Promise((resolve, reject) => {
+                const frame = document.getElementById('test-frame');
+                frame.onload = () => resolve({ win: frame.contentWindow, doc: frame.contentDocument });
+                frame.onerror = (e) => reject(e);
+                frame.src = url;
+            });
+        }
+
+        function wait(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        async function runSuite() {
+            try {
+                // Clear any leftover test data
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // -------------------------------------------------------------
+                // SUITE 1: REGISTER.HTML & Y5-FIX-01
+                // -------------------------------------------------------------
+                let { win, doc } = await loadFrame('register.html');
+                const form = doc.getElementById('register-form');
+                const fullName = doc.getElementById('fullName');
+                const username = doc.getElementById('username');
+                const email = doc.getElementById('email');
+                const phone = doc.getElementById('phone');
+                const countryCode = doc.getElementById('country-code');
+                const password = doc.getElementById('password');
+                const confirmPassword = doc.getElementById('confirmPassword');
+                const terms = doc.getElementById('terms');
+                const formSuccess = doc.getElementById('form-success');
+
+                // TEST Y5-FIX-01-A: Storage Failure handling
+                const origSetItem = win.localStorage.setItem;
+                win.localStorage.setItem = () => { throw new Error('QuotaExceededError: Storage quota exceeded'); };
+
+                fullName.value = 'Fail Test User';
+                username.value = 'failuser';
+                email.value = 'fail@example.com';
+                countryCode.value = 'VN';
+                phone.value = '0912345678';
+                password.value = 'FailPass123';
+                confirmPassword.value = 'FailPass123';
+                terms.checked = true;
+
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const storageFailHandled = formSuccess.style.display === 'block' &&
+                                           formSuccess.textContent.includes('Failed to save account') &&
+                                           formSuccess.style.color === 'rgb(220, 38, 38)';
+                log('Y5-FIX-01-A', 'Register Storage Failure Simulation (Storage Quota Exceeded)', storageFailHandled,
+                    `Error message displayed, success suppressed: ${storageFailHandled}`);
+
+                // Restore localStorage.setItem
+                win.localStorage.setItem = origSetItem;
+                win.localStorage.clear();
+                formSuccess.style.display = 'none';
+
+                // TEST Y5-FIX-01-B: Customer 1 Registration
+                fullName.value = 'BMW Test Customer';
+                username.value = 'bmw_customer_test';
+                email.value = 'customer.test@bmw-gym.local';
+                countryCode.value = 'VN';
+                phone.value = '900000001';
+                password.value = 'BmwTest@2026';
+                confirmPassword.value = 'BmwTest@2026';
+                terms.checked = true;
+
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const usersAfter1 = JSON.parse(win.localStorage.getItem('bmw_users') || '[]');
+                const c1Saved = usersAfter1.find(u => u.username === 'bmw_customer_test');
+                const c1Success = formSuccess.style.display === 'block' &&
+                                  formSuccess.textContent.includes('Account created') &&
+                                  !!c1Saved &&
+                                  c1Saved.email === 'customer.test@bmw-gym.local' &&
+                                  c1Saved.phone.includes('900000001');
+
+                log('Y5-FIX-01-B', 'Register Customer 1 (BMW Test Customer) via register.html UI', c1Success,
+                    `User saved in bmw_users: ${!!c1Saved}, email: ${c1Saved ? c1Saved.email : 'none'}`);
+
+                // TEST Y5-FIX-01-C: Customer 2 Registration
+                fullName.value = 'BMW Test Customer Two';
+                username.value = 'bmw_customer_test2';
+                email.value = 'customer.test2@bmw-gym.local';
+                countryCode.value = 'VN';
+                phone.value = '900000002';
+                password.value = 'BmwTest@2026';
+                confirmPassword.value = 'BmwTest@2026';
+                terms.checked = true;
+
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const usersAfter2 = JSON.parse(win.localStorage.getItem('bmw_users') || '[]');
+                const c2Saved = usersAfter2.find(u => u.username === 'bmw_customer_test2');
+                const c2Success = usersAfter2.length === 2 && !!c2Saved && c2Saved.email === 'customer.test2@bmw-gym.local';
+
+                log('Y5-FIX-01-C', 'Register Customer 2 (BMW Test Customer Two) via register.html UI', c2Success,
+                    `Total users in bmw_users: ${usersAfter2.length}`);
+
+                // TEST Y5-FIX-01-D: Duplicate Username & Email Check
+                fullName.value = 'Duplicate Test';
+                username.value = 'bmw_customer_test'; // duplicate username
+                email.value = 'customer.test@bmw-gym.local'; // duplicate email
+                phone.value = '900000003';
+                password.value = 'BmwTest@2026';
+                confirmPassword.value = 'BmwTest@2026';
+                terms.checked = true;
+
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+                const userErr = doc.getElementById('username-error');
+                const duplicateBlocked = userErr.style.display === 'block' &&
+                                         userErr.textContent.includes('already taken') &&
+                                         JSON.parse(win.localStorage.getItem('bmw_users')).length === 2;
+                log('Y5-FIX-01-D', 'Duplicate Username/Email Blocked', duplicateBlocked,
+                    `Error: "${userErr.textContent}", total users intact`);
+
+                // -------------------------------------------------------------
+                // SUITE 2: LOGIN.HTML & Y5-FIX-02 (Remember Me & Session)
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('login.html'));
+                const loginForm = doc.getElementById('login-form');
+                const loginIdentity = doc.getElementById('login-identity');
+                const loginPassword = doc.getElementById('login-password');
+                const rememberMe = doc.getElementById('rememberMe');
+
+                // TEST Y5-FIX-02-A: Login Customer 1 with Remember Me CHECKED -> localStorage
+                loginIdentity.value = 'bmw_customer_test';
+                loginPassword.value = 'BmwTest@2026';
+                rememberMe.checked = true;
+
+                loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const localSession1 = JSON.parse(win.localStorage.getItem('bmw_current_user') || 'null');
+                const sessionSession1 = JSON.parse(win.sessionStorage.getItem('bmw_current_user') || 'null');
+                const test2aPass = !!localSession1 &&
+                                   localSession1.username === 'bmw_customer_test' &&
+                                   localSession1.fullName === 'BMW Test Customer' &&
+                                   localSession1.email === 'customer.test@bmw-gym.local' &&
+                                   !!localSession1.phone &&
+                                   !!localSession1.createdAt &&
+                                   localSession1.password === undefined &&
+                                   sessionSession1 === null;
+
+                log('Y5-FIX-02-A', 'Login Customer 1 with Remember Me Checked -> persists in localStorage', test2aPass,
+                    `Saved to localStorage: ${!!localSession1}, sessionStorage is empty: ${sessionSession1 === null}, password excluded: ${localSession1 ? (localSession1.password === undefined) : false}`);
+
+                // TEST Y5-FIX-02-B: Login Customer 2 with Remember Me UNCHECKED -> sessionStorage
+                // Re-open login.html
+                // Clear active session first to simulate accessing login form
+                win.localStorage.removeItem('bmw_current_user');
+                ({ win, doc } = await loadFrame('login.html'));
+                const loginForm2 = doc.getElementById('login-form');
+                const loginIdentity2 = doc.getElementById('login-identity');
+                const loginPassword2 = doc.getElementById('login-password');
+                const rememberMe2 = doc.getElementById('rememberMe');
+
+                // Login with EMAIL this time (testing email login)
+                loginIdentity2.value = 'customer.test2@bmw-gym.local';
+                loginPassword2.value = 'BmwTest@2026';
+                rememberMe2.checked = false;
+
+                loginForm2.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const localSession2 = JSON.parse(win.localStorage.getItem('bmw_current_user') || 'null');
+                const sessionSession2 = JSON.parse(win.sessionStorage.getItem('bmw_current_user') || 'null');
+                const test2bPass = !!sessionSession2 &&
+                                   sessionSession2.username === 'bmw_customer_test2' &&
+                                   sessionSession2.fullName === 'BMW Test Customer Two' &&
+                                   sessionSession2.email === 'customer.test2@bmw-gym.local' &&
+                                   !!sessionSession2.phone &&
+                                   !!sessionSession2.createdAt &&
+                                   sessionSession2.password === undefined &&
+                                   localSession2 === null;
+
+                log('Y5-FIX-02-B', 'Login Customer 2 with Remember Me Unchecked -> persists in sessionStorage only', test2bPass,
+                    `Saved to sessionStorage: ${!!sessionSession2}, localStorage cleared: ${localSession2 === null}`);
+
+                // -------------------------------------------------------------
+                // SUITE 3: MAIN.JS & HEADER ACCOUNT DROPDOWN (Y5-FIX-03)
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('index.html'));
+                const accToggle = doc.querySelector('.account-toggle-btn');
+                const accMenu = doc.querySelector('.account-dropdown-menu');
+                const accHeader = accMenu.querySelector('.acc-menu-header');
+                const usernameDisplay = accMenu.querySelector('.menu-username-display');
+                const profileLink = accMenu.querySelector('a[href="profile.html"]');
+                const logoutLink = accMenu.querySelector('#acc-logout-btn');
+                const loginLink = accMenu.querySelector('a[href="login.html"]');
+
+                const isHeaderActive = accHeader.style.display === 'block';
+                const usernameMatches = usernameDisplay.textContent === '@bmw_customer_test2';
+                const profileVisible = profileLink.style.display === 'block';
+                const logoutVisible = logoutLink.style.display === 'block';
+                const loginHidden = loginLink.style.display === 'none';
+                const noStandaloneUsername = !accToggle.querySelector('.account-username');
+
+                const test3Pass = isHeaderActive && usernameMatches && profileVisible && logoutVisible && loginHidden && noStandaloneUsername;
+                log('Y5-FIX-03-A', 'Account Dropdown displays Logged-in State with username @bmw_customer_test2', test3Pass,
+                    `User badge: "${usernameDisplay.textContent}", Profile link visible: ${profileVisible}, Logout visible: ${logoutVisible}`);
+
+                // Check Dropdown CSS styles
+                const headerStyle = win.getComputedStyle(accHeader);
+                const hasPadding = parseInt(headerStyle.paddingTop, 10) > 0;
+                log('Y5-FIX-03-B', 'Acc-menu-header CSS styling applied (padding and border)', hasPadding,
+                    `Padding: ${headerStyle.padding}, Background: ${headerStyle.backgroundColor}`);
+
+                // -------------------------------------------------------------
+                // SUITE 4: PROFILE.HTML & DATA UPDATE
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('profile.html'));
+                const profUser = doc.getElementById('profile-username');
+                const profEmail = doc.getElementById('profile-email');
+                const profFullname = doc.getElementById('profile-fullname');
+                const profPhone = doc.getElementById('profile-phone');
+                const profCreated = doc.getElementById('profile-created');
+                const profForm = doc.getElementById('profile-form');
+                const profBanner = doc.getElementById('profile-msg-banner');
+
+                const profileLoaded = profUser.value === '@bmw_customer_test2' &&
+                                      profEmail.value === 'customer.test2@bmw-gym.local' &&
+                                      profFullname.value === 'BMW Test Customer Two' &&
+                                      profPhone.value.includes('900000002');
+
+                // Update Profile Full Name and Phone
+                profFullname.value = 'BMW Test Customer Two Updated';
+                profPhone.value = '+84 900000099';
+                profForm.dispatchEvent(new Event('submit', { cancelable: true }));
+
+                const updatedSession = JSON.parse(win.sessionStorage.getItem('bmw_current_user') || '{}');
+                const updatedUsers = JSON.parse(win.localStorage.getItem('bmw_users') || '[]');
+                const updatedUserInList = updatedUsers.find(u => u.username === 'bmw_customer_test2');
+
+                const profileUpdated = profileLoaded &&
+                                       updatedSession.fullName === 'BMW Test Customer Two Updated' &&
+                                       updatedUserInList.fullName === 'BMW Test Customer Two Updated' &&
+                                       profBanner.style.display === 'block' &&
+                                       profBanner.textContent.includes('Profile updated successfully');
+
+                log('Y5-FIX-03-C', 'Profile View and Update for Customer 2', profileUpdated,
+                    `Updated in sessionStorage: ${updatedSession.fullName === 'BMW Test Customer Two Updated'}, Updated in bmw_users: ${updatedUserInList ? updatedUserInList.fullName : 'none'}`);
+
+                // -------------------------------------------------------------
+                // SUITE 5: LOGOUT FUNCTIONALITY
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('index.html'));
+                const logoutBtn = doc.querySelector('#acc-logout-btn');
+                win.confirm = () => true; // auto-confirm
+
+                logoutBtn.click();
+
+                const sessionAfterLogout = win.sessionStorage.getItem('bmw_current_user');
+                const localAfterLogout = win.localStorage.getItem('bmw_current_user');
+                const logoutSuccess = sessionAfterLogout === null && localAfterLogout === null;
+                log('Y5-FIX-03-D', 'Logout clears session from active storage', logoutSuccess,
+                    `sessionStorage: ${sessionAfterLogout}, localStorage: ${localAfterLogout}`);
+
+                // -------------------------------------------------------------
+                // SUITE 6: MOBILE NAVIGATION (Y5-FIX-04)
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('index.html'));
+                const mobileBtn = doc.querySelector('.mobile-menu');
+                const nav = doc.querySelector('.header nav');
+
+                const initOpen = nav.classList.contains('open');
+                mobileBtn.click();
+                const afterClick1 = nav.classList.contains('open');
+                const aria1 = mobileBtn.getAttribute('aria-expanded') === 'true';
+
+                mobileBtn.click();
+                const afterClick2 = nav.classList.contains('open');
+                const aria2 = mobileBtn.getAttribute('aria-expanded') === 'false';
+
+                // Open then click a link inside nav
+                mobileBtn.click();
+                const firstNavLink = nav.querySelector('a');
+                firstNavLink.click();
+                const afterLinkClick = nav.classList.contains('open');
+
+                const mobileNavPass = !initOpen && afterClick1 && aria1 && !afterClick2 && aria2 && !afterLinkClick;
+                log('Y5-FIX-04', 'Mobile Navigation Hamburger click open, click close, link click close', mobileNavPass,
+                    `Open on click: ${afterClick1}, Close on second click: ${!afterClick2}, Close on link click: ${!afterLinkClick}`);
+
+                // -------------------------------------------------------------
+                // SUITE 7: CART INDEPENDENCE & ESCAPEHTML (Y5-FIX-05)
+                // -------------------------------------------------------------
+                ({ win, doc } = await loadFrame('cart.html'));
+                // Test escapeCartHtml
+                const testRaw = 'Special & <Gear> "Pro" \'2026\'';
+                const escaped = win.escapeCartHtml ? win.escapeCartHtml(testRaw) : '';
+                const escapePass = escaped === 'Special &amp; &lt;Gear&gt; &quot;Pro&quot; &#039;2026&#039;';
+
+                // Test showToast independently without search.js
+                let toastCreated = false;
+                try {
+                    win.showToast('Test item added', 'success', 'TEST ACTION & "MORE"');
+                    const toastEl = doc.getElementById('bmw-cart-toast');
+                    toastCreated = !!toastEl && toastEl.innerHTML.includes('&amp;');
+                } catch (e) {
+                    toastCreated = false;
+                }
+
+                log('Y5-FIX-05', 'Cart escapeCartHtml handles &, <, >, ", \' without search.js dependency', escapePass && toastCreated,
+                    `Escaped result: "${escaped}", Toast rendered safely: ${toastCreated}`);
+
+                // -------------------------------------------------------------
+                // SUITE 8: REGRESSION TESTS (Y5-FIX-06)
+                // -------------------------------------------------------------
+                // Home: Slider & Countdown
+                ({ win, doc } = await loadFrame('index.html'));
+                const slides = doc.querySelectorAll('.hero-slide');
+                const countdownClock = doc.getElementById('countdown-clock');
+                const homeRegression = slides.length === 3 && !!countdownClock;
+                log('Y5-FIX-06-A', 'Regression Home: Slider (3 slides) and Flash Sale Countdown', homeRegression,
+                    `Slides count: ${slides.length}, Countdown clock present: ${!!countdownClock}`);
+
+                // Shop: Filter & Sort
+                ({ win, doc } = await loadFrame('shop.html'));
+                const shopGrid = doc.getElementById('shop-grid');
+                const categorySelect = doc.getElementById('filter-category');
+                const shopRegression = !!shopGrid && !!categorySelect;
+                log('Y5-FIX-06-B', 'Regression Shop: Catalog, Filter and Sort bar present', shopRegression,
+                    `Shop grid present: ${!!shopGrid}, Category select present: ${!!categorySelect}`);
+
+                // Product Detail: Stock & Qty
+                ({ win, doc } = await loadFrame('product-detail.html?id=p1'));
+                const detailContainer = doc.getElementById('product-detail-container');
+                const detailTitle = doc.querySelector('.detail-title');
+                const detailRegression = !!detailContainer && !!detailTitle && detailTitle.textContent.includes('BMW Performance');
+                log('Y5-FIX-06-C', 'Regression Product Detail: Detail page renders product p1', detailRegression,
+                    `Title: "${detailTitle ? detailTitle.textContent : 'none'}"`);
+
+                // Cart: Calculations & Storage
+                ({ win, doc } = await loadFrame('cart.html'));
+                win.addToCart('p1', 2);
+                const cartData = JSON.parse(win.localStorage.getItem('bmw_cart') || '[]');
+                const cartItem = cartData.find(i => i.id === 'p1');
+                const cartRegression = cartData.length > 0 && cartItem && cartItem.quantity === 2;
+                log('Y5-FIX-06-D', 'Regression Cart: Add to cart and LocalStorage cart persistence', cartRegression,
+                    `Items in cart: ${cartData.length}, p1 quantity: ${cartItem ? cartItem.quantity : 0}`);
+
+            } catch (err) {
+                log('FATAL_ERROR', 'Unexpected Test Execution Error', false, err.stack || err.message);
+            }
+
+            document.body.innerHTML = '<h1>TEST_RESULTS_START</h1><pre id="output">' + JSON.stringify(results, null, 2) + '</pre><h1>TEST_RESULTS_END</h1>';
+        }
+
+        window.onload = runSuite;
+    </script>
+</body>
+</html>

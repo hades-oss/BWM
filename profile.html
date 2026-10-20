@@ -1,0 +1,623 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân — BMW GYM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js"></script>
+    <style>
+        .profile-page-wrapper {
+            padding: 60px 4vw;
+            min-height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: #080808;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 620px;
+        }
+
+        .profile-top-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .profile-card-box {
+            background-color: #111111;
+            border: 1px solid var(--line, rgba(255,255,255,0.18));
+            border-radius: 8px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .profile-header-badge {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid var(--line, rgba(255,255,255,0.18));
+        }
+
+        .profile-avatar-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue, #2563EB), #1D4ED8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: var(--font-display);
+            flex-shrink: 0;
+        }
+
+        .profile-user-info-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .profile-user-info-text p {
+            font-size: 13px;
+            color: #94A3B8;
+            margin: 0;
+        }
+
+        .profile-card-box label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #CBD5E1;
+            margin-bottom: 8px;
+        }
+
+        .profile-card-box input[type="text"],
+        .profile-card-box input[type="email"],
+        .profile-card-box input[type="password"],
+        .profile-card-box input[type="date"] {
+            width: 100%;
+            background-color: #1E293B;
+            color: #F8FAFC;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .profile-card-box input[readonly] {
+            background-color: #0F172A;
+            color: #64748B;
+            border-color: #1E293B;
+            cursor: not-allowed;
+        }
+
+        .profile-card-box input[type="text"]:focus:not([readonly]),
+        .profile-card-box input[type="email"]:focus:not([readonly]),
+        .profile-card-box input[type="password"]:focus,
+        .profile-card-box input[type="date"]:focus {
+            border-color: var(--blue, #2563EB);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+        }
+
+        .profile-form-group {
+            margin-bottom: 20px;
+        }
+
+        .profile-field-hint {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        .profile-btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .profile-btn-row .button {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .button.secondary-btn {
+            background-color: transparent;
+            color: #F8FAFC;
+            border: 1px solid #475569;
+        }
+
+        .button.secondary-btn:hover {
+            border-color: var(--blue, #2563EB);
+            color: var(--blue, #2563EB);
+        }
+
+        .profile-msg-banner {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .profile-msg-banner.success {
+            background-color: #DCFCE7;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+        .profile-msg-banner.error {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        /* ── Profile Header Badges & Avatar ── */
+        .profile-badges-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+            align-items: center;
+        }
+        .profile-badge {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-role.role-admin { background-color: #DC2626; color: #fff; }
+        .badge-role.role-staff { background-color: #D97706; color: #fff; }
+        .badge-role.role-customer { background-color: #2563EB; color: #fff; }
+        .badge-status.status-active { background-color: #059669; color: #fff; }
+        .badge-status.status-banned, .badge-status.status-locked { background-color: #DC2626; color: #fff; }
+
+        .profile-avatar-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        .btn-avatar-action {
+            background: #1E293B;
+            color: #94A3B8;
+            border: 1px solid #334155;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-avatar-action:hover {
+            background: #334155;
+            color: #F8FAFC;
+            border-color: #64748B;
+        }
+        .btn-avatar-remove {
+            color: #F87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        .btn-avatar-remove:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border-color: #EF4444;
+        }
+
+        /* ── Profile Section Dividers ── */
+        .profile-section-divider {
+            margin: 36px 0 24px 0;
+            padding-top: 24px;
+            border-top: 1px dashed var(--line, rgba(255,255,255,0.18));
+        }
+        .profile-section-title {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #F8FAFC;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-section-desc {
+            font-size: 12px;
+            color: #94A3B8;
+            margin: 0 0 18px 0;
+            line-height: 1.5;
+        }
+
+        /* ── Linked Gmail Box ── */
+        .linked-gmail-card {
+            background-color: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .linked-gmail-info strong {
+            display: block;
+            color: #F8FAFC;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .badge-unverified {
+            font-size: 11px;
+            font-weight: 700;
+            color: #F59E0B;
+            background: rgba(245, 158, 11, 0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .btn-unlink-gmail {
+            background: rgba(239, 68, 68, 0.12);
+            color: #F87171;
+            border: 1px solid #EF4444;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-unlink-gmail:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 600px) {
+            .profile-page-wrapper {
+                padding: 30px 4vw;
+            }
+            .profile-card-box {
+                padding: 24px 18px;
+            }
+            .profile-btn-row {
+                flex-direction: column;
+            }
+            .profile-header-badge {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .linked-gmail-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="site-shell">
+                        <div class="announcement" aria-label="Thông báo">
+            <div class="marquee-track" aria-hidden="true">
+                <div class="marquee-content">
+                    <span>MIỄN PHÍ VẬN CHUYỂN ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+                <div class="marquee-content" aria-hidden="true">
+                    <span>MIỄN PHÍ VẬN CHUYỂN ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+            </div>
+        </div>
+        <header class="header">
+            <button class="mobile-menu" aria-label="Mở menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </button>
+            <a href="index.html" class="brand"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+            <div class="header-search-wrapper">
+                <form class="header-search-form" id="inline-header-search" role="search">
+                    <input type="text" class="header-search-input" id="inline-search-input" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+                    <button type="submit" class="header-search-btn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+                    </button>
+                </form>
+            </div>
+            <div class="header-actions">
+                                <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển giao diện sáng/tối" title="Chuyển giao diện">
+                    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <div class="account-dropdown-wrapper">
+                    <button class="account-toggle-btn" aria-label="Tài khoản" title="Tài khoản">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.2-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>
+                    </button>
+                    <div class="account-dropdown-menu" role="menu">
+                        <div class="acc-menu-header auth-logged-in" style="display:none;">
+                            <small>Đã đăng nhập với tư cách</small>
+                            <strong class="menu-username-display">@User</strong>
+                        </div>
+                        <a href="login.html" class="acc-menu-link auth-logged-out" role="menuitem">Đăng nhập</a>
+                        <a href="register.html" class="acc-menu-link auth-logged-out" role="menuitem">Tạo tài khoản</a>
+                        <a href="profile.html" class="acc-menu-link auth-logged-in" role="menuitem" style="display:none;">Hồ sơ</a>
+                        <a href="#" id="acc-logout-btn" class="acc-menu-link logout-link auth-logged-in" role="menuitem" style="display:none;">Đăng xuất</a>
+                    </div>
+                </div>
+                <a href="wishlist.html" class="wishlist-header-btn" aria-label="Danh sách yêu thích">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.9a5.4 5.4 0 0 0-7.7 0L12 7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7L12 22l8.8-8.4a5.4 5.4 0 0 0 0-7.7Z"/></svg>
+                    <i class="wishlist-badge">0</i>
+                </a>                <button class="bag" aria-label="Giỏ hàng">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
+                    <i>0</i>
+                </button>
+            </div>
+            <nav>
+                <a href="shop.html">CỬA HÀNG <span class="chevron">&#8964;</span></a>
+                <a href="shop.html?category=Clothing">TRANG PHỤC</a>
+                <a href="shop.html?category=Accessories">PHỤ KIỆN</a>
+                <a href="shop.html?category=Equipment">DỤNG CỤ</a>
+                <a href="shop.html">HÀNG MỚI</a>
+                <a class="sale" href="shop.html">GIẢM GIÁ</a>
+                <a href="orders.html" class="nav-orders-btn">ĐƠN HÀNG</a>
+            </nav>
+        </header>
+
+        <section class="profile-page-wrapper">
+            <div class="profile-container">
+                <h2 class="profile-top-title">Hồ Sơ Của Tôi</h2>
+
+                <div class="profile-card-box">
+                    <div id="profile-msg-banner" class="profile-msg-banner" style="display:none;"></div>
+
+                    <div class="profile-header-badge">
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                            <div class="profile-avatar-circle" id="profile-avatar-text">U</div>
+                            <div class="profile-avatar-controls">
+                                <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn-avatar-action" id="btn-change-avatar">Đổi ảnh</button>
+                                    <button type="button" class="btn-avatar-action btn-avatar-remove" id="btn-remove-avatar" style="display:none;">Xóa ảnh</button>
+                                </div>
+                                <div id="profile-avatar-error" style="display:none; color:#FCA5A5; font-size:11px; margin-top:4px;"></div>
+                            </div>
+                        </div>
+                        <div class="profile-user-info-text">
+                            <h3 id="profile-badge-name">User Name</h3>
+                            <p id="profile-badge-email">user@example.com</p>
+                            <div class="profile-badges-row">
+                                <span id="profile-role-badge" class="profile-badge badge-role role-customer">CUSTOMER</span>
+                                <span id="profile-status-badge" class="profile-badge badge-status status-active">ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── 1. THÔNG TIN CÁ NHÂN (PERSONAL INFO) ── -->
+                    <form id="profile-form" novalidate>
+                        <div class="profile-form-group">
+                            <label for="profile-username">Tên đăng nhập (Username)</label>
+                            <input type="text" id="profile-username" placeholder="Nhập tên đăng nhập (3-20 ký tự)">
+                            <div id="profile-username-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            <div class="profile-field-hint">3-20 ký tự (chữ cái, chữ số, dấu gạch dưới). Đồng bộ tự động với các đơn hàng của bạn.</div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-email">Địa chỉ Email (Chính)</label>
+                            <input type="email" id="profile-email" readonly>
+                            <div class="profile-field-hint">Email chính gắn liền với tài khoản và dùng để đăng nhập.</div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-fullname">Họ và tên</label>
+                            <input type="text" id="profile-fullname" placeholder="Nhập họ và tên của bạn">
+                            <div id="profile-fullname-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-phone">Số điện thoại</label>
+                            <div class="phone-input-group">
+                                <select id="profile-country-code" class="phone-country-code" aria-label="Mã quốc gia"></select>
+                                <input type="text" id="profile-phone" placeholder="Nhập số điện thoại">
+                            </div>
+                            <div id="profile-phone-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-address">Địa chỉ giao hàng</label>
+                            <input type="text" id="profile-address" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố...">
+                            <div id="profile-address-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            <div class="profile-field-hint">Địa chỉ giao hàng mặc định cho đơn hàng mới.</div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-dob">Ngày sinh</label>
+                            <input type="date" id="profile-dob">
+                            <div id="profile-dob-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <label for="profile-created">Ngày tham gia</label>
+                            <input type="text" id="profile-created" readonly>
+                        </div>
+
+                        <div class="profile-btn-row">
+                            <button type="submit" class="button blue" id="profile-save-btn">Lưu thay đổi</button>
+                            <a href="shop.html" class="button secondary-btn">Quay lại cửa hàng</a>
+                        </div>
+                    </form>
+
+                    <!-- ── 2. LIÊN KẾT GMAIL (Tài khoản Gmail liên kết) ── -->
+                    <div class="profile-section-divider">
+                        <h4 class="profile-section-title">
+                            <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            Tài khoản Gmail liên kết
+                        </h4>
+                        <p class="profile-section-desc">
+                            Liên kết tài khoản Gmail phụ để đăng nhập bổ sung hoặc nhận thông báo. 
+                            <em>(Lưu ý: Môi trường demo Client-side chưa có dịch vụ máy chủ gửi email OTP, tài khoản sẽ được đánh dấu trạng thái Chưa xác minh).</em>
+                        </p>
+
+                        <div id="linked-gmail-view" style="display:none;" class="linked-gmail-card">
+                            <div class="linked-gmail-info">
+                                <span style="font-size:11px; color:#94A3B8; text-transform:uppercase; font-weight:700;">Gmail đã liên kết:</span>
+                                <strong id="linked-gmail-address">user@gmail.com</strong>
+                                <span class="badge-unverified" title="Demo mode: chưa có dịch vụ gửi email OTP xác minh">● Chưa xác minh (Demo)</span>
+                            </div>
+                            <button type="button" id="btn-unlink-gmail" class="btn-unlink-gmail">Hủy liên kết Gmail</button>
+                        </div>
+
+                        <div id="link-gmail-form-box">
+                            <div class="profile-form-group" style="margin-bottom:12px;">
+                                <input type="email" id="input-link-gmail" placeholder="Nhập địa chỉ Gmail muốn liên kết (ví dụ: yourname@gmail.com)">
+                                <div id="link-gmail-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            </div>
+                            <button type="button" id="btn-link-gmail" class="button blue" style="padding:10px 18px; font-size:12px;">Liên kết Gmail</button>
+                        </div>
+                    </div>
+
+                    <!-- ── 3. ĐỔI MẬT KHẨU (Đổi mật khẩu) ── -->
+                    <div class="profile-section-divider">
+                        <h4 class="profile-section-title">
+                            <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            Đổi mật khẩu
+                        </h4>
+                        <p class="profile-section-desc">Mật khẩu mới phải có tối thiểu 8 ký tự, bao gồm ít nhất một chữ cái và một chữ số.</p>
+
+                        <div id="password-msg-banner" class="profile-msg-banner" style="display:none;"></div>
+
+                        <form id="password-form" novalidate>
+                            <div class="profile-form-group">
+                                <label for="input-current-password">Mật khẩu hiện tại</label>
+                                <input type="password" id="input-current-password" placeholder="Nhập mật khẩu hiện tại" autocomplete="current-password">
+                                <div id="password-current-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            </div>
+
+                            <div class="profile-form-group">
+                                <label for="input-new-password">Mật khẩu mới</label>
+                                <input type="password" id="input-new-password" placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)" autocomplete="new-password">
+                                <div id="password-new-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            </div>
+
+                            <div class="profile-form-group">
+                                <label for="input-confirm-password">Xác nhận mật khẩu mới</label>
+                                <input type="password" id="input-confirm-password" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
+                                <div id="password-confirm-error" style="display:none; color:#FCA5A5; font-size:11px; font-weight:700; margin-top:6px;"></div>
+                            </div>
+
+                            <button type="submit" class="button blue" id="btn-update-password" style="padding:10px 18px; font-size:12px;">Cập nhật mật khẩu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-head">
+                <a class="brand" href="index.html"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+                <p>Dành cho những ai không ngừng nỗ lực.</p>
+            </div>
+            <div class="footer-links">
+                <div>
+                    <h3>CỬA HÀNG</h3>
+                    <a href="shop.html?category=Clothing">TRANG PHỤC</a>
+                    <a href="shop.html?category=Accessories">PHỤ KIỆN</a>
+                    <a href="shop.html?category=Equipment">DỤNG CỤ</a>
+                    <a href="shop.html">HÀNG MỚI</a>
+                    <a href="shop.html">GIẢM GIÁ</a>
+                </div>
+                <div>
+                    <h3>KHÁCH HÀNG</h3>
+                    <a href="#">Liên hệ</a>
+                    <a href="#">Vận chuyển</a>
+                    <a href="#">Đổi trả</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+                <div>
+                    <h3>VỀ BMW</h3>
+                    <a href="#">Về chúng tôi</a>
+                    <a href="#">Câu chuyện thương hiệu</a>
+                    <a href="#">Cộng đồng</a>
+                    <a href="#">Tuyển dụng</a>
+                </div>
+                <div>
+                    <h3>THEO DÕI CHÚNG TÔI</h3>
+                    <a href="#">Instagram</a>
+                    <a href="#">TikTok</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">YouTube</a>
+                </div>
+                <div>
+                    <h3>LIÊN HỆ</h3>
+                    <div class="footer-contact-item">
+                        <strong>Địa chỉ</strong>
+                        137 Nguyễn Thị Thập, Phường Hải Châu, TP. Đà Nẵng
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Điện thoại</strong>
+                        <a href="tel:0355278900">0355278900</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Email</strong>
+                        <a href="mailto:tupqtd01646@gmail.com">tupqtd01646@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 BMW – BODY, MIND, WILLPOWER.</span>
+                <span>VIỆT NAM / VND</span>
+                <span>CHÍNH SÁCH BẢO MẬT &nbsp; ĐIỀU KHOẢN</span>
+            </div>
+        </footer>
+    </main>
+
+    <script src="js/products.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/phone-utils.js"></script>`r`n    <script src="js/profile.js"></script>
+</body>
+</html>
+
+
+
+

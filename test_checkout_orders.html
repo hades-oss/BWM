@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BMW GYM — Checkout, Payment, Orders & Regression Test Suite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body { font-family: monospace; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0; }
+        h1 { color: #38bdf8; font-size: 20px; margin-bottom: 8px; }
+        .subhead { color: #94a3b8; font-size: 13px; margin-bottom: 24px; }
+        table { border-collapse: collapse; width: 100%; font-size: 12px; margin-bottom: 24px; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #1e293b; color: #38bdf8; font-weight: 700; }
+        .pass { color: #4ade80; font-weight: 700; }
+        .fail { color: #f87171; font-weight: 700; }
+        .blocked { color: #fbbf24; font-weight: 700; }
+        .banner { padding: 12px 18px; border-radius: 4px; font-size: 15px; font-weight: 700; margin-top: 16px; width: fit-content; }
+        .banner.pass { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; }
+        .banner.fail { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; }
+        iframe { width: 100%; height: 600px; border: 1px solid #334155; margin-top: 20px; background: white; }
+    </style>
+</head>
+<body>
+
+<h1>BMW GYM — CHECKOUT, QR BANKING, COD, ORDERS & CANCELLATION</h1>
+<div class="subhead">Automated Test Execution for Requirement Groups A, B, C, D, E, F, G</div>
+
+<table id="test-table">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>Test ID</th>
+            <th>Mô tả kiểm thử</th>
+            <th>Kỳ vọng</th>
+            <th>Thực tế</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody id="test-body"></tbody>
+</table>
+
+<div id="overall-summary"></div>
+
+<iframe id="test-frame" src="about:blank"></iframe>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/payment-config.js"></script>
+<script src="js/order-storage.js"></script>
+
+<script>
+const tbody = document.getElementById('test-body');
+let passCount = 0;
+let failCount = 0;
+let blockedCount = 0;
+
+function log(group, testId, desc, expected, actual, status) {
+    if (status === 'PASS') passCount++;
+    else if (status === 'FAIL') failCount++;
+    else if (status === 'BLOCKED') blockedCount++;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td><strong>${group}</strong></td>
+        <td><strong>${testId}</strong></td>
+        <td>${desc}</td>
+        <td>${expected}</td>
+        <td><code>${actual}</code></td>
+        <td class="${status.toLowerCase()}">${status}</td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function loadFrame(url) {
+    return new Promise(resolve => {
+        const frame = document.getElementById('test-frame');
+        frame.onload = () => setTimeout(resolve, 350);
+        frame.src = url;
+    });
+}
+
+async function runAllTests() {
+    const frame = document.getElementById('test-frame');
+
+    // Setup giỏ hàng mẫu để test
+    localStorage.setItem('bmw_cart', JSON.stringify([
+        { id: 'p1', quantity: 2, name: 'BMW Performance Oversized T-Shirt', price: '690.000₫', image: 'images/products/performance-oversized-tshirt.jpg' },
+        { id: 'p2', quantity: 1, name: 'BMW Training Shorts', price: '550.000₫', image: 'images/products/training-shorts.jpg' }
+    ]));
+
+    // ─── NHÓM A: CHECKOUT ──────────────────────────────────────────────────
+    // A01: Nhấn Checkout từ giỏ hàng có sản phẩm
+    await loadFrame('cart.html');
+    const docCart = frame.contentDocument;
+    const checkoutBtn = docCart.querySelector('.checkout-btn');
+    const hasCheckoutBtn = Boolean(checkoutBtn);
+    log('A - Checkout', 'A01', 'Nút Checkout có mặt trên trang giỏ hàng', 'Nút tồn tại', hasCheckoutBtn ? 'Tìm thấy .checkout-btn' : 'Không thấy', hasCheckoutBtn ? 'PASS' : 'FAIL');
+
+    // A02: Giỏ hàng trống
+    localStorage.setItem('bmw_cart', '[]');
+    await loadFrame('checkout.html');
+    const docEmptyCheckout = frame.contentDocument;
+    const hasEmptyNotice = docEmptyCheckout.body.textContent.includes('GIỎ HÀNG CỦA BẠN ĐANG TRỐNG') || docEmptyCheckout.body.textContent.toUpperCase().includes('YOUR CART IS EMPTY');
+    log('A - Checkout', 'A02', 'Giỏ hàng trống chuyển về thông báo rỗng', 'Hiển thị YOUR CART IS CURRENTLY EMPTY', hasEmptyNotice ? 'Đã hiển thị thông báo rỗng' : 'Không hiển thị', hasEmptyNotice ? 'PASS' : 'FAIL');
+
+    // Khôi phục giỏ hàng
+    localStorage.setItem('bmw_cart', JSON.stringify([
+        { id: 'p1', quantity: 2, name: 'BMW Performance Oversized T-Shirt', price: '690.000₫', image: 'images/products/performance-oversized-tshirt.jpg' },
+        { id: 'p2', quantity: 1, name: 'BMW Training Shorts', price: '550.000₫', image: 'images/products/training-shorts.jpg' }
+    ]));
+    await loadFrame('checkout.html');
+    const docCk = frame.contentDocument;
+
+    // A03: Bỏ trống họ tên
+    const fullnameInput = docCk.querySelector('#checkout-fullname');
+    fullnameInput.value = '';
+    docCk.querySelector('#btn-submit-order').click();
+    const errFullname = docCk.querySelector('#error-fullname')?.style.display;
+    log('A - Checkout', 'A03', 'Bỏ trống họ tên hiển thị lỗi', 'Lỗi hiển thị block', `display: ${errFullname}`, errFullname === 'block' ? 'PASS' : 'FAIL');
+
+    // A04 & A05: Số điện thoại không hợp lệ
+    fullnameInput.value = 'Nguyễn Văn Test';
+    const phoneInput = docCk.querySelector('#checkout-phone');
+    phoneInput.value = '12345';
+    docCk.querySelector('#btn-submit-order').click();
+    const errPhone = docCk.querySelector('#error-phone')?.style.display;
+    log('A - Checkout', 'A05', 'Nhập số điện thoại sai định dạng', 'Lỗi hiển thị block', `display: ${errPhone}`, errPhone === 'block' ? 'PASS' : 'FAIL');
+
+    // A06: Bỏ trống địa chỉ
+    phoneInput.value = '0987654321';
+    const addrInput = docCk.querySelector('#checkout-address');
+    addrInput.value = '';
+    docCk.querySelector('#btn-submit-order').click();
+    const errAddr = docCk.querySelector('#error-address')?.style.display;
+    log('A - Checkout', 'A06', 'Bỏ trống địa chỉ nhận hàng', 'Lỗi hiển thị block', `display: ${errAddr}`, errAddr === 'block' ? 'PASS' : 'FAIL');
+
+    // A08 & A09: Chọn phương thức thanh toán
+    const radioCod = docCk.querySelector('input[value="COD"]');
+    radioCod.click();
+    const isCodChecked = radioCod.checked;
+    log('A - Checkout', 'A08', 'Chọn phương thức thanh toán COD', 'radio COD checked', `checked: ${isCodChecked}`, isCodChecked ? 'PASS' : 'FAIL');
+
+    // A10 & A11: Kiểm tra sản phẩm và tổng tiền tóm tắt (690k*2 + 590k = 1.970.000₫ >= 1.500.000 -> Free ship -> Total = 1.970.000₫)
+    const summaryItems = docCk.querySelectorAll('.summary-item-row');
+    const totalText = docCk.querySelector('.final-amount')?.textContent;
+    log('A - Checkout', 'A10', 'Hiển thị đủ 2 mặt hàng trong tóm tắt', '2 sản phẩm', `${summaryItems.length} sản phẩm`, summaryItems.length === 2 ? 'PASS' : 'FAIL');
+    log('A - Checkout', 'A11', 'Tổng tiền tính chính xác (Free ship trên 1.500.000₫)', '1.970.000₫', totalText, totalText && totalText.includes('1.970.000') ? 'PASS' : 'FAIL');
+
+    // ─── NHÓM C: THANH TOÁN TIỀN MẶT KHI NHẬN HÀNG (COD) ──────────────────
+    addrInput.value = '123 Đường Số 1, Quận 1, TP. Hồ Chí Minh';
+    radioCod.click();
+    docCk.querySelector('#btn-submit-order').click();
+    await new Promise(r => setTimeout(r, 600));
+
+    // Kiểm tra đơn hàng COD vừa tạo
+    const orders = window.BMW_ORDERS_API.getOrders();
+    const latestOrder = orders[0];
+    const isCodCreated = latestOrder && latestOrder.paymentMethod === 'COD' && latestOrder.customer.fullName === 'Nguyễn Văn Test';
+    log('C - COD', 'C01', 'Đặt hàng COD thành công', 'Tạo đơn COD', isCodCreated ? 'Đơn hàng COD được tạo' : 'Không tạo được', isCodCreated ? 'PASS' : 'FAIL');
+    log('C - COD', 'C03', 'Tạo đúng một mã đơn hàng duy nhất', 'Bắt đầu bằng BMW', latestOrder?.orderId, latestOrder?.orderId.startsWith('BMW') ? 'PASS' : 'FAIL');
+    log('C - COD', 'C07', 'Cập nhật giỏ hàng sau khi đặt', 'Giỏ hàng rỗng []', localStorage.getItem('bmw_cart'), localStorage.getItem('bmw_cart') === '[]' ? 'PASS' : 'FAIL');
+
+    // C02: Mở trang order-success.html
+    await loadFrame(`order-success.html?orderId=${latestOrder.orderId}`);
+    const docSuccess = frame.contentDocument;
+    const hasSuccessHeader = docSuccess.body.textContent.includes('Xác nhận đặt hàng thành công') || docSuccess.body.textContent.includes('Order Placed Successfully');
+    log('C - COD', 'C02', 'Hiển thị Xác nhận đặt hàng thành công', 'Đúng dòng chữ chuẩn', hasSuccessHeader ? 'Tìm thấy dòng chữ' : 'Không tìm thấy', hasSuccessHeader ? 'PASS' : 'FAIL');
+
+    // ─── NHÓM B: THANH TOÁN ONLINE BẰNG MÃ QR NGÂN HÀNG ──────────────────
+    // Tạo đơn hàng thanh toán QR
+    const qrOrder = window.BMW_ORDERS_API.createOrder({
+        customer: { fullName: 'Trần QR Test', phone: '0901234567', address: '456 Lê Lợi, Đà Nẵng' },
+        items: [{ id: 'p1', name: 'BMW Performance Oversized T-Shirt', price: '690.000₫', quantity: 1, image: 'images/products/performance-oversized-tshirt.jpg', itemTotal: 690000 }],
+        subtotal: 690000,
+        shippingFee: 35000,
+        total: 725000,
+        paymentMethod: 'QR'
+    });
+
+    await loadFrame(`payment-qr.html?orderId=${qrOrder.orderId}`);
+    const docQr = frame.contentDocument;
+
+    // B02 & B03: Hiển thị đúng mã đơn và số tiền
+    const qrPageText = docQr.body.textContent;
+    log('B - QR Banking', 'B02', 'Hiển thị đúng mã đơn trên trang QR', qrOrder.orderId, qrPageText.includes(qrOrder.orderId) ? 'Chứa mã đơn' : 'Không có', qrPageText.includes(qrOrder.orderId) ? 'PASS' : 'FAIL');
+    log('B - QR Banking', 'B03', 'Hiển thị đúng số tiền cần thanh toán', '725.000₫', qrPageText.includes('725.000') ? 'Chứa số tiền' : 'Không có', qrPageText.includes('725.000') ? 'PASS' : 'FAIL');
+
+    // B04: Cấu hình MB Bank & PHAM QUOC TU STK 0355278900
+    const hasMb = qrPageText.includes('MB Bank') && qrPageText.includes('PHAM QUOC TU') && qrPageText.includes('0355278900');
+    log('B - QR Banking', 'B04', 'Hiển thị chính xác MB Bank, PHAM QUOC TU, STK 0355278900', 'Đầy đủ thông tin', hasMb ? 'Khớp 100%' : 'Thiếu', hasMb ? 'PASS' : 'FAIL');
+
+    // B06: Trạng thái ban đầu là pending_payment
+    const checkOrderBefore = window.BMW_ORDERS_API.getOrderById(qrOrder.orderId);
+    log('B - QR Banking', 'B06', 'Trạng thái ban đầu là pending_payment', 'pending_payment', checkOrderBefore.paymentStatus, checkOrderBefore.paymentStatus === 'pending_payment' ? 'PASS' : 'FAIL');
+
+    // B09: Mô phỏng "Đã thanh toán"
+    const paidBtn = docQr.querySelector('#btn-confirm-paid');
+    paidBtn.click();
+    await new Promise(r => setTimeout(r, 800));
+    const checkOrderAfter = window.BMW_ORDERS_API.getOrderById(qrOrder.orderId);
+    const hasSuccessText = docQr.body.textContent.includes('THANH TOÁN THÀNH CÔNG') || docQr.body.textContent.toUpperCase().includes('PAYMENT SUCCESSFUL');
+    log('B - QR Banking', 'B09', 'Nút Đã thanh toán cập nhật paid & hiển thị animation thành công', 'paid & THANH TOÁN THÀNH CÔNG', `status: ${checkOrderAfter.paymentStatus}, view: ${hasSuccessText}`, checkOrderAfter.paymentStatus === 'paid' && hasSuccessText ? 'PASS' : 'FAIL');
+
+    // B10: API xác minh ngân hàng thật phía backend
+    log('B - QR Banking', 'B10', 'Tích hợp webhook xác minh tự động ngân hàng thật', 'Cần webhook API ngân hàng', 'Frontend demo mode', 'BLOCKED');
+
+    // ─── NHÓM D: HEADER VÀ DANH SÁCH ĐƠN HÀNG ────────────────────────────
+    await loadFrame('index.html');
+    const docHome = frame.contentDocument;
+    const saleNav = docHome.querySelector('.header nav a.sale');
+    const nextElem = saleNav?.nextElementSibling;
+    const isOrdersNextToSale = nextElem && (nextElem.textContent.includes('ORDERS') || nextElem.textContent.includes('ĐƠN HÀNG')) && nextElem.getAttribute('href') === 'orders.html';
+    log('D - Header & Orders', 'D01', 'Nút Đơn hàng nằm ngay bên phải nút Sale trên header', 'Đúng vị trí bên phải Sale', `nextSibling: ${nextElem?.textContent.trim()}`, isOrdersNextToSale ? 'PASS' : 'FAIL');
+
+    // Mở trang orders.html
+    await loadFrame('orders.html');
+    const docOrders = frame.contentDocument;
+    const orderCards = docOrders.querySelectorAll('.order-card');
+    log('D - Header & Orders', 'D03', 'Trang đơn hàng hiển thị danh sách đơn', '>= 2 đơn hàng', `${orderCards.length} đơn hàng`, orderCards.length >= 2 ? 'PASS' : 'FAIL');
+
+    // D08: Đơn mới nhất hiển thị trước
+    const firstCardId = orderCards[0].getAttribute('data-order-id');
+    log('D - Header & Orders', 'D08', 'Đơn hàng mới nhất xuất hiện trước', qrOrder.orderId, firstCardId, firstCardId === qrOrder.orderId ? 'PASS' : 'FAIL');
+
+    // ─── NHÓM E: HỦY ĐƠN HÀNG VÀ THEO DÕI ─────────────────────────────────
+    // E01 & E02: Mở chi tiết đơn hàng
+    orderCards[0].click();
+    const hasExpanded = orderCards[0].classList.contains('expanded');
+    log('E - Cancel Order', 'E02', 'Click mở rộng chi tiết đơn hàng', 'class expanded', hasExpanded ? 'expanded' : 'not expanded', hasExpanded ? 'PASS' : 'FAIL');
+
+    // E03: Nút hủy đơn hiển thị
+    const cancelBtn = orderCards[0].querySelector('.btn-cancel-order');
+    log('E - Cancel Order', 'E03', 'Nút HỦY ĐƠN HÀNG xuất hiện trong chi tiết', 'Nút tồn tại', Boolean(cancelBtn) ? 'Tìm thấy' : 'Không có', Boolean(cancelBtn) ? 'PASS' : 'FAIL');
+
+    // E04 & E07: Hủy đơn hàng kèm lý do
+    cancelBtn.click();
+    const modal = docOrders.querySelector('#cancel-order-modal');
+    const isModalOpen = modal?.classList.contains('show');
+    log('E - Cancel Order', 'E04', 'Modal chọn lý do hủy mở ra', 'class show', isModalOpen ? 'show' : 'hidden', isModalOpen ? 'PASS' : 'FAIL');
+
+    docOrders.querySelector('#btn-confirm-cancel').click();
+    await new Promise(r => setTimeout(r, 400));
+    const checkCancelStatus = window.BMW_ORDERS_API.getOrderById(qrOrder.orderId);
+    const hasCancelSuccessNotice = docOrders.body.textContent.includes('HỦY ĐƠN HÀNG THÀNH CÔNG') || docOrders.body.textContent.toUpperCase().includes('ORDER CANCELLED');
+    log('E - Cancel Order', 'E07', 'Hủy đơn thành công và hiển thị thông báo', 'Trạng thái Đã hủy & thông báo', `status: ${checkCancelStatus.orderStatus}`, (checkCancelStatus.orderStatus === 'Cancelled' || checkCancelStatus.orderStatus === 'Đã hủy') && hasCancelSuccessNotice ? 'PASS' : 'FAIL');
+
+    // ─── NHÓM F: DARK/LIGHT MODE TRÊN CÁC TRANG MỚI ───────────────────────
+    // F01: Checkout ở Light Mode
+    localStorage.setItem('bmw_theme', 'light');
+    await loadFrame('checkout.html');
+    const bgLight = frame.contentWindow.getComputedStyle(frame.contentDocument.querySelector('.checkout-card')).backgroundColor;
+    log('F - Theme', 'F01', 'Checkout card ở Light Mode có nền sáng', 'rgb(255, 255, 255)', bgLight, bgLight === 'rgb(255, 255, 255)' ? 'PASS' : 'FAIL');
+
+    // F02: Checkout ở Dark Mode
+    localStorage.setItem('bmw_theme', 'dark');
+    await loadFrame('checkout.html');
+    const bgDark = frame.contentWindow.getComputedStyle(frame.contentDocument.querySelector('.checkout-card')).backgroundColor;
+    log('F - Theme', 'F02', 'Checkout card ở Dark Mode có nền tối', 'rgb(24, 24, 24)', bgDark, bgDark === 'rgb(24, 24, 24)' ? 'PASS' : 'FAIL');
+
+    // F07: Orders page ở Dark Mode
+    await loadFrame('orders.html');
+    const bgOrderDark = frame.contentWindow.getComputedStyle(frame.contentDocument.querySelector('.order-card')).backgroundColor;
+    log('F - Theme', 'F07', 'Order card ở Dark Mode có nền tối', 'rgb(24, 24, 24)', bgOrderDark, bgOrderDark === 'rgb(24, 24, 24)' ? 'PASS' : 'FAIL');
+
+    // ─── Tổng kết ──────────────────────────────────────────────────────────
+    const total = passCount + failCount + blockedCount;
+    const sumEl = document.getElementById('overall-summary');
+    sumEl.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+    sumEl.textContent = `RESULT: ${passCount} PASS | ${failCount} FAIL | ${blockedCount} BLOCKED (Tổng: ${total} test cases)`;
+}
+
+window.addEventListener('DOMContentLoaded', runAllTests);
+</script>
+</body>
+</html>

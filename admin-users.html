@@ -1,0 +1,762 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Quản Lý Tài Khoản & Phân Quyền (Admin Users)</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+    <style>
+        .role-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .role-pill.admin { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
+        .role-pill.staff { background: rgba(217, 119, 6, 0.15); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.3); }
+        .role-pill.customer { background: rgba(37, 99, 235, 0.15); color: #3b82f6; border: 1px solid rgba(37, 99, 235, 0.3); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-pill.active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-pill.locked, .status-pill.banned { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .perm-tag {
+            display: inline-block;
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin: 2px 2px 2px 0;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-cell-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .user-cell-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-cell-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-cell-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .user-cell-handle {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        .gmail-linked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            color: #ea4335;
+            background: rgba(234, 67, 53, 0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-top: 2px;
+            width: fit-content;
+        }
+
+        .audit-action-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+        .audit-create { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .audit-update { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .audit-lock   { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .audit-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+            background: var(--bg-surface);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .disclaimer-banner {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--text-secondary);
+        }
+        .disclaimer-banner svg {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            color: var(--accent-blue);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR ───────────────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge">Admin</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Admin Navigation">
+                <div class="nav-section-title">Tổng quan</div>
+                <a href="admin-dashboard.html" class="dash-nav-item" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Bán hàng & Kho</div>
+                <a href="admin-orders.html" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Quản lý đơn hàng</span>
+                </a>
+                <a href="admin-products.html" class="dash-nav-item" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm & Kho</span>
+                </a>
+
+                <div class="nav-section-title">Khuyến mãi & Tiếp thị</div>
+                <a href="admin-promotions.html" class="dash-nav-item" id="nav-promotions">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                    <span class="nav-text">Mã giảm giá & Khuyến mãi</span>
+                </a>
+
+                <div class="nav-section-title">Tài khoản & Phân quyền</div>
+                <a href="admin-users.html" class="dash-nav-item active" id="nav-users">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Quản lý tài khoản</span>
+                </a>
+
+                <div class="nav-section-title">Hệ thống & Cá nhân</div>
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini" title="Xem hồ sơ">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">A</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Admin BMW</span>
+                        <span class="user-mini-role">Quản trị viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- Topbar -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="admin-dashboard.html">Admin</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current">Quản Lý Tài Khoản</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="index.html" class="btn-store-link" title="Xem trang bán hàng">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar" title="Hồ sơ cá nhân">A</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="dash-content">
+                <!-- Page Header -->
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Quản Lý Tài Khoản & Phân Quyền (Đợt 8.5)</h1>
+                        <p>Kiểm soát người dùng, phân cấp quyền Admin/Staff/Customer, bảo vệ tài khoản và lịch sử giao dịch</p>
+                    </div>
+                    <div class="page-actions-box">
+                        <button class="btn-action primary" id="btn-open-create-staff">
+                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Thêm Nhân Viên Mới</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Architecture & Security Disclaimer Banner -->
+                <div class="disclaimer-banner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <div>
+                        <strong>Lưu ý kiến trúc & an toàn hệ thống (VanillaJS Frontend Only):</strong>
+                        Hệ thống hoạt động hoàn toàn ở phía trình duyệt khách (Client-Side). Phân quyền, khóa phiên và kiểm soát truy cập được mô phỏng nghiêm ngặt. Khi đưa vào môi trường Production, bắt buộc phải đồng bộ xác thực JWT/OAuth2, băm mật khẩu Argon2/Bcrypt và ủy quyền API từ máy chủ Backend.
+                    </div>
+                </div>
+
+                <!-- ── 4 KPI STATS METRICS ─────────────────────────────────── -->
+                <section class="stats-grid" aria-label="Account Metrics">
+                    <!-- Total Accounts -->
+                    <div class="stat-card" id="card-total-users">
+                        <div class="stat-header">
+                            <span class="stat-title">Tổng Tài Khoản</span>
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-total-users">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Bao gồm Admin, Staff & Khách hàng</span>
+                        </div>
+                    </div>
+
+                    <!-- Customers -->
+                    <div class="stat-card" id="card-customers-count">
+                        <div class="stat-header">
+                            <span class="stat-title">Khách Hàng Đăng Ký</span>
+                            <div class="stat-icon green">
+                                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-customers-count">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-customers-sub">Đang đồng bộ đơn hàng...</span>
+                        </div>
+                    </div>
+
+                    <!-- Staff & Admins -->
+                    <div class="stat-card" id="card-staff-count">
+                        <div class="stat-header">
+                            <span class="stat-title">Nhân Viên & Quản Trị</span>
+                            <div class="stat-icon purple">
+                                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-staff-count">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-staff-sub">Đang tính toán...</span>
+                        </div>
+                    </div>
+
+                    <!-- Locked / Deactivated Accounts -->
+                    <div class="stat-card" id="card-locked-count">
+                        <div class="stat-header">
+                            <span class="stat-title">Tài Khoản Đang Khóa</span>
+                            <div class="stat-icon amber">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-locked-count">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext">Đã vô hiệu hóa phiên truy cập</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── TABS NAVIGATION ────────────────────────────────────── -->
+                <div class="dash-tabs" role="tablist">
+                    <button class="dash-tab-btn active" data-tab="tab-customers">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        <span>Khách Hàng (Customer)</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-staff">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Nhân Viên & Quản Trị (Staff & Admin)</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-audit">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Nhật Ký Thao Tác (Audit Logs)</span>
+                    </button>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 1 & 2: USERS CARD (CUSTOMERS / STAFF)                   -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane active" id="tab-users-view">
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title" id="users-tab-title">
+                                <span>Danh Sách Khách Hàng</span>
+                            </h2>
+                            <div class="table-controls">
+                                <!-- Status Filter -->
+                                <select class="filter-select" id="filter-user-status" aria-label="Lọc theo trạng thái">
+                                    <option value="ALL">Tất cả trạng thái</option>
+                                    <option value="active">Đang hoạt động (Active)</option>
+                                    <option value="locked">Đã khóa / Tạm ngưng (Locked)</option>
+                                </select>
+
+                                <!-- Table Search -->
+                                <input type="text" class="filter-search-input" id="filter-user-search" placeholder="Tìm kiếm theo username, email, sđt...">
+                            </div>
+                        </div>
+
+                        <!-- Table Responsive Wrapper -->
+                        <div class="table-responsive">
+                            <table class="dash-table" id="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tài Khoản</th>
+                                        <th>Email & SĐT</th>
+                                        <th>Vai Trò</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Lịch Sử Đơn</th>
+                                        <th>Ngày Tham Gia</th>
+                                        <th style="text-align: right;">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="dash-empty" id="users-table-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+                            <h4>Không tìm thấy tài khoản</h4>
+                            <p>Chưa có tài khoản nào khớp với điều kiện lọc hoặc từ khóa tìm kiếm của bạn.</p>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="dash-pagination" id="users-pagination">
+                            <div id="users-pagination-info">Hiển thị 1–5 trên tổng số 0 tài khoản</div>
+                            <div class="pagination-controls" id="users-pagination-btns">
+                                <!-- Dynamic Page Buttons -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 3: AUDIT LOGS                                           -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane" id="tab-audit-pane" style="display: none;">
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Nhật Ký Phân Quyền & Thao Tác Quản Trị (Audit Logs)</span>
+                            </h2>
+                            <div class="table-controls">
+                                <input type="text" class="filter-search-input" id="filter-audit-search" placeholder="Tìm theo người thực hiện, hành động...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="dash-table" id="audit-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 170px;">Thời Gian</th>
+                                        <th style="width: 150px;">Người Thực Hiện</th>
+                                        <th style="width: 140px;">Hành Động</th>
+                                        <th style="width: 160px;">Tài Khoản Tác Động</th>
+                                        <th>Nội Dung Chi Tiết</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-table-body">
+                                    <!-- Dynamic Audit Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="dash-empty" id="audit-table-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <h4>Chưa có nhật ký ghi nhận</h4>
+                            <p>Mọi hành vi cấp quyền, tạo nhân viên, khóa/mở hoặc vô hiệu hóa tài khoản sẽ được ghi nhận tại đây.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── MODAL: CREATE STAFF ACCOUNT ────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-create-staff" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 600px;" role="dialog" aria-labelledby="create-staff-title">
+            <div class="modal-header">
+                <h3 id="create-staff-title">Tạo Tài Khoản Nhân Viên Mới (Staff)</h3>
+                <button class="btn-modal-close" id="btn-close-create-staff">&times;</button>
+            </div>
+            <form id="form-create-staff" novalidate>
+                <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="staff-input-fullname">Họ và tên *</label>
+                            <input type="text" class="form-input" id="staff-input-fullname" placeholder="Nguyễn Văn A" required>
+                            <span class="field-error" id="err-staff-fullname" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="staff-input-username">Tên đăng nhập (Username) *</label>
+                            <input type="text" class="form-input" id="staff-input-username" placeholder="staff_nv1" required>
+                            <span class="field-error" id="err-staff-username" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="staff-input-email">Email chính *</label>
+                            <input type="email" class="form-input" id="staff-input-email" placeholder="nv1@bmwgym.vn" required>
+                            <span class="field-error" id="err-staff-email" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="staff-input-phone">Số điện thoại *</label>
+                            <div class="phone-input-group">
+                                <select class="phone-country-code" id="staff-country-code" aria-label="Mã quốc gia"></select>
+                                <input type="tel" class="form-input" id="staff-input-phone" placeholder="0905123456" required>
+                            </div>
+                            <span class="field-error" id="err-staff-phone" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="staff-input-password">Mật khẩu khởi tạo *</label>
+                            <input type="password" class="form-input" id="staff-input-password" placeholder="Tối thiểu 6 ký tự" required>
+                            <span class="field-error" id="err-staff-password" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="staff-input-confirm-pw">Xác nhận mật khẩu *</label>
+                            <input type="password" class="form-input" id="staff-input-confirm-pw" placeholder="Nhập lại mật khẩu" required>
+                            <span class="field-error" id="err-staff-confirm-pw" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="staff-input-dob">Ngày sinh</label>
+                            <input type="date" class="form-input" id="staff-input-dob">
+                        </div>
+                        <div>
+                            <label class="form-label" for="staff-input-address">Địa chỉ / Chi nhánh công tác</label>
+                            <input type="text" class="form-input" id="staff-input-address" placeholder="Kho Hải Châu, Đà Nẵng">
+                        </div>
+                    </div>
+
+                    <!-- Granular Permissions Section -->
+                    <div>
+                        <label class="form-label" style="font-weight: 700; margin-bottom: 4px;">Cấp quyền chi tiết (Granular Permissions):</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="orders_view" checked>
+                                <span>Xem danh sách đơn hàng</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="orders_update" checked>
+                                <span>Xử lý & Cập nhật đơn hàng</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="products_view" checked>
+                                <span>Xem danh mục sản phẩm</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="products_edit">
+                                <span>Quản lý kho & Sản phẩm</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="customers_view" checked>
+                                <span>Xem khách hàng & Giao vận</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="staff_perm" value="reports_view">
+                                <span>Xem báo cáo thống kê</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="btn-cancel-create-staff">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="btn-submit-create-staff">Tạo Tài Khoản</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── MODAL: VIEW USER DETAIL & ORDER HISTORY ────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-view-user" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 680px;" role="dialog" aria-labelledby="view-user-title">
+            <div class="modal-header">
+                <h3 id="view-user-title">Chi Tiết Hồ Sơ & Lịch Sử Giao Dịch</h3>
+                <button class="btn-modal-close" id="btn-close-view-user">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- User Basic Card -->
+                <div style="display: flex; gap: 16px; align-items: center; background: var(--bg-surface); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div class="user-cell-avatar" id="view-user-avatar" style="width: 56px; height: 56px; font-size: 20px;">U</div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 16px;" id="view-user-fullname">Nguyễn Văn A</strong>
+                            <span class="role-pill" id="view-user-role-badge">CUSTOMER</span>
+                            <span class="status-pill" id="view-user-status-badge">ACTIVE</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-muted); font-family: monospace;" id="view-user-username">@username</div>
+                        <div id="view-user-gmail-box" style="display: none;">
+                            <span class="gmail-linked-badge">🔗 Gmail: <span id="view-user-gmail-val"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">Email chính</div>
+                        <div class="detail-item-val" id="view-user-email">email@bmwgym.vn</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Số điện thoại</div>
+                        <div class="detail-item-val" id="view-user-phone">0905123456</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Ngày sinh</div>
+                        <div class="detail-item-val" id="view-user-dob">Chưa cập nhật</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Ngày tham gia</div>
+                        <div class="detail-item-val" id="view-user-created">01/01/2026</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div class="detail-item-label">Địa chỉ đăng ký</div>
+                        <div class="detail-item-val" id="view-user-address">137 Nguyễn Thị Thập, Hải Châu, Đà Nẵng</div>
+                    </div>
+                    <!-- Staff permissions view (if applicable) -->
+                    <div style="grid-column: 1 / -1;" id="view-user-perms-row">
+                        <div class="detail-item-label">Quyền hạn Staff được cấp</div>
+                        <div class="detail-item-val" id="view-user-perms-list" style="margin-top: 4px;"></div>
+                    </div>
+                </div>
+
+                <!-- Linked Orders Section -->
+                <div>
+                    <div class="detail-item-label" style="margin-bottom: 8px; font-weight: 700; color: var(--text-primary); display: flex; justify-content: space-between;">
+                        <span>Lịch Sử Đơn Hàng Liên Kết:</span>
+                        <span id="view-user-order-stats" style="color: var(--accent-blue); font-weight: 600;">0 đơn hàng (0₫)</span>
+                    </div>
+                    <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                        <table class="dash-table" style="font-size: 12px;">
+                            <thead>
+                                <tr>
+                                    <th>Mã Đơn</th>
+                                    <th>Ngày Đặt</th>
+                                    <th>Số Món</th>
+                                    <th>Tổng Tiền</th>
+                                    <th>Trạng Thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view-user-orders-body">
+                                <!-- Order Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" id="btn-close-view-user-footer">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL: EDIT USER & ROLES & PERMISSIONS ──────────────────────────── -->
+    <div class="dash-modal-backdrop" id="modal-edit-user" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 600px;" role="dialog" aria-labelledby="edit-user-title">
+            <div class="modal-header">
+                <h3 id="edit-user-title">Chỉnh Sửa Thông Tin & Phân Quyền</h3>
+                <button class="btn-modal-close" id="btn-close-edit-user">&times;</button>
+            </div>
+            <form id="form-edit-user">
+                <input type="hidden" id="edit-user-id">
+                <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="edit-input-fullname">Họ và tên *</label>
+                            <input type="text" class="form-input" id="edit-input-fullname" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-input-phone">Số điện thoại</label>
+                            <div class="phone-input-group">
+                                <select class="phone-country-code" id="edit-country-code" aria-label="Mã quốc gia"></select>
+                                <input type="tel" class="form-input" id="edit-input-phone">
+                            </div>
+                            <span class="field-error" id="err-edit-phone" style="color: #ef4444; font-size: 11px; display: none;"></span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="edit-input-role">Vai trò quản trị (Role) *</label>
+                            <select class="form-input" id="edit-input-role">
+                                <option value="customer">Khách hàng (Customer)</option>
+                                <option value="staff">Nhân viên (Staff)</option>
+                                <option value="admin">Quản trị viên (Admin)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-input-status">Trạng thái tài khoản *</label>
+                            <select class="form-input" id="edit-input-status">
+                                <option value="active">Đang hoạt động (Active)</option>
+                                <option value="locked">Đã khóa / Tạm ngưng (Locked)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label" for="edit-input-dob">Ngày sinh</label>
+                            <input type="date" class="form-input" id="edit-input-dob">
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-input-password">Đặt lại mật khẩu (để trống nếu giữ nguyên)</label>
+                            <input type="password" class="form-input" id="edit-input-password" placeholder="Nhập mật khẩu mới">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="edit-input-address">Địa chỉ</label>
+                        <input type="text" class="form-input" id="edit-input-address" placeholder="Địa chỉ giao hàng / làm việc">
+                    </div>
+
+                    <!-- Staff Granular Permissions Box (Visible only when role === 'staff') -->
+                    <div id="edit-staff-perms-box" style="display: none;">
+                        <label class="form-label" style="font-weight: 700; margin-bottom: 4px;">Quyền chi tiết dành cho Staff:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="orders_view">
+                                <span>Xem danh sách đơn hàng</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="orders_update">
+                                <span>Xử lý & Cập nhật đơn hàng</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="products_view">
+                                <span>Xem danh mục sản phẩm</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="products_edit">
+                                <span>Quản lý kho & Sản phẩm</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="customers_view">
+                                <span>Xem khách hàng & Giao vận</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="edit_staff_perm" value="reports_view">
+                                <span>Xem báo cáo thống kê</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="btn-cancel-edit-user">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="btn-submit-edit-user">Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── MODAL: SAFE CONFIRMATION DIALOG (LOCK / DELETE / DEACTIVATE) ───── -->
+    <div class="dash-modal-backdrop" id="modal-confirm" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 480px;" role="dialog" aria-labelledby="confirm-modal-title">
+            <div class="modal-header">
+                <h3 id="confirm-modal-title">Xác Nhận Thao Tác</h3>
+                <button class="btn-modal-close" id="btn-close-confirm">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <div id="confirm-modal-message" style="font-size: 14px; line-height: 1.6; color: var(--text-primary);"></div>
+                <div id="confirm-modal-extra" style="font-size: 13px; color: var(--text-muted);"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" id="btn-confirm-cancel">Hủy</button>
+                <button class="btn-action danger" id="btn-confirm-accept">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js" data-require-role="admin"></script>
+    <script src="js/phone-utils.js"></script>
+    <script src="js/admin-users.js"></script>
+</body>
+</html>

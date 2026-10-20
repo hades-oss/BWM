@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Staff Dashboard</title>
+    <!-- Brand Favicon & Fonts -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <!-- Mobile Backdrop -->
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR (9 ITEMS) ─────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="staff-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge" style="color: #10b981;">Staff</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Staff Navigation">
+                <div class="nav-section-title">Bàn làm việc</div>
+                
+                <!-- 1. Dashboard -->
+                <a href="#view-dashboard" class="dash-nav-item active" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Vận hành đơn hàng</div>
+
+                <!-- 2. Đơn hàng -->
+                <a href="staff-orders.html" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Đơn hàng</span>
+                </a>
+
+                <!-- 3. Xử lý giao hàng -->
+                <a href="staff-orders.html#queue-shipping" class="dash-nav-item" id="nav-dispatch">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    <span class="nav-text">Xử lý giao hàng</span>
+                </a>
+
+                <!-- 4. Sản phẩm (theo quyền được cấp) -->
+                <a href="staff-products.html" class="dash-nav-item" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm (theo quyền)</span>
+                </a>
+
+                <!-- 5. Kiểm tra tồn kho -->
+                <a href="staff-products.html#tab-inventory" class="dash-nav-item" id="nav-inventory">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <span class="nav-text">Kiểm tra tồn kho</span>
+                </a>
+
+                <div class="nav-section-title">Chăm sóc & Dịch vụ</div>
+
+                <!-- 6. Thanh toán -->
+                <a href="#view-payments" class="dash-nav-item" id="nav-payments">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    <span class="nav-text">Thanh toán</span>
+                </a>
+
+                <!-- 7. Hỗ trợ khách hàng -->
+                <a href="staff-customers.html" class="dash-nav-item" id="nav-support">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="nav-text">Hỗ trợ khách hàng</span>
+                </a>
+
+                <!-- 8. Đổi trả/hủy đơn -->
+                <a href="staff-orders.html#queue-returns" class="dash-nav-item" id="nav-returns">
+                    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                    <span class="nav-text">Đổi trả / Hủy đơn</span>
+                </a>
+
+                <div class="nav-section-title">Cá nhân</div>
+
+                <!-- 9. Hồ sơ cá nhân -->
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini" title="Xem hồ sơ">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">S</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Staff BMW</span>
+                        <span class="user-mini-role" id="sidebar-role-badge">Nhân viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- ── Topbar / Header ────────────────────────────────────────── -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="staff-dashboard.html">Staff</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current" id="breadcrumb-current">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="topbar-search-box">
+                    <svg class="topbar-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="topbar-search-input" id="topbar-search-input" placeholder="Tìm kiếm đơn hàng, SĐT, mã...">
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Storefront link -->
+                    <a href="index.html" class="btn-store-link" title="Xem trang bán hàng">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <!-- Notifications Dropdown -->
+                    <div class="notif-dropdown-wrapper">
+                        <button class="btn-icon-action" id="notif-btn" aria-label="Thông báo" title="Tác vụ cần xử lý">
+                            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span class="notif-dot" id="notif-dot" style="display: none;"></span>
+                        </button>
+                        <div class="notif-menu" id="notif-menu">
+                            <div class="notif-header">
+                                <span>Tác vụ vận hành</span>
+                                <span class="card-count" id="notif-count-badge" style="display: none;">0</span>
+                            </div>
+                            <div class="notif-list" id="notif-list">
+                                <!-- Dynamic notifications -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Pill & Logout -->
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar" title="Hồ sơ cá nhân">S</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── CONTENT CONTAINER ──────────────────────────────────────── -->
+            <main class="dash-content">
+                <!-- Page Title & Actions -->
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Staff Operations Dashboard</h1>
+                        <p>Khu vực điều phối xử lý đơn hàng, đóng gói giao vận và giám sát kho BMW GYM</p>
+                    </div>
+                    <div class="page-actions-box">
+                        <button class="btn-action" id="btn-refresh-data">
+                            <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            <span>Làm mới danh sách</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── 4 STAFF METRICS (REAL DATA) ─────────────────────────── -->
+                <section class="stats-grid" aria-label="Operational Indicators">
+                    <!-- 1. Orders to Process -->
+                    <div class="stat-card" id="card-pending-orders">
+                        <div class="stat-header">
+                            <span class="stat-title">Đơn Cần Xử Lý</span>
+                            <div class="stat-icon amber">
+                                <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-pending-orders">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-pending-sub">Đang cập nhật...</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Orders In Transit -->
+                    <div class="stat-card" id="card-transit-orders">
+                        <div class="stat-header">
+                            <span class="stat-title">Đơn Đang Giao</span>
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-transit-orders">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-transit-sub">Đang trên lộ trình</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Returns & Cancellations -->
+                    <div class="stat-card" id="card-returns-orders">
+                        <div class="stat-header">
+                            <span class="stat-title">Yêu Cầu Hủy / Đổi Trả</span>
+                            <div class="stat-icon red">
+                                <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-returns-orders">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-returns-sub">Cần rà soát lý do</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Low Stock Alert -->
+                    <div class="stat-card" id="card-low-stock">
+                        <div class="stat-header">
+                            <span class="stat-title">Cảnh Báo Hàng Sắp Hết</span>
+                            <div class="stat-icon purple">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-low-stock">0</div>
+                        <div class="stat-footer">
+                            <span class="stat-subtext" id="stat-low-stock-sub">Tồn kho &le; 20 sản phẩm</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── TWO COLUMNS: OPERATIONAL QUEUE & STOCK WATCHLIST ───── -->
+                <div class="dash-two-cols">
+                    <!-- Staff Order Queue -->
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Hàng Đợi Xử Lý Đơn Hàng</span>
+                            </h2>
+                            <div class="table-controls">
+                                <select class="filter-select" id="filter-task-select" aria-label="Lọc tác vụ">
+                                    <option value="ALL">Tất cả đơn</option>
+                                    <option value="PENDING">Cần đóng gói / xác nhận</option>
+                                    <option value="TRANSIT">Đang vận chuyển</option>
+                                    <option value="UNPAID">Chờ thanh toán (QR/COD)</option>
+                                    <option value="DELIVERED">Đã giao hoàn tất</option>
+                                    <option value="CANCELLED">Đã hủy</option>
+                                </select>
+                                <input type="text" class="filter-search-input" id="table-search-input" placeholder="Tìm theo mã hoặc tên...">
+                            </div>
+                        </div>
+
+                        <!-- Table Responsive Wrapper -->
+                        <div class="table-responsive">
+                            <table class="dash-table" id="queue-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Đơn</th>
+                                        <th>Khách Hàng</th>
+                                        <th>Ngày Tạo</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Thanh Toán</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác Nhanh</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queue-table-body">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div class="dash-loading" id="table-loading">
+                            <div class="dash-spinner"></div>
+                            <span>Đang tải danh sách tác vụ...</span>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="dash-empty" id="table-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            <h4>Không có đơn hàng nào cần xử lý</h4>
+                            <p>Tất cả các đơn trong danh mục lọc đã được cập nhật hoàn tất.</p>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="dash-pagination" id="table-pagination" style="display: none;">
+                            <div id="pagination-info">Hiển thị 1–5 trên tổng số 0 đơn hàng</div>
+                            <div class="pagination-controls" id="pagination-btns">
+                                <!-- Dynamic Buttons -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock Watchlist Side Panel -->
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Cảnh Báo Tồn Kho Kho Hàng</span>
+                            </h2>
+                        </div>
+                        <div class="top-products-list" id="stock-watchlist-container">
+                            <!-- Dynamic Low Stock Items -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── ORDER DETAIL MODAL ─────────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="order-detail-modal" aria-hidden="true">
+        <div class="dash-modal" role="dialog" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h3 id="modal-title">Chi Tiết Đơn Hàng <span id="modal-order-id" style="color: var(--accent-blue);">#BMW...</span></h3>
+                <button class="btn-modal-close" id="modal-close-btn" aria-label="Đóng">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">Người nhận hàng</div>
+                        <div class="detail-item-val" id="modal-customer-name">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Số điện thoại</div>
+                        <div class="detail-item-val" id="modal-customer-phone">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Thời gian đặt</div>
+                        <div class="detail-item-val" id="modal-order-date">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Phương thức thanh toán</div>
+                        <div class="detail-item-val" id="modal-order-payment">...</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div class="detail-item-label">Địa chỉ giao hàng</div>
+                        <div class="detail-item-val" id="modal-customer-address">...</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div class="detail-item-label">Ghi chú từ khách</div>
+                        <div class="detail-item-val" id="modal-customer-notes" style="font-weight: 400; color: var(--text-secondary);">...</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="detail-item-label" style="margin-bottom: 6px;">Trạng thái đơn hàng</div>
+                    <div id="modal-order-status"></div>
+                </div>
+
+                <div>
+                    <div class="detail-item-label" style="margin-bottom: 8px;">Danh sách sản phẩm</div>
+                    <div class="modal-items-list" id="modal-items-list">
+                        <!-- Dynamic item rows -->
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-surface); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Tạm tính:</span>
+                        <strong id="modal-subtotal">0₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Phí giao hàng:</span>
+                        <strong id="modal-shipping">0₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Giảm giá:</span>
+                        <strong id="modal-discount" style="color: #ef4444;">-0₫</strong>
+                    </div>
+                    <div class="modal-total-bar">
+                        <span>Tổng thanh toán:</span>
+                        <span id="modal-total" style="color: var(--accent-blue);">0₫</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" id="modal-close-footer-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST NOTIFICATION CONTAINER ──────────────────────────────────── -->
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <!-- ── JAVASCRIPT DEPENDENCIES ────────────────────────────────────────── -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/staff-dashboard.js"></script>
+</body>
+</html>

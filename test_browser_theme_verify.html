@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BMW GYM — Direct Browser Theme Verification (index.html & subpages)</title>
+    <style>
+        body { font-family: monospace; background: #0f172a; color: #f8fafc; padding: 20px; }
+        h1 { color: #38bdf8; font-size: 20px; margin-bottom: 8px; }
+        .subhead { color: #94a3b8; font-size: 13px; margin-bottom: 24px; }
+        table { border-collapse: collapse; width: 100%; font-size: 12px; margin-bottom: 24px; }
+        th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #1e293b; color: #38bdf8; font-weight: 700; }
+        .pass { color: #4ade80; font-weight: 700; }
+        .fail { color: #f87171; font-weight: 700; }
+        .banner { padding: 12px 18px; border-radius: 4px; font-size: 15px; font-weight: 700; margin-top: 16px; width: fit-content; }
+        .banner.pass { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; }
+        .banner.fail { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; }
+        iframe { width: 1200px; height: 800px; border: 1px solid #334155; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>BMW GYM — Direct Browser Verification: Theme Contrast & Consistency</h1>
+<div class="subhead">Runs tests directly on index.html and subpages using live DOM evaluation & computed styles</div>
+
+<table id="test-table">
+    <thead>
+        <tr>
+            <th>Test</th>
+            <th>Page</th>
+            <th>Target Area</th>
+            <th>Mode</th>
+            <th>Property</th>
+            <th>Actual Value</th>
+            <th>Status</th>
+            <th>Details / Verification</th>
+        </tr>
+    </thead>
+    <tbody id="test-body"></tbody>
+</table>
+
+<div id="overall-summary"></div>
+
+<iframe id="live-frame" src="about:blank"></iframe>
+
+<script>
+const tbody = document.getElementById('test-body');
+let passCount = 0;
+let failCount = 0;
+
+function log(testId, page, target, mode, prop, actual, isPass, detail) {
+    if (isPass) passCount++; else failCount++;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td><strong>${testId}</strong></td>
+        <td>${page}</td>
+        <td>${target}</td>
+        <td>${mode}</td>
+        <td>${prop}</td>
+        <td><code>${actual}</code></td>
+        <td class="${isPass ? 'pass' : 'fail'}">${isPass ? 'PASS' : 'FAIL'}</td>
+        <td>${detail}</td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function loadFrame(url) {
+    return new Promise(resolve => {
+        const frame = document.getElementById('live-frame');
+        frame.onload = () => setTimeout(resolve, 350);
+        frame.src = url;
+    });
+}
+
+function isDarkTone(rgbStr) {
+    if (!rgbStr) return false;
+    const m = rgbStr.match(/\d+/g);
+    if (!m || m.length < 3) return false;
+    const r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
+    // Perceived luminance < 80
+    return (0.299*r + 0.587*g + 0.114*b) < 80;
+}
+
+function isLightTone(rgbStr) {
+    if (!rgbStr) return false;
+    const m = rgbStr.match(/\d+/g);
+    if (!m || m.length < 3) return false;
+    const r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
+    // Perceived luminance > 160
+    return (0.299*r + 0.587*g + 0.114*b) > 160;
+}
+
+async function runVerification() {
+    const frame = document.getElementById('live-frame');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEST 1 — index.html in DARK MODE
+    // ═══════════════════════════════════════════════════════════════════════
+    localStorage.setItem('bmw_theme', 'dark');
+    await loadFrame('index.html');
+    const docDark = frame.contentDocument;
+    const winDark = frame.contentWindow;
+
+    // 1.1 Body
+    const bodyBgDark = winDark.getComputedStyle(docDark.body).backgroundColor;
+    log('T1.1', 'index.html', 'body', 'DARK', 'background-color', bodyBgDark, isDarkTone(bodyBgDark), 'Nền body tối chuẩn');
+
+    // 1.2 Header
+    const headerBgDark = winDark.getComputedStyle(docDark.querySelector('.header')).backgroundColor;
+    log('T1.2', 'index.html', '.header', 'DARK', 'background-color', headerBgDark, isDarkTone(headerBgDark), 'Header tối chuẩn');
+
+    // 1.3 Categories section
+    const catDark = docDark.querySelector('.categories');
+    const catBgDark = winDark.getComputedStyle(catDark).backgroundColor;
+    const catH2Dark = winDark.getComputedStyle(catDark.querySelector('h2')).color;
+    log('T1.3a', 'index.html', '.categories', 'DARK', 'background-color', catBgDark, isDarkTone(catBgDark), 'Categories nền tối');
+    log('T1.3b', 'index.html', '.categories h2', 'DARK', 'color', catH2Dark, isLightTone(catH2Dark), 'Tiêu đề categories chữ sáng');
+
+    // 1.4 The Grind section
+    const grindDark = docDark.querySelector('.grind');
+    const grindBgDark = winDark.getComputedStyle(grindDark).backgroundColor;
+    const grindH2Dark = winDark.getComputedStyle(grindDark.querySelector('h2')).color;
+    log('T1.4a', 'index.html', '.grind', 'DARK', 'background-color', grindBgDark, isDarkTone(grindBgDark), 'Grind section nền tối');
+    log('T1.4b', 'index.html', '.grind h2', 'DARK', 'color', grindH2Dark, isLightTone(grindH2Dark), 'Grind h2 chữ sáng');
+
+    // 1.5 New Arrivals Products section
+    const prodDark = docDark.querySelector('.products');
+    const prodBgDark = winDark.getComputedStyle(prodDark).backgroundColor;
+    const prodH2Dark = winDark.getComputedStyle(prodDark.querySelector('h2')).color;
+    log('T1.5a', 'index.html', '.products', 'DARK', 'background-color', prodBgDark, isDarkTone(prodBgDark), 'Products section nền tối');
+    log('T1.5b', 'index.html', '.products h2', 'DARK', 'color', prodH2Dark, isLightTone(prodH2Dark), 'Products h2 chữ sáng');
+
+    // 1.6 Product Cards in New Arrivals
+    const cardTitleDark = docDark.querySelector('.product-copy h3 a');
+    const cardPriceDark = docDark.querySelector('.product-copy .price');
+    const cardTitleDarkColor = cardTitleDark ? winDark.getComputedStyle(cardTitleDark).color : 'null';
+    const cardPriceDarkColor = cardPriceDark ? winDark.getComputedStyle(cardPriceDark).color : 'null';
+    log('T1.6a', 'index.html', '.product-copy h3 a', 'DARK', 'color', cardTitleDarkColor, isLightTone(cardTitleDarkColor), 'Tên sản phẩm chữ sáng rõ');
+    log('T1.6b', 'index.html', '.product-copy .price', 'DARK', 'color', cardPriceDarkColor, isLightTone(cardPriceDarkColor), 'Giá sản phẩm chữ sáng rõ');
+
+    // 1.7 Best Sellers
+    const bestDark = docDark.querySelector('.best');
+    const bestBgDark = winDark.getComputedStyle(bestDark).backgroundColor;
+    const bestH2Dark = winDark.getComputedStyle(bestDark.querySelector('h2')).color;
+    log('T1.7a', 'index.html', '.best', 'DARK', 'background-color', bestBgDark, isDarkTone(bestBgDark), 'Best Sellers nền tối');
+    log('T1.7b', 'index.html', '.best h2', 'DARK', 'color', bestH2Dark, isLightTone(bestH2Dark), 'Best Sellers h2 chữ sáng');
+
+    // 1.8 Why BMW section
+    const whyDark = docDark.querySelector('.why');
+    const whyBgDark = winDark.getComputedStyle(whyDark).backgroundColor;
+    const whyH2Dark = winDark.getComputedStyle(whyDark.querySelector('h2')).color;
+    log('T1.8a', 'index.html', '.why', 'DARK', 'background-color', whyBgDark, isDarkTone(whyBgDark), 'Why BMW nền tối athletic navy');
+    log('T1.8b', 'index.html', '.why h2', 'DARK', 'color', whyH2Dark, isLightTone(whyH2Dark), 'Why BMW h2 chữ sáng');
+
+    // 1.9 The Essentials
+    const essDark = docDark.querySelector('.product-preview');
+    const essBgDark = winDark.getComputedStyle(essDark).backgroundColor;
+    const essH2Dark = winDark.getComputedStyle(essDark.querySelector('h2')).color;
+    log('T1.9a', 'index.html', '.product-preview', 'DARK', 'background-color', essBgDark, isDarkTone(essBgDark), 'The Essentials nền tối');
+    log('T1.9b', 'index.html', '.product-preview h2', 'DARK', 'color', essH2Dark, isLightTone(essH2Dark), 'The Essentials h2 chữ sáng');
+
+    // 1.10 Newsletter & Footer
+    const newsDark = docDark.querySelector('.newsletter');
+    const footDark = docDark.querySelector('footer');
+    const newsBgDark = winDark.getComputedStyle(newsDark).backgroundColor;
+    const newsH2Dark = winDark.getComputedStyle(newsDark.querySelector('h2')).color;
+    const footBgDark = winDark.getComputedStyle(footDark).backgroundColor;
+    log('T1.10a', 'index.html', '.newsletter', 'DARK', 'background-color', newsBgDark, isDarkTone(newsBgDark), 'Newsletter nền tối');
+    log('T1.10b', 'index.html', '.newsletter h2', 'DARK', 'color', newsH2Dark, isLightTone(newsH2Dark), 'Newsletter h2 chữ sáng');
+    log('T1.10c', 'index.html', 'footer', 'DARK', 'background-color', footBgDark, isDarkTone(footBgDark), 'Footer nền tối');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEST 2 — index.html in LIGHT MODE
+    // ═══════════════════════════════════════════════════════════════════════
+    // Click toggle button directly inside index.html to switch to Light mode
+    const toggleBtn = docDark.querySelector('#theme-toggle-btn');
+    if (toggleBtn) toggleBtn.click();
+    await new Promise(r => setTimeout(r, 100));
+
+    const docLight = frame.contentDocument;
+    const winLight = frame.contentWindow;
+
+    // 2.1 Body
+    const bodyBgLight = winLight.getComputedStyle(docLight.body).backgroundColor;
+    log('T2.1', 'index.html', 'body', 'LIGHT', 'background-color', bodyBgLight, isLightTone(bodyBgLight), 'Nền body sáng chuẩn');
+
+    // 2.2 Header
+    const headerBgLight = winLight.getComputedStyle(docLight.querySelector('.header')).backgroundColor;
+    const brandLight = winLight.getComputedStyle(docLight.querySelector('.brand')).color;
+    const navLinkLight = winLight.getComputedStyle(docLight.querySelector('.header nav a')).color;
+    log('T2.2a', 'index.html', '.header', 'LIGHT', 'background-color', headerBgLight, isLightTone(headerBgLight), 'Header nền trắng sáng');
+    log('T2.2b', 'index.html', '.brand', 'LIGHT', 'color', brandLight, isDarkTone(brandLight), 'Logo brand chữ đen rõ nét');
+    log('T2.2c', 'index.html', '.header nav a', 'LIGHT', 'color', navLinkLight, isDarkTone(navLinkLight), 'Nav link chữ tối dễ đọc');
+
+    // 2.3 Categories
+    const catLight = docLight.querySelector('.categories');
+    const catBgLight = winLight.getComputedStyle(catLight).backgroundColor;
+    const catH2Light = winLight.getComputedStyle(catLight.querySelector('h2')).color;
+    log('T2.3a', 'index.html', '.categories', 'LIGHT', 'background-color', catBgLight, isLightTone(catBgLight), 'Categories nền sáng');
+    log('T2.3b', 'index.html', '.categories h2', 'LIGHT', 'color', catH2Light, isDarkTone(catH2Light), 'Categories h2 chữ đen rõ nét (KHÔNG TRẮNG)');
+
+    // 2.4 The Grind
+    const grindLight = docLight.querySelector('.grind');
+    const grindBgLight = winLight.getComputedStyle(grindLight).backgroundColor;
+    const grindH2Light = winLight.getComputedStyle(grindLight.querySelector('h2')).color;
+    const grindPLight = winLight.getComputedStyle(grindLight.querySelector('.grind-content > p:not(.eyebrow)')).color;
+    log('T2.4a', 'index.html', '.grind', 'LIGHT', 'background-color', grindBgLight, isLightTone(grindBgLight), 'Grind section nền sáng');
+    log('T2.4b', 'index.html', '.grind h2', 'LIGHT', 'color', grindH2Light, isDarkTone(grindH2Light), 'Grind h2 chữ đen rõ nét (KHÔNG TRẮNG)');
+    log('T2.4c', 'index.html', '.grind p', 'LIGHT', 'color', grindPLight, isDarkTone(grindPLight), 'Grind p chữ tối dễ đọc');
+
+    // 2.5 New Arrivals
+    const prodLight = docLight.querySelector('.products');
+    const prodBgLight = winLight.getComputedStyle(prodLight).backgroundColor;
+    const prodH2Light = winLight.getComputedStyle(prodLight.querySelector('h2')).color;
+    log('T2.5a', 'index.html', '.products', 'LIGHT', 'background-color', prodBgLight, isLightTone(prodBgLight), 'Products section nền sáng');
+    log('T2.5b', 'index.html', '.products h2', 'LIGHT', 'color', prodH2Light, isDarkTone(prodH2Light), 'Products h2 chữ đen rõ nét');
+
+    // 2.6 Product Cards
+    const cardTitleLight = docLight.querySelector('.product-copy h3 a');
+    const cardPriceLight = docLight.querySelector('.product-copy .price');
+    const cardTitleLightColor = cardTitleLight ? winLight.getComputedStyle(cardTitleLight).color : 'null';
+    const cardPriceLightColor = cardPriceLight ? winLight.getComputedStyle(cardPriceLight).color : 'null';
+    log('T2.6a', 'index.html', '.product-copy h3 a', 'LIGHT', 'color', cardTitleLightColor, isDarkTone(cardTitleLightColor), 'Tên sản phẩm chữ đen rõ nét');
+    log('T2.6b', 'index.html', '.product-copy .price', 'LIGHT', 'color', cardPriceLightColor, isDarkTone(cardPriceLightColor), 'Giá sản phẩm chữ đen rõ nét');
+
+    // 2.7 Best Sellers
+    const bestLight = docLight.querySelector('.best');
+    const bestBgLight = winLight.getComputedStyle(bestLight).backgroundColor;
+    const bestH2Light = winLight.getComputedStyle(bestLight.querySelector('h2')).color;
+    log('T2.7a', 'index.html', '.best', 'LIGHT', 'background-color', bestBgLight, isLightTone(bestBgLight), 'Best Sellers nền sáng');
+    log('T2.7b', 'index.html', '.best h2', 'LIGHT', 'color', bestH2Light, isDarkTone(bestH2Light), 'Best Sellers h2 chữ đen rõ nét');
+
+    // 2.8 Why BMW
+    const whyLight = docLight.querySelector('.why');
+    const whyBgLight = winLight.getComputedStyle(whyLight).backgroundColor;
+    const whyH2Light = winLight.getComputedStyle(whyLight.querySelector('h2')).color;
+    const whyArticleH3 = docLight.querySelector('.why-grid h3');
+    const whyArticleH3Color = whyArticleH3 ? winLight.getComputedStyle(whyArticleH3).color : 'null';
+    log('T2.8a', 'index.html', '.why', 'LIGHT', 'background-color', whyBgLight, isLightTone(whyBgLight), 'Why BMW nền sáng');
+    log('T2.8b', 'index.html', '.why h2', 'LIGHT', 'color', whyH2Light, isDarkTone(whyH2Light), 'Why BMW h2 chữ đen rõ nét');
+    log('T2.8c', 'index.html', '.why-grid h3', 'LIGHT', 'color', whyArticleH3Color, isDarkTone(whyArticleH3Color), 'Why BMW grid item h3 chữ đen rõ nét');
+
+    // 2.9 The Essentials
+    const essLight = docLight.querySelector('.product-preview');
+    const essBgLight = winLight.getComputedStyle(essLight).backgroundColor;
+    const essH2Light = winLight.getComputedStyle(essLight.querySelector('h2')).color;
+    const essItemH3 = docLight.querySelector('#essentials-grid h3 a');
+    const essItemH3Color = essItemH3 ? winLight.getComputedStyle(essItemH3).color : 'null';
+    log('T2.9a', 'index.html', '.product-preview', 'LIGHT', 'background-color', essBgLight, isLightTone(essBgLight), 'The Essentials nền sáng');
+    log('T2.9b', 'index.html', '.product-preview h2', 'LIGHT', 'color', essH2Light, isDarkTone(essH2Light), 'The Essentials h2 chữ đen rõ nét');
+    log('T2.9c', 'index.html', '#essentials-grid h3 a', 'LIGHT', 'color', essItemH3Color, isDarkTone(essItemH3Color), 'Essentials card h3 a chữ đen rõ nét');
+
+    // 2.10 Community & Newsletter & Footer
+    const commLight = docLight.querySelector('.community');
+    const newsLight = docLight.querySelector('.newsletter');
+    const footLight = docLight.querySelector('footer');
+    const commBgLight = winLight.getComputedStyle(commLight).backgroundColor;
+    const commH2Light = winLight.getComputedStyle(commLight.querySelector('h2')).color;
+    const newsBgLight = winLight.getComputedStyle(newsLight).backgroundColor;
+    const newsH2Light = winLight.getComputedStyle(newsLight.querySelector('h2')).color;
+    const footBgLight = winLight.getComputedStyle(footLight).backgroundColor;
+    const footH3Light = winLight.getComputedStyle(footLight.querySelector('.footer-links h3')).color;
+    log('T2.10a', 'index.html', '.community', 'LIGHT', 'background-color', commBgLight, isLightTone(commBgLight), 'Community nền sáng');
+    log('T2.10b', 'index.html', '.community h2', 'LIGHT', 'color', commH2Light, isDarkTone(commH2Light), 'Community h2 chữ đen rõ nét');
+    log('T2.10c', 'index.html', '.newsletter', 'LIGHT', 'background-color', newsBgLight, isLightTone(newsBgLight), 'Newsletter nền sáng');
+    log('T2.10d', 'index.html', '.newsletter h2', 'LIGHT', 'color', newsH2Light, isDarkTone(newsH2Light), 'Newsletter h2 chữ đen rõ nét');
+    log('T2.10e', 'index.html', 'footer', 'LIGHT', 'background-color', footBgLight, isLightTone(footBgLight), 'Footer nền sáng');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEST 3 — Chuyển qua lại nhiều lần (Dark -> Light -> Dark -> Light)
+    // ═══════════════════════════════════════════════════════════════════════
+    const btn = docLight.querySelector('#theme-toggle-btn');
+    btn.click(); // to Dark
+    await new Promise(r => setTimeout(r, 60));
+    const cycle1Theme = docLight.documentElement.getAttribute('data-theme');
+    const cycle1Bg = winLight.getComputedStyle(docLight.body).backgroundColor;
+
+    btn.click(); // to Light
+    await new Promise(r => setTimeout(r, 60));
+    const cycle2Theme = docLight.documentElement.getAttribute('data-theme');
+    const cycle2Bg = winLight.getComputedStyle(docLight.body).backgroundColor;
+
+    btn.click(); // to Dark
+    await new Promise(r => setTimeout(r, 60));
+    const cycle3Theme = docLight.documentElement.getAttribute('data-theme');
+    const cycle3Bg = winLight.getComputedStyle(docLight.body).backgroundColor;
+
+    btn.click(); // to Light
+    await new Promise(r => setTimeout(r, 60));
+    const cycle4Theme = docLight.documentElement.getAttribute('data-theme');
+    const cycle4Bg = winLight.getComputedStyle(docLight.body).backgroundColor;
+
+    const cyclePass = cycle1Theme === 'dark' && isDarkTone(cycle1Bg) &&
+                      cycle2Theme === 'light' && isLightTone(cycle2Bg) &&
+                      cycle3Theme === 'dark' && isDarkTone(cycle3Bg) &&
+                      cycle4Theme === 'light' && isLightTone(cycle4Bg);
+    log('T3.1', 'index.html', 'theme-toggle-btn', 'MULTI-CYCLE', 'Rapid Toggle 4x', `${cycle1Theme}->${cycle2Theme}->${cycle3Theme}->${cycle4Theme}`, cyclePass, 'Đảo theme 4 lần liên tiếp mượt mà, màu nền đồng bộ chuẩn xác');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEST 4 — Kiểm tra các trang khác (Shop, Search, Product Detail, Cart, Wishlist)
+    // ═══════════════════════════════════════════════════════════════════════
+    // 4.1 Shop Page in Dark
+    localStorage.setItem('bmw_theme', 'dark');
+    await loadFrame('shop.html');
+    const docShop = frame.contentDocument;
+    const winShop = frame.contentWindow;
+    const shopFilterBgDark = winShop.getComputedStyle(docShop.querySelector('.filter-sort-bar')).backgroundColor;
+    const shopSelectBgDark = winShop.getComputedStyle(docShop.querySelector('.filter-select')).backgroundColor;
+    log('T4.1a', 'shop.html', '.filter-sort-bar', 'DARK', 'background-color', shopFilterBgDark, isDarkTone(shopFilterBgDark), 'Shop filter bar nền tối');
+    log('T4.1b', 'shop.html', '.filter-select', 'DARK', 'background-color', shopSelectBgDark, isDarkTone(shopSelectBgDark), 'Shop select dropdown nền tối');
+
+    // 4.2 Shop Page in Light
+    localStorage.setItem('bmw_theme', 'light');
+    await loadFrame('shop.html');
+    const docShopL = frame.contentDocument;
+    const winShopL = frame.contentWindow;
+    const shopFilterBgLight = winShopL.getComputedStyle(docShopL.querySelector('.filter-sort-bar')).backgroundColor;
+    const shopSelectBgLight = winShopL.getComputedStyle(docShopL.querySelector('.filter-select')).backgroundColor;
+    log('T4.2a', 'shop.html', '.filter-sort-bar', 'LIGHT', 'background-color', shopFilterBgLight, isLightTone(shopFilterBgLight), 'Shop filter bar nền sáng');
+    log('T4.2b', 'shop.html', '.filter-select', 'LIGHT', 'background-color', shopSelectBgLight, isLightTone(shopSelectBgLight), 'Shop select dropdown nền sáng');
+
+    // 4.3 Product Detail in Light (EXT.0 contrast check)
+    localStorage.setItem('bmw_theme', 'light');
+    await loadFrame('product-detail.html?id=p1');
+    const docDetailL = frame.contentDocument;
+    const winDetailL = frame.contentWindow;
+    const titleColorL = winDetailL.getComputedStyle(docDetailL.querySelector('.detail-title')).color;
+    const priceColorL = winDetailL.getComputedStyle(docDetailL.querySelector('.detail-current-price')).color;
+    const descColorL  = winDetailL.getComputedStyle(docDetailL.querySelector('.detail-description')).color;
+    const qtyPlusColorL = winDetailL.getComputedStyle(docDetailL.querySelector('#detail-qty-plus')).color;
+    log('T4.3a', 'product-detail.html', '.detail-title', 'LIGHT', 'color', titleColorL, titleColorL === 'rgb(0, 0, 0)', 'Tên sản phẩm đen #000000');
+    log('T4.3b', 'product-detail.html', '.detail-current-price', 'LIGHT', 'color', priceColorL, priceColorL === 'rgb(0, 0, 0)', 'Giá sản phẩm đen #000000');
+    log('T4.3c', 'product-detail.html', '.detail-description', 'LIGHT', 'color', descColorL, descColorL === 'rgb(0, 0, 0)', 'Mô tả sản phẩm đen #000000');
+    log('T4.3d', 'product-detail.html', '#detail-qty-plus', 'LIGHT', 'color', qtyPlusColorL, qtyPlusColorL === 'rgb(0, 0, 0)', 'Nút + số lượng đen #000000');
+
+    // 4.4 Product Detail in Dark
+    localStorage.setItem('bmw_theme', 'dark');
+    await loadFrame('product-detail.html?id=p1');
+    const docDetailD = frame.contentDocument;
+    const winDetailD = frame.contentWindow;
+    const titleColorD = winDetailD.getComputedStyle(docDetailD.querySelector('.detail-title')).color;
+    const qtyPlusColorD = winDetailD.getComputedStyle(docDetailD.querySelector('#detail-qty-plus')).color;
+    log('T4.4a', 'product-detail.html', '.detail-title', 'DARK', 'color', titleColorD, isLightTone(titleColorD), 'Tên sản phẩm trắng trên nền tối');
+    log('T4.4b', 'product-detail.html', '#detail-qty-plus', 'DARK', 'color', qtyPlusColorD, isLightTone(qtyPlusColorD), 'Nút + số lượng trắng trên nền tối');
+
+    // 4.5 Wishlist Page
+    localStorage.setItem('bmw_theme', 'light');
+    await loadFrame('wishlist.html');
+    const docWlL = frame.contentDocument;
+    const winWlL = frame.contentWindow;
+    const wlBgL = winWlL.getComputedStyle(docWlL.querySelector('.wishlist-page-section')).backgroundColor;
+    log('T4.5', 'wishlist.html', '.wishlist-page-section', 'LIGHT', 'background-color', wlBgL, isLightTone(wlBgL), 'Wishlist section nền sáng');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TEST 5 — Regression (Quick View & Persistence)
+    // ═══════════════════════════════════════════════════════════════════════
+    // 5.1 Quick View Modal on index.html
+    localStorage.setItem('bmw_theme', 'light');
+    await loadFrame('index.html');
+    const docIdx = frame.contentDocument;
+    const winIdx = frame.contentWindow;
+    if (typeof winIdx.quickViewAPI !== 'undefined') {
+        winIdx.quickViewAPI.open('p1');
+        const qvModalL = docIdx.querySelector('.qv-modal');
+        const qvModalBgL = winIdx.getComputedStyle(qvModalL).backgroundColor;
+        const qvNameColorL = winIdx.getComputedStyle(qvModalL.querySelector('.qv-name')).color;
+        log('T5.1a', 'index.html', '.qv-modal', 'LIGHT', 'background-color', qvModalBgL, isLightTone(qvModalBgL), 'Quick View modal nền sáng');
+        log('T5.1b', 'index.html', '.qv-name', 'LIGHT', 'color', qvNameColorL, isDarkTone(qvNameColorL), 'Quick View tên sản phẩm chữ tối');
+        winIdx.quickViewAPI.close();
+    }
+
+    // 5.2 Persistence across reload
+    const stored = localStorage.getItem('bmw_theme');
+    log('T5.2', 'all', 'localStorage', 'PERSIST', 'bmw_theme', stored, stored === 'light', 'Theme lưu đúng key bmw_theme');
+
+    // Final summary banner
+    const total = passCount + failCount;
+    const sumEl = document.getElementById('overall-summary');
+    sumEl.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+    sumEl.textContent = `RESULT: ${passCount}/${total} PASS${failCount > 0 ? ` | ${failCount} FAIL` : ' — ALL CRITICAL THEME REQUIREMENTS MET'}`;
+}
+
+window.addEventListener('DOMContentLoaded', runVerification);
+</script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Quản Lý Sản Phẩm & Kho Hàng</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR ───────────────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge">Admin</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Admin Navigation">
+                <div class="nav-section-title">Tổng quan</div>
+                <a href="admin-dashboard.html" class="dash-nav-item" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Bán hàng & Kho</div>
+                <a href="admin-orders.html" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Quản lý đơn hàng</span>
+                </a>
+                <a href="admin-products.html" class="dash-nav-item active" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm & Kho</span>
+                </a>
+
+                <div class="nav-section-title">Khuyến mãi & Tiếp thị</div>
+                <a href="admin-promotions.html" class="dash-nav-item" id="nav-promotions">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                    <span class="nav-text">Mã giảm giá & Khuyến mãi</span>
+                </a>
+
+                <div class="nav-section-title">Tài khoản & Phân quyền</div>
+                <a href="admin-users.html" class="dash-nav-item" id="nav-users">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Quản lý tài khoản</span>
+                </a>
+
+                <div class="nav-section-title">Hệ thống & Cá nhân</div>
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">A</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Admin BMW</span>
+                        <span class="user-mini-role">Quản trị viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- Topbar -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="admin-dashboard.html">Admin</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current">Quản Lý Sản Phẩm</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="index.html" class="btn-store-link">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar">A</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── CONTENT ────────────────────────────────────────────────── -->
+            <main class="dash-content">
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Quản Lý Sản Phẩm & Kho Hàng</h1>
+                        <p>Toàn quyền điều phối danh mục, bảng giá, kho hàng và cấu hình quyền nhân viên</p>
+                    </div>
+                </div>
+
+                <!-- ── TABS NAVIGATION ────────────────────────────────────── -->
+                <div class="dash-tabs" role="tablist">
+                    <button class="dash-tab-btn active" data-tab="tab-products">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        <span>Sản phẩm</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-categories">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="2" cy="6" r="1"/><circle cx="2" cy="12" r="1"/><circle cx="2" cy="18" r="1"/></svg>
+                        <span>Danh mục</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-inventory">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        <span>Kho hàng & Tồn kho</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-permissions">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Phân quyền Staff</span>
+                    </button>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 1: SẢN PHẨM (PRODUCTS)                                 -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane active" id="tab-products">
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Danh Sách Sản Phẩm</span>
+                            </h2>
+                            <div class="page-actions-box">
+                                <button class="btn-action primary" id="btn-open-add-product">
+                                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <span>+ Thêm Sản Phẩm Mới</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters & Sorting Bar -->
+                        <div class="table-controls" style="margin-bottom: 14px;">
+                            <input type="text" class="filter-search-input" id="search-products-input" placeholder="Tìm tên hoặc mã sản phẩm...">
+
+                            <select class="filter-select" id="filter-category" aria-label="Lọc theo danh mục">
+                                <option value="ALL">Tất cả danh mục</option>
+                            </select>
+
+                            <select class="filter-select" id="filter-stock" aria-label="Lọc theo tồn kho">
+                                <option value="ALL">Tất cả trạng thái tồn</option>
+                                <option value="IN_STOCK">Còn hàng</option>
+                                <option value="LOW_STOCK">Sắp hết hàng</option>
+                                <option value="OUT_OF_STOCK">Hết hàng</option>
+                            </select>
+
+                            <select class="filter-select" id="sort-products" aria-label="Sắp xếp sản phẩm">
+                                <option value="ID_ASC">Mã ID (Tăng dần)</option>
+                                <option value="NAME_ASC">Tên (A–Z)</option>
+                                <option value="NAME_DESC">Tên (Z–A)</option>
+                                <option value="PRICE_ASC">Giá tăng dần</option>
+                                <option value="PRICE_DESC">Giá giảm dần</option>
+                                <option value="STOCK_ASC">Tồn kho ít nhất</option>
+                                <option value="STOCK_DESC">Tồn kho nhiều nhất</option>
+                            </select>
+                        </div>
+
+                        <!-- Products Table -->
+                        <div class="table-responsive">
+                            <table class="dash-table" id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã ID</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Danh Mục</th>
+                                        <th>Đơn Giá</th>
+                                        <th>Tồn Kho</th>
+                                        <th>Nhãn</th>
+                                        <th>Đánh Giá</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="dash-loading" id="products-loading">
+                            <div class="dash-spinner"></div>
+                            <span>Đang tải danh sách sản phẩm...</span>
+                        </div>
+
+                        <div class="dash-empty" id="products-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                            <h4>Không tìm thấy sản phẩm nào</h4>
+                            <p>Không có sản phẩm nào khớp với điều kiện tìm kiếm hoặc lọc hiện tại.</p>
+                        </div>
+
+                        <div class="dash-pagination" id="products-pagination" style="display: none;">
+                            <div id="products-pagination-info">Hiển thị...</div>
+                            <div class="pagination-controls" id="products-pagination-btns"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 2: DANH MỤC (CATEGORIES)                               -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane" id="tab-categories">
+                    <div class="dash-two-cols">
+                        <!-- Add Category Form Card -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Thêm Danh Mục Mới</span>
+                                </h2>
+                            </div>
+                            <form id="form-add-category" style="display: flex; flex-direction: column; gap: 14px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="input-new-category">Tên danh mục mới <span class="req">*</span></label>
+                                    <input type="text" class="form-input" id="input-new-category" placeholder="Ví dụ: Supplements, Footwear..." required>
+                                    <span class="form-hint">Danh mục mới sẽ lập tức sẵn sàng để gán cho sản phẩm.</span>
+                                </div>
+                                <div class="form-error" id="add-cat-error"></div>
+                                <button type="submit" class="btn-action primary" style="align-self: flex-start;">
+                                    + Thêm Danh Mục
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Categories List Card -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Danh Mục Hiện Có</span>
+                                </h2>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="dash-table">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tên Danh Mục</th>
+                                            <th>Sản Phẩm</th>
+                                            <th>Thao Tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="categories-table-body">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 3: KHO HÀNG & TỒN KHO (INVENTORY)                       -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane" id="tab-inventory">
+                    <!-- Inventory KPI row -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Tổng Tồn Kho</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-total-stock">0</div>
+                            <div class="stat-footer">Tổng số lượng sản phẩm vật lý sẵn sàng bán</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Giá Trị Tồn Kho</span>
+                                <div class="stat-icon green">
+                                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-total-value">0₫</div>
+                            <div class="stat-footer">Ước tính theo giá bán hiện hành</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Sản Phẩm Cần Nhập</span>
+                                <div class="stat-icon red">
+                                    <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-low-stock-count">0</div>
+                            <div class="stat-footer">Tồn kho &le; ngưỡng cảnh báo</div>
+                        </div>
+                    </div>
+
+                    <!-- Low stock threshold config card -->
+                    <div class="dash-card" style="margin-bottom: 20px;">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Cấu Hình Ngưỡng Cảnh Báo Tồn Kho Thấp</span>
+                            </h2>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <label for="input-low-stock-threshold" style="font-size: 13.5px; font-weight: 500;">
+                                Cảnh báo khi số lượng tồn kho còn từ:
+                            </label>
+                            <input type="number" min="1" max="100" class="form-input" id="input-low-stock-threshold" style="width: 100px;" value="10">
+                            <span style="font-size: 13.5px; color: var(--text-muted);">sản phẩm trở xuống</span>
+                            <button class="btn-action primary" id="btn-save-threshold">Lưu Cấu Hình</button>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Table -->
+                    <div class="dash-card">
+                        <div class="card-header-bar" style="flex-wrap: wrap; gap: 10px;">
+                            <h2 class="card-title">
+                                <span>Kiểm Kê Tồn Kho & Nhập Hàng Nhanh</span>
+                            </h2>
+                            <div class="filter-pills-row" id="inventory-filter-pills">
+                                <button type="button" class="dash-filter-pill active" data-inv-filter="ALL">Tất cả hàng hóa</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="LOW_STOCK">Sắp hết hàng</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="OUT_OF_STOCK">Hết hàng (0)</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="IN_STOCK">Còn dồi dào</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã ID</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Danh Mục</th>
+                                        <th>Tồn Kho</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Nhập Thêm Hàng</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- TAB 4: PHÂN QUYỀN STAFF (STAFF PERMISSIONS)                -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="tab-pane" id="tab-permissions">
+                    <div class="dash-card" style="max-width: 720px;">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Phân Quyền Cho Nhân Viên (Staff)</span>
+                            </h2>
+                        </div>
+                        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px;">
+                            Mặc định nhân viên (Staff) chỉ có quyền xem, tìm kiếm và kiểm tra sản phẩm. Quản trị viên (Admin) có thể cấp quyền bổ sung cho Staff tại đây:
+                        </p>
+
+                        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+                            <div class="switch-control">
+                                <div class="switch-info">
+                                    <span class="switch-title">Cho phép Staff thêm sản phẩm mới</span>
+                                    <span class="switch-desc">Nhân viên được mở form thêm sản phẩm vào danh mục bán</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm-add-prod">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="switch-control">
+                                <div class="switch-info">
+                                    <span class="switch-title">Cho phép Staff sửa thông tin sản phẩm</span>
+                                    <span class="switch-desc">Nhân viên được phép cập nhật tên, giá, ảnh và mô tả sản phẩm</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm-edit-prod">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="switch-control">
+                                <div class="switch-info">
+                                    <span class="switch-title">Cho phép Staff nhập hàng & quản lý tồn kho</span>
+                                    <span class="switch-desc">Nhân viên được phép điều chỉnh và nhập thêm số lượng tồn kho</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm-stock">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-surface); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12.5px; color: var(--text-secondary); margin-bottom: 20px;">
+                            ⚠️ <strong>Quy tắc bảo mật hệ thống:</strong> Quyền xóa sản phẩm và toàn quyền quản lý danh mục (Category) chỉ dành riêng cho Admin và không thể chuyển nhượng cho Staff.
+                        </div>
+
+                        <button class="btn-action primary" id="btn-save-staff-perms">Lưu Cấu Hình Phân Quyền</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── MODAL THÊM / SỬA SẢN PHẨM ────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="product-modal" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 680px;" role="dialog" aria-labelledby="product-modal-title">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Thêm Sản Phẩm Mới</h3>
+                <button class="btn-modal-close" id="product-modal-close">&times;</button>
+            </div>
+            <form id="product-form">
+                <div class="modal-body">
+                    <input type="hidden" id="modal-prod-id">
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-name">Tên sản phẩm <span class="req">*</span></label>
+                            <input type="text" class="form-input" id="modal-prod-name" placeholder="Ví dụ: BMW Gym Oversized Tee" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-category">Danh mục <span class="req">*</span></label>
+                            <select class="form-select" id="modal-prod-category" required></select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-tag">Nhãn đặc biệt (Tag)</label>
+                            <select class="form-select" id="modal-prod-tag">
+                                <option value="">Không có nhãn</option>
+                                <option value="NEW">NEW (Mới về)</option>
+                                <option value="HOT">HOT (Bán chạy)</option>
+                                <option value="SALE">SALE (Giảm giá)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-price">Đơn giá (VND) <span class="req">*</span></label>
+                            <input type="number" min="1000" step="1000" class="form-input" id="modal-prod-price" placeholder="690000" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-old-price">Giá niêm yết cũ (nếu có)</label>
+                            <input type="number" min="0" step="1000" class="form-input" id="modal-prod-old-price" placeholder="850000">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-stock">Số lượng tồn kho <span class="req">*</span></label>
+                            <input type="number" min="0" step="1" class="form-input" id="modal-prod-stock" placeholder="50" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-image">Đường dẫn ảnh sản phẩm</label>
+                            <input type="text" class="form-input" id="modal-prod-image" placeholder="images/products/example.jpg">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-desc">Mô tả sản phẩm</label>
+                            <textarea class="form-textarea" id="modal-prod-desc" placeholder="Đặc điểm, chất liệu, tính năng thể thao..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-error" id="product-form-error" style="margin-top: 10px;"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="product-modal-cancel">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="product-modal-submit">Lưu Sản Phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── MODAL XÁC NHẬN XÓA SẢN PHẨM ──────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="delete-product-modal" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 480px;" role="dialog">
+            <div class="modal-header">
+                <h3>Xác Nhận Xóa Sản Phẩm</h3>
+            </div>
+            <div class="modal-body">
+                <p id="delete-product-text" style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;"></p>
+                <div style="background: rgba(239, 68, 68, 0.08); border-left: 3px solid #ef4444; padding: 10px 14px; border-radius: 4px; font-size: 12px; color: #ef4444; margin-top: 8px;">
+                    Lưu ý: Các hóa đơn đơn hàng cũ đã phát sinh sẽ không bị ảnh hưởng và vẫn lưu trữ nguyên vẹn thông tin snapshot lịch sử mua hàng.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action" id="btn-cancel-delete-product">Hủy</button>
+                <button type="button" class="btn-action" style="background:#ef4444; color:#fff; border-color:#ef4444;" id="btn-confirm-delete-product">Xóa Sản Phẩm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL ĐỔI TÊN DANH MỤC ────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="rename-category-modal" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 480px;" role="dialog">
+            <div class="modal-header">
+                <h3>Đổi Tên Danh Mục</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rename-cat-old">
+                <div class="form-group">
+                    <label class="form-label" for="rename-cat-new">Tên danh mục mới</label>
+                    <input type="text" class="form-input" id="rename-cat-new">
+                    <span class="form-hint">Tất cả sản phẩm thuộc danh mục cũ sẽ tự động được cập nhật sang tên danh mục mới.</span>
+                </div>
+                <div class="form-error" id="rename-cat-error"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action" id="btn-cancel-rename-cat">Hủy</button>
+                <button type="button" class="btn-action primary" id="btn-confirm-rename-cat">Cập Nhật</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL XÓA DANH MỤC AN TOÀN (CHẶN NẾU CÓ SẢN PHẨM HOẶC CHUYỂN TIẾP) -->
+    <div class="dash-modal-backdrop" id="delete-category-modal" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 520px;" role="dialog">
+            <div class="modal-header">
+                <h3>Xóa Danh Mục</h3>
+            </div>
+            <div class="modal-body">
+                <p id="delete-cat-warning-text" style="font-size: 14px; line-height: 1.5; color: var(--text-secondary);"></p>
+                <div id="delete-cat-migration-box" style="margin-top: 14px; display: none;">
+                    <label class="form-label" for="select-target-category" style="margin-bottom: 6px;">Chuyển sản phẩm sang danh mục:</label>
+                    <select class="form-select" id="select-target-category"></select>
+                </div>
+                <div class="form-error" id="delete-cat-error" style="margin-top: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-action" id="btn-cancel-delete-cat">Hủy</button>
+                <button type="button" class="btn-action" style="background:#ef4444; color:#fff; border-color:#ef4444;" id="btn-confirm-delete-cat">Xác Nhận Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST CONTAINER ───────────────────────────────────────────────── -->
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <!-- ── SCRIPTS ───────────────────────────────────────────────────────── -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/admin-products.js"></script>
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Bảng điều khiển Quản trị</title>
+    <!-- Brand Favicon & Fonts -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <!-- Mobile Backdrop -->
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR (11 ITEMS) ─────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge">Quản trị</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Điều hướng chính">
+                <div class="nav-section-title">Tổng quan</div>
+                
+                <!-- 1. Dashboard -->
+                <a href="#view-dashboard" class="dash-nav-item active" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Bảng điều khiển</span>
+                </a>
+
+                <div class="nav-section-title">Bán hàng & Kho</div>
+
+                <!-- 2. Quản lý đơn hàng -->
+                <a href="admin-orders.html" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Quản lý đơn hàng</span>
+                </a>
+
+                <!-- 3. Sản phẩm -->
+                <a href="admin-products.html" class="dash-nav-item" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm</span>
+                </a>
+
+                <!-- 4. Danh mục -->
+                <a href="admin-products.html#tab-categories" class="dash-nav-item" id="nav-categories">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="2" cy="6" r="1"/><circle cx="2" cy="12" r="1"/><circle cx="2" cy="18" r="1"/></svg>
+                    <span class="nav-text">Danh mục</span>
+                </a>
+
+                <!-- 5. Kho hàng -->
+                <a href="admin-products.html#tab-inventory" class="dash-nav-item" id="nav-inventory">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <span class="nav-text">Kho hàng</span>
+                </a>
+
+                <div class="nav-section-title">Người dùng & Tiếp thị</div>
+
+                <!-- 6. Khách hàng -->
+                <a href="admin-users.html" class="dash-nav-item" id="nav-customers">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Khách hàng</span>
+                </a>
+
+                <!-- 7. Nhân viên và phân quyền -->
+                <a href="admin-users.html#tab-staff" class="dash-nav-item" id="nav-staff">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span class="nav-text">Nhân viên & Phân quyền</span>
+                </a>
+
+                <!-- 8. Mã giảm giá -->
+                <a href="admin-promotions.html" class="dash-nav-item" id="nav-promotions">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><line x1="9.5" y1="9.5" x2="9.55" y2="9.5"/><line x1="14.5" y1="14.5" x2="14.55" y2="14.5"/></svg>
+                    <span class="nav-text">Mã giảm giá & Khuyến mãi</span>
+                </a>
+
+                <div class="nav-section-title">Hệ thống & Cá nhân</div>
+
+                <!-- 9. Báo cáo thống kê -->
+                <a href="#view-reports" class="dash-nav-item" id="nav-reports">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span class="nav-text">Báo cáo thống kê</span>
+                </a>
+
+                <!-- 10. Cài đặt hệ thống -->
+                <a href="#view-settings" class="dash-nav-item" id="nav-settings">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span class="nav-text">Cài đặt hệ thống</span>
+                </a>
+
+                <!-- 11. Hồ sơ cá nhân -->
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini" title="Xem hồ sơ">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">A</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Admin BMW</span>
+                        <span class="user-mini-role">Quản trị viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- ── Topbar / Header ────────────────────────────────────────── -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="admin-dashboard.html">Quản trị</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current" id="breadcrumb-current">Bảng điều khiển</span>
+                    </div>
+                </div>
+
+                <div class="topbar-search-box">
+                    <svg class="topbar-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="topbar-search-input" id="topbar-search-input" placeholder="Tìm kiếm đơn hàng, khách hàng, mã...">
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Link Storefront -->
+                    <a href="index.html" class="btn-store-link" title="Xem trang bán hàng">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <!-- Theme Toggle Button -->
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển chế độ sáng/tối" title="Chuyển giao diện sáng/tối">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <!-- Notifications Dropdown -->
+                    <div class="notif-dropdown-wrapper">
+                        <button class="btn-icon-action" id="notif-btn" aria-label="Thông báo" title="Thông báo hệ thống">
+                            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span class="notif-dot" id="notif-dot" style="display: none;"></span>
+                        </button>
+                        <div class="notif-menu" id="notif-menu">
+                            <div class="notif-header">
+                                <span>Thông báo mới</span>
+                                <span class="card-count" id="notif-count-badge" style="display: none;">0</span>
+                            </div>
+                            <div class="notif-list" id="notif-list">
+                                <!-- Dynamic notifications -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Pill & Logout -->
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar" title="Hồ sơ cá nhân">A</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── CONTENT CONTAINER ──────────────────────────────────────── -->
+            <main class="dash-content">
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- 1. VIEW PANE: DASHBOARD OVERVIEW                           -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="dash-view-pane active" id="view-dashboard">
+                    <!-- Page Title & Actions -->
+                    <div class="dash-page-header">
+                        <div class="page-title-box">
+                            <h1>Bảng điều khiển Quản trị</h1>
+                            <p>Trung tâm kiểm soát hiệu suất bán hàng, đơn hàng và khách hàng BMW GYM</p>
+                        </div>
+                        <div class="page-actions-box">
+                            <button class="btn-action" id="btn-refresh-data">
+                                <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                <span>Làm mới dữ liệu</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ── 4 STATS METRICS (REAL DATA) ─────────────────────────── -->
+                    <section class="stats-grid" aria-label="Chỉ số hiệu suất chính">
+                        <!-- 1. Total Revenue -->
+                        <div class="stat-card" id="card-revenue">
+                            <div class="stat-header">
+                                <span class="stat-title">Doanh Thu Đã Thu</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-revenue">0₫</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext" id="stat-revenue-sub">Đang tính toán...</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Total Orders -->
+                        <div class="stat-card" id="card-orders">
+                            <div class="stat-header">
+                                <span class="stat-title">Tổng Đơn Hàng</span>
+                                <div class="stat-icon green">
+                                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-orders">0</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext" id="stat-orders-sub">Đang tính toán...</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Products in Catalog -->
+                        <div class="stat-card" id="card-products">
+                            <div class="stat-header">
+                                <span class="stat-title">Sản Phẩm Kinh Doanh</span>
+                                <div class="stat-icon purple">
+                                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-products">0</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext" id="stat-products-sub">Đang tính toán...</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Total Registered Customers -->
+                        <div class="stat-card" id="card-customers">
+                            <div class="stat-header">
+                                <span class="stat-title">Khách Hàng Đăng Ký</span>
+                                <div class="stat-icon amber">
+                                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-customers">0</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext" id="stat-customers-sub">Đang tính toán...</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ── VISUAL CHARTS & TOP PRODUCTS SECTION ────────────────── -->
+                    <section class="dash-two-cols">
+                        <!-- Status Distribution Bar Chart -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Phân Bổ Trạng Thái Đơn Hàng</span>
+                                </h2>
+                            </div>
+                            <div class="chart-bar-container" id="status-chart-bars">
+                                <!-- Dynamic Bars -->
+                            </div>
+                        </div>
+
+                        <!-- Top Selling Products -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Top Sản Phẩm Bán Chạy</span>
+                                </h2>
+                            </div>
+                            <div class="top-products-list" id="top-products-container">
+                                <!-- Dynamic Top Products -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ── RECENT ORDERS TABLE ─────────────────────────────────── -->
+                    <section class="dash-card" id="orders-section">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Đơn Hàng Gần Đây</span>
+                            </h2>
+                            <div class="table-controls">
+                                <!-- Status Filter -->
+                                <select class="filter-select" id="filter-status-select" aria-label="Lọc theo trạng thái">
+                                    <option value="ALL">Tất cả trạng thái</option>
+                                    <option value="ORDERED">Chờ xử lý / Đóng gói</option>
+                                    <option value="TRANSIT">Đang vận chuyển</option>
+                                    <option value="DELIVERED">Đã giao thành công</option>
+                                    <option value="CANCELLED">Đã hủy</option>
+                                </select>
+
+                                <!-- Table Search -->
+                                <input type="text" class="filter-search-input" id="table-search-input" placeholder="Tìm theo mã hoặc tên...">
+                            </div>
+                        </div>
+
+                        <!-- Table Responsive Wrapper -->
+                        <div class="table-responsive">
+                            <table class="dash-table" id="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Đơn Hàng</th>
+                                        <th>Khách Hàng</th>
+                                        <th>Ngày Đặt</th>
+                                        <th>Số Lượng</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Thanh Toán</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div class="dash-loading" id="table-loading">
+                            <div class="dash-spinner"></div>
+                            <span>Đang tải danh sách đơn hàng...</span>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="dash-empty" id="table-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            <h4>Không có đơn hàng nào</h4>
+                            <p>Chưa có đơn hàng nào khớp với điều kiện lọc hoặc từ khóa tìm kiếm của bạn.</p>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="dash-pagination" id="table-pagination" style="display: none;">
+                            <div id="pagination-info">Hiển thị 1–5 trên tổng số 0 đơn hàng</div>
+                            <div class="pagination-controls" id="pagination-btns">
+                                <!-- Dynamic Page Buttons -->
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- 2. VIEW PANE: BÁO CÁO THỐNG KÊ ADMIN (PHASE 8.7)           -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="dash-view-pane" id="view-reports" style="display: none;">
+                    <div class="dash-page-header">
+                        <div class="page-title-box">
+                            <h1>Báo Cáo Thống Kê &amp; Tài Chính</h1>
+                            <p>Dữ liệu bán hàng thời gian thực — Phân định rõ ràng doanh thu thực tế, hàng đang xử lý và đơn đã hủy</p>
+                        </div>
+                        <div class="page-actions-box" style="display: flex; gap: 8px;">
+                            <button class="btn-action" id="btn-refresh-reports" title="Cập nhật số liệu mới nhất">
+                                <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                <span>Làm mới</span>
+                            </button>
+                            <button class="btn-action" id="btn-print-reports" title="In hoặc lưu PDF báo cáo" style="background: var(--bg-surface);">
+                                <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                <span>In Báo Cáo</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Control Toolbar -->
+                    <section class="dash-card" style="margin-bottom: 24px; padding: 18px 20px;">
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- Top row: Presets -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                    Khoảng thời gian:
+                                </div>
+                                <div class="filter-pills-row" id="report-date-presets">
+                                    <button type="button" class="dash-filter-pill active" data-preset="ALL">Tất cả thời gian</button>
+                                    <button type="button" class="dash-filter-pill" data-preset="TODAY">Hôm nay</button>
+                                    <button type="button" class="dash-filter-pill" data-preset="7DAYS">7 ngày qua</button>
+                                    <button type="button" class="dash-filter-pill" data-preset="30DAYS">30 ngày qua</button>
+                                    <button type="button" class="dash-filter-pill" data-preset="THIS_MONTH">Tháng này</button>
+                                </div>
+                            </div>
+
+                            <!-- Bottom row: Specific dates, status and product -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: flex-end;">
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Từ ngày:</label>
+                                    <input type="date" id="report-filter-from" class="dash-select" style="width: 100%; height: 38px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Đến ngày:</label>
+                                    <input type="date" id="report-filter-to" class="dash-select" style="width: 100%; height: 38px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Trạng thái đơn:</label>
+                                    <select id="report-filter-status" class="dash-select" style="width: 100%; height: 38px;">
+                                        <option value="ALL">Tất cả trạng thái</option>
+                                        <option value="DELIVERED">Đã giao thành công</option>
+                                        <option value="PROCESSING">Chờ xử lý / Đang chuẩn bị</option>
+                                        <option value="SHIPPING">Đang vận chuyển</option>
+                                        <option value="CANCELLED">Đã hủy</option>
+                                        <option value="RETURNED">Yêu cầu đổi trả / Đã trả</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Lọc theo sản phẩm:</label>
+                                    <select id="report-filter-product" class="dash-select" style="width: 100%; height: 38px;">
+                                        <option value="ALL">Tất cả sản phẩm</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn-action" id="btn-apply-report-filters" style="height: 38px; flex: 1;">Áp dụng</button>
+                                    <button type="button" class="btn-action" id="btn-reset-report-filters" style="height: 38px; background: var(--bg-surface); color: var(--text-muted);" title="Đặt lại bộ lọc">Xóa lọc</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ── 4 PRIMARY FINANCIAL & VOLUME METRICS ────────────────── -->
+                    <section class="stats-grid" aria-label="Chỉ số tài chính">
+                        <!-- 1. Real Realized Revenue -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Doanh Thu Thực Tế (Đã Thu)</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="report-stat-real-revenue" style="color: #10b981;">0₫</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext highlight-green" id="report-stat-real-revenue-sub">Chỉ tính đơn đã thanh toán &amp; giao thành công</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Processing Pipeline Value -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Giá Trị Đang Xử Lý / Chờ Thu</span>
+                                <div class="stat-icon amber">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="report-stat-pipeline" style="color: #f59e0b;">0₫</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext highlight-amber" id="report-stat-pipeline-sub">Đơn đang đóng gói, vận chuyển COD hoặc chờ thanh toán</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Cancelled & Returned Value -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Giá Trị Đơn Đã Hủy / Hoàn Trả</span>
+                                <div class="stat-icon purple" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="report-stat-cancelled" style="color: #ef4444;">0₫</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext highlight-red" id="report-stat-cancelled-sub">Tuyệt đối không cộng vào doanh thu thực tế</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Total Orders in Scope -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Tổng Số Đơn Hàng</span>
+                                <div class="stat-icon green">
+                                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="report-stat-orders-count">0</div>
+                            <div class="stat-footer">
+                                <span class="stat-subtext" id="report-stat-orders-sub">Đơn hàng trong phạm vi lọc</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Secondary Operational Metrics -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Sản phẩm kinh doanh</span>
+                                <div style="font-size: 20px; font-weight: 800; color: var(--text-primary); margin-top: 2px;" id="report-stat-products">0</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted);" id="report-stat-products-sub">0 danh mục</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Khách hàng đăng ký</span>
+                                <div style="font-size: 20px; font-weight: 800; color: var(--text-primary); margin-top: 2px;" id="report-stat-customers">0</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted);" id="report-stat-customers-sub">Tài khoản khách hàng</div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Tỷ lệ giao thành công</span>
+                                <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-top: 2px;" id="report-stat-success-rate">0%</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted);" id="report-stat-success-rate-sub">So với đơn hợp lệ</div>
+                        </div>
+                    </div>
+
+                    <!-- ── VISUAL ANALYTICS: TIMELINE & TOP PRODUCTS ───────────── -->
+                    <section class="dash-two-cols" style="margin-bottom: 24px;">
+                        <!-- Revenue Timeline (Actual Data Range) -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Doanh Thu Theo Dữ Liệu Thực Tế</span>
+                                </h2>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" class="dash-filter-pill active" id="btn-group-by-date">Theo ngày</button>
+                                    <button type="button" class="dash-filter-pill" id="btn-group-by-month">Theo tháng</button>
+                                </div>
+                            </div>
+                            <div class="report-timeline-container" id="report-timeline-container">
+                                <!-- Dynamic daily/monthly bars populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Top Selling Products by Quantity -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Sản Phẩm Bán Chạy (Theo Số Lượng)</span>
+                                </h2>
+                                <span style="font-size: 12px; color: var(--text-muted);" id="report-top-products-note">Đơn hợp lệ</span>
+                            </div>
+                            <div class="top-products-list" id="report-top-products-container">
+                                <!-- Dynamic ranked products populated by JS -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ── STATUS & PAYMENT BREAKDOWNS ─────────────────────────── -->
+                    <section class="dash-two-cols" style="margin-bottom: 24px;">
+                        <!-- Order Status Breakdown -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Thống Kê Trạng Thái Đơn Hàng</span>
+                                </h2>
+                            </div>
+                            <div class="chart-bar-container" id="report-status-bars-container">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Payment Method & Cashflow Distribution -->
+                        <div class="dash-card">
+                            <div class="card-header-bar">
+                                <h2 class="card-title">
+                                    <span>Phương Thức &amp; Trạng Thái Thanh Toán</span>
+                                </h2>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 16px; padding-top: 6px;">
+                                <div>
+                                    <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Phương thức thanh toán:</div>
+                                    <div id="report-payment-methods-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- Dynamic payment methods -->
+                                    </div>
+                                </div>
+                                <div style="border-top: 1px dashed var(--border-color); padding-top: 12px;">
+                                    <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Trạng thái tài chính:</div>
+                                    <div id="report-payment-status-container" style="display: flex; flex-direction: column; gap: 6px;">
+                                        <!-- Dynamic payment statuses -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ── AUDIT TABLE OF FILTERED ORDERS ─────────────────────── -->
+                    <section class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Chi Tiết Đơn Hàng Trong Kỳ Báo Cáo</span>
+                            </h2>
+                            <div class="table-controls">
+                                <input type="text" class="filter-search-input" id="report-table-search-input" placeholder="Tìm theo mã hoặc tên khách...">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Đơn</th>
+                                        <th>Khách Hàng</th>
+                                        <th>Ngày Đặt</th>
+                                        <th>Số Lượng</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Thanh Toán</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-orders-table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="dash-empty" id="report-table-empty" style="display: none;">
+                            <h4>Chưa có dữ liệu đơn hàng</h4>
+                            <p>Không có đơn hàng nào khớp với điều kiện lọc thời gian và sản phẩm đã chọn.</p>
+                        </div>
+                        <div class="dash-pagination" id="report-table-pagination" style="display: none;">
+                            <div id="report-pagination-info">Hiển thị 0 đơn hàng</div>
+                            <div class="pagination-controls" id="report-pagination-btns"></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <!-- 3. VIEW PANE: CÀI ĐẶT HỆ THỐNG (PHASE 8.7)                 -->
+                <!-- ═══════════════════════════════════════════════════════════ -->
+                <div class="dash-view-pane" id="view-settings" style="display: none;">
+                    <div class="dash-page-header">
+                        <div class="page-title-box">
+                            <h1>Cài Đặt Hệ Thống BMW GYM</h1>
+                            <p>Cấu hình thông tin liên hệ, vận hành kho và các tùy chọn giao diện website an toàn</p>
+                        </div>
+                        <div class="page-actions-box">
+                            <span class="portal-badge" style="background: rgba(37,99,235,0.1); color: var(--accent-blue); padding: 6px 12px; font-size: 11px;">
+                                Quyền Quản trị viên (Yêu cầu Admin)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Sensitive Permissions Guard Banner -->
+                    <div id="settings-admin-notice" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; color: #ef4444; font-size: 13px; font-weight: 600;">
+                        ⚠️ Bạn đang xem trang cài đặt với vai trò không phải Admin. Mọi thao tác chỉnh sửa cấu hình nhạy cảm sẽ bị hệ thống từ chối.
+                    </div>
+
+                    <form id="system-settings-form" onsubmit="return false;">
+                        <div class="settings-grid">
+                            <!-- Block 1: Store & Contact Information -->
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-icon">
+                                        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                    </div>
+                                    <h3 class="settings-card-title">Thông Tin Cửa Hàng &amp; Liên Hệ</h3>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-store-name" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Tên thương hiệu / Cửa hàng:</label>
+                                    <input type="text" id="setting-store-name" class="form-input" style="width: 100%; height: 38px;" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-tagline" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Khẩu hiệu (Tagline):</label>
+                                    <input type="text" id="setting-tagline" class="form-input" style="width: 100%; height: 38px;">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label for="setting-phone" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Hotline liên hệ:</label>
+                                        <input type="tel" id="setting-phone" class="form-input" style="width: 100%; height: 38px;" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="setting-email" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Email hỗ trợ:</label>
+                                        <input type="email" id="setting-email" class="form-input" style="width: 100%; height: 38px;" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-address" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Địa chỉ kho tổng &amp; Showroom:</label>
+                                    <input type="text" id="setting-address" class="form-input" style="width: 100%; height: 38px;" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-hours" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Khung giờ hoạt động:</label>
+                                    <input type="text" id="setting-hours" class="form-input" style="width: 100%; height: 38px;">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-copyright" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Bản quyền chân trang (Footer):</label>
+                                    <input type="text" id="setting-copyright" class="form-input" style="width: 100%; height: 38px;">
+                                </div>
+                            </div>
+
+                            <!-- Block 2: Inventory Thresholds & Shop Settings -->
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-icon">
+                                        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                    </div>
+                                    <h3 class="settings-card-title">Cấu Hình Vận Hành &amp; Tồn Kho</h3>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-low-stock-threshold" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                                        Ngưỡng cảnh báo sắp hết hàng:
+                                    </label>
+                                    <input type="number" id="setting-low-stock-threshold" class="form-input" style="width: 100%; height: 38px;" min="1" max="1000" required>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                                        Khi sản phẩm có số lượng tồn kho &le; ngưỡng này, hệ thống sẽ tự động hiển thị huy hiệu cảnh báo vàng và gửi thông báo cho nhân viên.
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-out-stock-threshold" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                                        Ngưỡng hết hàng:
+                                    </label>
+                                    <input type="number" id="setting-out-stock-threshold" class="form-input" style="width: 100%; height: 38px; opacity: 0.7; cursor: not-allowed;" value="0" disabled>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                                        Cố định 0 sản phẩm (hết hàng, hiển thị cảnh báo đỏ và chặn đặt hàng).
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-items-per-page" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                                        Số sản phẩm mỗi trang mặc định:
+                                    </label>
+                                    <select id="setting-items-per-page" class="dash-select" style="width: 100%; height: 38px;">
+                                        <option value="6">6 sản phẩm</option>
+                                        <option value="8">8 sản phẩm</option>
+                                        <option value="12">12 sản phẩm</option>
+                                        <option value="16">16 sản phẩm</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-top: 10px; padding: 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px;">
+                                    <strong style="color: var(--accent-blue);">Ghi chú bảo mật RBAC:</strong>
+                                    <p style="color: var(--text-muted); margin-top: 2px;">Cấu hình ngưỡng tồn kho đồng bộ trực tiếp với hệ thống kiểm soát sản phẩm và nhân viên.</p>
+                                </div>
+                            </div>
+
+                            <!-- Block 3: UI & Announcement Options -->
+                            <div class="settings-card" style="grid-column: 1 / -1;">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-icon">
+                                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    </div>
+                                    <h3 class="settings-card-title">Tùy Chọn Giao Diện &amp; Tiếp Thị Website</h3>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                                    <div>
+                                        <label class="switch-control" style="margin-bottom: 12px;">
+                                            <input type="checkbox" id="setting-enable-banner" class="switch-input">
+                                            <span class="switch-label">Hiển thị thanh thông báo khuyến mãi đầu trang (Banner Cửa hàng)</span>
+                                        </label>
+
+                                        <div class="form-group">
+                                            <label for="setting-banner-text" style="font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                                                Nội dung thanh thông báo:
+                                            </label>
+                                            <input type="text" id="setting-banner-text" class="form-input" style="width: 100%; height: 38px;" placeholder="Ví dụ: Giảm 10% cho thành viên mới...">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="switch-control" style="margin-bottom: 12px;">
+                                            <input type="checkbox" id="setting-maintenance-mode" class="switch-input">
+                                            <span class="switch-label" style="color: #ef4444;">Chế độ bảo trì hệ thống</span>
+                                        </label>
+                                        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                                            Khi kích hoạt chế độ bảo trì, hệ thống sẽ hiển thị thông báo nâng cấp cho khách hàng vãng lai. Chỉ Quản trị viên mới có thể truy cập hệ thống.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons & Meta -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 18px; margin-top: 8px; flex-wrap: wrap; gap: 12px;">
+                                    <div style="font-size: 12px; color: var(--text-muted);" id="setting-last-updated">
+                                        Lần cập nhật cuối: Đang tải...
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button type="button" class="btn-action" id="btn-reset-settings" style="background: var(--bg-surface); color: var(--text-muted);">
+                                            Khôi phục mặc định
+                                        </button>
+                                        <button type="button" class="btn-action" id="btn-save-settings">
+                                            Lưu Cấu Hình Hệ Thống
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── ORDER DETAIL MODAL ─────────────────────────────────────────────── -->
+    <div class="dash-modal-backdrop" id="order-detail-modal" aria-hidden="true">
+        <div class="dash-modal" role="dialog" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h3 id="modal-title">Chi Tiết Đơn Hàng <span id="modal-order-id" style="color: var(--accent-blue);">#BMW...</span></h3>
+                <button class="btn-modal-close" id="modal-close-btn" aria-label="Đóng">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Customer info grid -->
+                <div class="detail-grid">
+                    <div>
+                        <div class="detail-item-label">Người nhận hàng</div>
+                        <div class="detail-item-val" id="modal-customer-name">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Số điện thoại</div>
+                        <div class="detail-item-val" id="modal-customer-phone">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Thời gian đặt</div>
+                        <div class="detail-item-val" id="modal-order-date">...</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Phương thức thanh toán</div>
+                        <div class="detail-item-val" id="modal-order-payment">...</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div class="detail-item-label">Địa chỉ giao hàng</div>
+                        <div class="detail-item-val" id="modal-customer-address">...</div>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <div class="detail-item-label">Ghi chú từ khách</div>
+                        <div class="detail-item-val" id="modal-customer-notes" style="font-weight: 400; color: var(--text-secondary);">...</div>
+                    </div>
+                </div>
+
+                <!-- Status Banner in Modal -->
+                <div>
+                    <div class="detail-item-label" style="margin-bottom: 6px;">Trạng thái hiện tại</div>
+                    <div id="modal-order-status"></div>
+                </div>
+
+                <!-- Items list -->
+                <div>
+                    <div class="detail-item-label" style="margin-bottom: 8px;">Sản phẩm trong đơn</div>
+                    <div class="modal-items-list" id="modal-items-list">
+                        <!-- Dynamic item rows -->
+                    </div>
+                </div>
+
+                <!-- Financial calculation -->
+                <div style="background: var(--bg-surface); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Tạm tính:</span>
+                        <strong id="modal-subtotal">0₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Phí giao hàng:</span>
+                        <strong id="modal-shipping">0₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Giảm giá:</span>
+                        <strong id="modal-discount" style="color: #ef4444;">-0₫</strong>
+                    </div>
+                    <div class="modal-total-bar">
+                        <span>Tổng thanh toán:</span>
+                        <span id="modal-total" style="color: var(--accent-blue);">0₫</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" id="modal-close-footer-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST NOTIFICATION CONTAINER ──────────────────────────────────── -->
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <!-- ── JAVASCRIPT DEPENDENCIES ────────────────────────────────────────── -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

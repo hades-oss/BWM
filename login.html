@@ -1,0 +1,394 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập — BMW GYM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js"></script>
+    <style>
+        .login-page-wrapper {
+            background-color: #ffffff;
+            min-height: 65vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-top-title {
+            color: #3B82F6;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            margin: 0 0 24px 0;
+            font-family: var(--font-body);
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .login-card-box {
+            width: 100%;
+            background-color: #93C5FD;
+            border-radius: 8px;
+            padding: 36px 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        .login-card-box label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .login-card-box input[type="text"],
+        .login-card-box input[type="password"] {
+            width: 100%;
+            background-color: #ffffff;
+            color: #111827;
+            border: 1px solid #64748B;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .login-card-box input[type="text"]::placeholder,
+        .login-card-box input[type="password"]::placeholder {
+            color: #94A3B8;
+        }
+
+        .login-card-box input[type="text"]:focus,
+        .login-card-box input[type="password"]:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+        }
+
+        .login-card-box .auth-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-card-box .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-card-box .password-toggle {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card-box .password-toggle:hover {
+            color: #1E293B;
+        }
+
+        .login-options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 24px;
+            font-size: 13px;
+        }
+
+        .login-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-checkbox-group input[type="checkbox"] {
+            accent-color: #2563EB;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .login-checkbox-group label {
+            font-size: 13px;
+            color: #111827;
+            margin-bottom: 0;
+            font-weight: 500;
+            text-transform: none;
+            cursor: pointer;
+        }
+
+        .forgot-password-link {
+            color: #1D4ED8;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .forgot-password-link:hover {
+            color: #1E40AF;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2563EB;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+        }
+
+        .login-btn:hover {
+            background-color: #1D4ED8;
+        }
+
+        .login-card-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #111827;
+        }
+
+        .login-card-footer a {
+            color: #1D4ED8;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            margin-left: 4px;
+        }
+
+        .login-card-footer a:hover {
+            color: #1E40AF;
+        }
+
+        @media (max-width: 640px) {
+            .login-page-wrapper {
+                padding: 40px 16px;
+            }
+            .login-card-box {
+                padding: 28px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="site-shell">
+                        <div class="announcement" aria-label="Thông báo">
+            <div class="marquee-track" aria-hidden="true">
+                <div class="marquee-content">
+                    <span>MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+                <div class="marquee-content" aria-hidden="true">
+                    <span>MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+            </div>
+        </div>
+        <header class="header">
+            <button class="mobile-menu" aria-label="Mở menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </button>
+            <a href="index.html" class="brand"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+            <div class="header-search-wrapper">
+                <form class="header-search-form" id="inline-header-search" role="search">
+                    <input type="text" class="header-search-input" id="inline-search-input" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+                    <button type="submit" class="header-search-btn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+                    </button>
+                </form>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển đổi giao diện sáng/tối" title="Chuyển đổi giao diện">
+                    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <div class="account-dropdown-wrapper">
+                    <button class="account-toggle-btn" aria-label="Tài khoản" title="Tài khoản">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.2-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>
+                    </button>
+                    <div class="account-dropdown-menu" role="menu">
+                        <div class="acc-menu-header auth-logged-in" style="display:none;">
+                            <small>Đăng nhập với</small>
+                            <strong class="menu-username-display">@User</strong>
+                        </div>
+                        <a href="login.html" class="acc-menu-link auth-logged-out" role="menuitem">Đăng nhập</a>
+                        <a href="register.html" class="acc-menu-link auth-logged-out" role="menuitem">Tạo tài khoản</a>
+                        <a href="profile.html" class="acc-menu-link auth-logged-in" role="menuitem" style="display:none;">Hồ sơ</a>
+                        <a href="#" id="acc-logout-btn" class="acc-menu-link logout-link auth-logged-in" role="menuitem" style="display:none;">Đăng xuất</a>
+                    </div>
+                </div>
+                <a href="wishlist.html" class="wishlist-header-btn" aria-label="Danh sách yêu thích">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.9a5.4 5.4 0 0 0-7.7 0L12 7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7L12 22l8.8-8.4a5.4 5.4 0 0 0 0-7.7Z"/></svg>
+                    <i class="wishlist-badge">0</i>
+                </a>                <button class="bag" aria-label="Giỏ hàng">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
+                    <i>0</i>
+                </button>
+            </div>
+            <nav>
+                <a href="shop.html">CỬA HÀNG <span class="chevron">&#8964;</span></a>
+                <a href="shop.html?category=Clothing">TRANG PHỤC</a>
+                <a href="shop.html?category=Accessories">PHỤ KIỆN</a>
+                <a href="shop.html?category=Equipment">DỤNG CỤ</a>
+                <a href="shop.html">HÀNG MỚI</a>
+                <a class="sale" href="shop.html">GIẢM GIÁ</a>
+                <a href="orders.html" class="nav-orders-btn">ĐƠN HÀNG</a>
+            </nav>
+        </header>
+
+        <section class="login-page-wrapper">
+            <div class="login-container">
+                <h2 class="login-top-title">Đăng nhập vào tài khoản</h2>
+
+                <div class="login-card-box">
+                    <div id="login-error-banner" style="display:none; color:#DC2626; background:#FEE2E2; padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:13px; font-weight:600; text-align:center;"></div>
+                    <form id="login-form" action="#" method="POST" novalidate>
+                        <div class="auth-form-group">
+                            <label for="login-identity">Tên đăng nhập hoặc Email</label>
+                            <input type="text" id="login-identity" name="identity" placeholder="Nhập tên đăng nhập hoặc email" autocomplete="username">
+                            <div id="login-identity-error" style="display:none; color:#DC2626; font-size:11px; font-weight:700; margin-top:6px; letter-spacing:0.03em;"></div>
+                        </div>
+                        
+                        <div class="auth-form-group">
+                            <label for="login-password">Mật khẩu</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="login-password" name="password" placeholder="Nhập mật khẩu" autocomplete="current-password">
+                                <button type="button" class="password-toggle" id="toggle-login-password" aria-label="Hiện/ẩn mật khẩu">
+                                    <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                            <div id="login-password-error" style="display:none; color:#DC2626; font-size:11px; font-weight:700; margin-top:6px; letter-spacing:0.03em;"></div>
+                        </div>
+                        
+                        <div class="login-options-row">
+                            <div class="login-checkbox-group">
+                                <input type="checkbox" id="rememberMe" name="rememberMe">
+                                <label for="rememberMe">Ghi nhớ đăng nhập</label>
+                            </div>
+                            <a href="#" class="forgot-password-link">Quên mật khẩu?</a>
+                        </div>
+                        
+                        <button type="submit" class="login-btn">ĐĂNG NHẬP</button>
+                        
+                        <div class="login-card-footer">
+                            Chưa có tài khoản? <a href="register.html">Tạo tài khoản</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-head">
+                <a class="brand" href="index.html"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+                <p>Dành cho những ai không ngừng nỗ lực.</p>
+            </div>
+            <div class="footer-links">
+                <div>
+                    <h3>CỬA HÀNG</h3>
+                    <a href="shop.html">Trang phục</a>
+                    <a href="shop.html">Phụ kiện</a>
+                    <a href="shop.html">Dụng cụ</a>
+                    <a href="shop.html">Hàng mới</a>
+                    <a href="shop.html">Giảm giá</a>
+                </div>
+                <div>
+                    <h3>KHÁCH HÀNG</h3>
+                    <a href="#">Liên hệ</a>
+                    <a href="#">Vận chuyển</a>
+                    <a href="#">Đổi trả</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+                <div>
+                    <h3>BMW</h3>
+                    <a href="#">Về chúng tôi</a>
+                    <a href="#">Câu chuyện thương hiệu</a>
+                    <a href="#">Cộng đồng</a>
+                    <a href="#">Tuyển dụng</a>
+                </div>
+                <div>
+                    <h3>THEO DÕI CHÚNG TÔI</h3>
+                    <a href="#">Instagram</a>
+                    <a href="#">TikTok</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">YouTube</a>
+                </div>
+                <div>
+                    <h3>LIÊN HỆ</h3>
+                    <div class="footer-contact-item">
+                        <strong>Địa chỉ</strong>
+                        137 Nguyễn Thị Thập, Phường Hải Châu, TP. Đà Nẵng
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Điện thoại</strong>
+                        <a href="tel:0355278900">0355278900</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Email</strong>
+                        <a href="mailto:tupqtd01646@gmail.com">tupqtd01646@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 BMW – BODY, MIND, WILLPOWER.</span>
+                <span>VIỆT NAM / VND</span>
+                <span>CHÍNH SÁCH BẢO MẬT &nbsp; ĐIỀU KHOẢN</span>
+            </div>
+        </footer>
+    </main>
+    <script src="js/products.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
+
+
+
+

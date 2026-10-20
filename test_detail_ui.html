@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Product Detail UI Fixes</title>
+    <style>
+        body { font-family: monospace; background: #111; color: #eee; padding: 20px; }
+        .pass { color: #4ade80; }
+        .fail { color: #f87171; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        td, th { border: 1px solid #333; padding: 6px 10px; font-size: 13px; }
+        th { background: #1a1a1a; color: #7ec8e3; }
+        iframe { width: 100%; height: 500px; border: 1px solid #333; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>BMW GYM — UI FIX EXT.0 Test Suite</h1>
+    <div id="summary">Running tests...</div>
+    <table id="results">
+        <thead>
+            <tr><th>Test ID</th><th>Target</th><th>Requirement</th><th>Status</th><th>Computed Value / Evidence</th></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+    <iframe id="test-frame"></iframe>
+
+    <script>
+    const results = [];
+    const iframe = document.getElementById('test-frame');
+
+    function log(id, target, req, status, evidence) {
+        results.push({ id, target, req, status, evidence });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${id}</strong></td>
+            <td>${target}</td>
+            <td>${req}</td>
+            <td class="${status === 'PASS' ? 'pass' : 'fail'}">${status}</td>
+            <td>${evidence}</td>
+        `;
+        document.getElementById('results-body').appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise(resolve => {
+            iframe.onload = () => setTimeout(resolve, 300);
+            iframe.src = url;
+        });
+    }
+
+    async function runTests() {
+        // 1. Load product detail page directly
+        await loadFrame('product-detail.html?id=p1');
+        const doc = iframe.contentDocument;
+        const win = iframe.contentWindow;
+
+        // T01: Product Title color
+        const titleEl = doc.querySelector('.detail-title');
+        const titleColor = titleEl ? win.getComputedStyle(titleEl).color : null;
+        const t01_pass = titleColor === 'rgb(0, 0, 0)';
+        log('T01', '.detail-title', 'Tên sản phẩm có màu đen (#000000)', t01_pass ? 'PASS' : 'FAIL', `computed color: ${titleColor}`);
+
+        // T02: Current Price color
+        const priceEl = doc.querySelector('.detail-current-price');
+        const priceColor = priceEl ? win.getComputedStyle(priceEl).color : null;
+        const t02_pass = priceColor === 'rgb(0, 0, 0)';
+        log('T02', '.detail-current-price', 'Giá sản phẩm có màu đen (#000000)', t02_pass ? 'PASS' : 'FAIL', `computed color: ${priceColor}`);
+
+        // T03: Description color
+        const descEl = doc.querySelector('.detail-description');
+        const descColor = descEl ? win.getComputedStyle(descEl).color : null;
+        const t03_pass = descColor === 'rgb(0, 0, 0)';
+        log('T03', '.detail-description', 'Mô tả sản phẩm có màu đen (#000000)', t03_pass ? 'PASS' : 'FAIL', `computed color: ${descColor}`);
+
+        // T04: Quantity Label color
+        const labelEl = doc.querySelector('.detail-qty-group label');
+        const labelColor = labelEl ? win.getComputedStyle(labelEl).color : null;
+        const t04_pass = labelColor === 'rgb(0, 0, 0)';
+        log('T04', '.detail-qty-group label', 'Nhãn QUANTITY có màu đen (#000000)', t04_pass ? 'PASS' : 'FAIL', `computed color: ${labelColor}`);
+
+        // T05: Minus button color & text
+        const minusBtn = doc.getElementById('detail-qty-minus');
+        const minusColor = minusBtn ? win.getComputedStyle(minusBtn).color : null;
+        const t05_pass = minusColor === 'rgb(0, 0, 0)' && minusBtn?.textContent.trim() === '-';
+        log('T05', '#detail-qty-minus', 'Dấu trừ (-) có màu đen (#000000)', t05_pass ? 'PASS' : 'FAIL', `computed color: ${minusColor}, text: "${minusBtn?.textContent}"`);
+
+        // T06: Plus button color & text
+        const plusBtn = doc.getElementById('detail-qty-plus');
+        const plusColor = plusBtn ? win.getComputedStyle(plusBtn).color : null;
+        const t06_pass = plusColor === 'rgb(0, 0, 0)' && plusBtn?.textContent.trim() === '+';
+        log('T06', '#detail-qty-plus', 'Dấu cộng (+) có màu đen (#000000)', t06_pass ? 'PASS' : 'FAIL', `computed color: ${plusColor}, text: "${plusBtn?.textContent}"`);
+
+        // T07: Quantity Number color
+        const valEl = doc.getElementById('detail-qty-val');
+        const valColor = valEl ? win.getComputedStyle(valEl).color : null;
+        const t07_pass = valColor === 'rgb(0, 0, 0)';
+        log('T07', '#detail-qty-val', 'Số lượng có màu đen (#000000)', t07_pass ? 'PASS' : 'FAIL', `computed color: ${valColor}`);
+
+        // T08: Centering of + and - buttons
+        const plusDisplay = plusBtn ? win.getComputedStyle(plusBtn).display : null;
+        const minusDisplay = minusBtn ? win.getComputedStyle(minusBtn).display : null;
+        const plusAlign = plusBtn ? win.getComputedStyle(plusBtn).alignItems : null;
+        const plusJustify = plusBtn ? win.getComputedStyle(plusBtn).justifyContent : null;
+        const t08_pass = (plusDisplay === 'inline-flex' || plusDisplay === 'flex') &&
+                         (minusDisplay === 'inline-flex' || minusDisplay === 'flex') &&
+                         plusAlign === 'center' && plusJustify === 'center';
+        log('T08', '.btn-qty alignment', 'Nút + và - căn giữa chuẩn xác', t08_pass ? 'PASS' : 'FAIL', `display: ${plusDisplay}, align: ${plusAlign}, justify: ${plusJustify}`);
+
+        // T09: Quantity function interaction (+ / -)
+        let t09_pass = false;
+        if (plusBtn && minusBtn && valEl) {
+            plusBtn.click();
+            const valAfterPlus = valEl.textContent.trim();
+            minusBtn.click();
+            const valAfterMinus = valEl.textContent.trim();
+            t09_pass = (valAfterPlus === '2' && valAfterMinus === '1');
+            log('T09', 'Quantity logic', 'Tăng/giảm số lượng hoạt động chính xác (1 -> 2 -> 1)', t09_pass ? 'PASS' : 'FAIL', `after+: ${valAfterPlus}, after-: ${valAfterMinus}`);
+        } else {
+            log('T09', 'Quantity logic', 'Tăng/giảm số lượng hoạt động chính xác', 'FAIL', 'Elements missing');
+        }
+
+        // T10: Navigation from Home to Product Detail
+        await loadFrame('index.html');
+        const homeDoc = iframe.contentDocument;
+        const homeCardLink = homeDoc.querySelector('.product-card[data-id="p2"] a[href*="product-detail.html"]');
+        const t10_pass = !!homeCardLink && homeCardLink.getAttribute('href').includes('product-detail.html?id=p2');
+        log('T10', 'Home navigation', 'Link từ Home mở đúng product-detail.html?id=p2', t10_pass ? 'PASS' : 'FAIL', `href: ${homeCardLink?.getAttribute('href')}`);
+
+        // T11: Navigation from Shop to Product Detail
+        await loadFrame('shop.html');
+        const shopDoc = iframe.contentDocument;
+        const shopCardLink = shopDoc.querySelector('.product-card[data-id="p3"] a[href*="product-detail.html"]');
+        const t11_pass = !!shopCardLink && shopCardLink.getAttribute('href').includes('product-detail.html?id=p3');
+        log('T11', 'Shop navigation', 'Link từ Shop mở đúng product-detail.html?id=p3', t11_pass ? 'PASS' : 'FAIL', `href: ${shopCardLink?.getAttribute('href')}`);
+
+        // T12: Navigation from Search to Product Detail
+        await loadFrame('search.html?q=Shorts');
+        const searchDoc = iframe.contentDocument;
+        const searchCardLink = searchDoc.querySelector('#search-results-grid .product-card a[href*="product-detail.html"]');
+        const t12_pass = !!searchCardLink && searchCardLink.getAttribute('href').includes('product-detail.html');
+        log('T12', 'Search navigation', 'Link từ Search mở đúng product-detail.html', t12_pass ? 'PASS' : 'FAIL', `href: ${searchCardLink?.getAttribute('href')}`);
+
+        // T13: Navigation from Wishlist (VIEW DETAILS) to Product Detail
+        localStorage.setItem('bmw_wishlist', JSON.stringify(['p2']));
+        await loadFrame('wishlist.html');
+        const wlDoc = iframe.contentDocument;
+        const wlViewBtn = wlDoc.querySelector('.wishlist-view-btn[href*="product-detail.html?id=p2"]');
+        const t13_pass = !!wlViewBtn && wlViewBtn.getAttribute('href') === 'product-detail.html?id=p2';
+        log('T13', 'Wishlist navigation', 'Nút VIEW DETAILS từ Wishlist dẫn tới product-detail.html?id=p2', t13_pass ? 'PASS' : 'FAIL', `href: ${wlViewBtn?.getAttribute('href')}`);
+
+        // T14: Mobile Responsive (375px) without overflow
+        iframe.style.width = '375px';
+        await loadFrame('product-detail.html?id=p1');
+        const mDoc = iframe.contentDocument;
+        const noOverflow = mDoc.documentElement.scrollWidth <= mDoc.documentElement.clientWidth + 1;
+        const mTitleColor = win.getComputedStyle(mDoc.querySelector('.detail-title')).color;
+        const mMinusColor = win.getComputedStyle(mDoc.getElementById('detail-qty-minus')).color;
+        const t14_pass = noOverflow && mTitleColor === 'rgb(0, 0, 0)' && mMinusColor === 'rgb(0, 0, 0)';
+        log('T14', 'Mobile responsive (375px)', 'Hiển thị chuẩn trên mobile, không overflow, chữ và nút vẫn đen', t14_pass ? 'PASS' : 'FAIL', `scrollW: ${mDoc.documentElement.scrollWidth}, clientW: ${mDoc.documentElement.clientWidth}`);
+
+        const passCount = results.filter(r => r.status === 'PASS').length;
+        const failCount = results.filter(r => r.status === 'FAIL').length;
+        document.getElementById('summary').innerHTML = `
+            <h2>Result: ${passCount}/${results.length} PASS — ${failCount} FAIL</h2>
+            <strong style="color: ${failCount === 0 ? '#4ade80' : '#f87171'}">
+                ${failCount === 0 ? '✔ ALL PRODUCT DETAIL UI TESTS PASSED' : '✖ SOME TESTS FAILED'}
+            </strong>
+        `;
+    }
+
+    window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

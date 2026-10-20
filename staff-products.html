@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Kiểm Tra Sản Phẩm & Tồn Kho (Staff)</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR ───────────────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="staff-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge" style="color: #10b981;">Staff</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Staff Navigation">
+                <div class="nav-section-title">Bàn làm việc</div>
+                <a href="staff-dashboard.html" class="dash-nav-item" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Vận hành đơn hàng</div>
+                <a href="staff-dashboard.html#view-orders" class="dash-nav-item" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Đơn hàng</span>
+                </a>
+                <a href="staff-products.html" class="dash-nav-item active" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Sản phẩm & Tồn kho</span>
+                </a>
+                <div class="nav-section-title">Khách hàng & Hỗ trợ</div>
+                <a href="staff-customers.html" class="dash-nav-item" id="nav-customers">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Khách hàng & Hỗ trợ</span>
+                </a>
+                <div class="nav-section-title">Cá nhân</div>
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar">S</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Staff BMW</span>
+                        <span class="user-mini-role">Nhân viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- Topbar -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="staff-dashboard.html">Staff</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current">Sản Phẩm & Tồn Kho</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="index.html" class="btn-store-link">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar">S</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── CONTENT ────────────────────────────────────────────────── -->
+            <main class="dash-content">
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Kiểm Tra Sản Phẩm & Tồn Kho (Staff)</h1>
+                        <p>Xem danh mục, tra cứu thông tin sản phẩm và kiểm tra số lượng tồn thực tế</p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="dash-tabs" role="tablist">
+                    <button class="dash-tab-btn active" data-tab="tab-products">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        <span>Tra cứu sản phẩm</span>
+                    </button>
+                    <button class="dash-tab-btn" data-tab="tab-inventory">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        <span>Kiểm tra tồn kho</span>
+                    </button>
+                </div>
+
+                <!-- TAB 1: SẢN PHẨM -->
+                <div class="tab-pane active" id="tab-products">
+                    <div class="dash-card">
+                        <div class="card-header-bar">
+                            <h2 class="card-title">
+                                <span>Danh Sách Sản Phẩm</span>
+                            </h2>
+                            <div class="page-actions-box">
+                                <button class="btn-action primary" id="btn-open-add-product">
+                                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <span>+ Thêm Sản Phẩm Mới</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="table-controls" style="margin-bottom: 14px;">
+                            <input type="text" class="filter-search-input" id="search-products-input" placeholder="Tìm theo tên hoặc mã...">
+
+                            <select class="filter-select" id="filter-category" aria-label="Lọc theo danh mục">
+                                <option value="ALL">Tất cả danh mục</option>
+                            </select>
+
+                            <select class="filter-select" id="filter-stock" aria-label="Lọc theo tồn kho">
+                                <option value="ALL">Tất cả tồn kho</option>
+                                <option value="IN_STOCK">Còn hàng</option>
+                                <option value="LOW_STOCK">Sắp hết hàng</option>
+                                <option value="OUT_OF_STOCK">Hết hàng</option>
+                            </select>
+
+                            <select class="filter-select" id="sort-products" aria-label="Sắp xếp sản phẩm">
+                                <option value="ID_ASC">Mã ID (Tăng dần)</option>
+                                <option value="NAME_ASC">Tên (A–Z)</option>
+                                <option value="PRICE_ASC">Giá tăng dần</option>
+                                <option value="PRICE_DESC">Giá giảm dần</option>
+                                <option value="STOCK_ASC">Tồn kho ít nhất</option>
+                                <option value="STOCK_DESC">Tồn kho nhiều nhất</option>
+                            </select>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="dash-table" id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã ID</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Danh Mục</th>
+                                        <th>Đơn Giá</th>
+                                        <th>Tồn Kho</th>
+                                        <th>Đánh Giá</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="dash-loading" id="products-loading">
+                            <div class="dash-spinner"></div>
+                            <span>Đang tải danh sách sản phẩm...</span>
+                        </div>
+
+                        <div class="dash-empty" id="products-empty" style="display: none;">
+                            <h4>Không tìm thấy sản phẩm nào</h4>
+                            <p>Không có sản phẩm nào khớp với điều kiện tìm kiếm hoặc lọc hiện tại.</p>
+                        </div>
+
+                        <div class="dash-pagination" id="products-pagination" style="display: none;">
+                            <div id="products-pagination-info">Hiển thị...</div>
+                            <div class="pagination-controls" id="products-pagination-btns"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: KIỂM TRA TỒN KHO -->
+                <div class="tab-pane" id="tab-inventory">
+                    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Tổng Tồn Kho Sẵn Có</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-total-stock">0</div>
+                            <div class="stat-footer">Chiếc sản phẩm tại kho trung tâm</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Sản Phẩm Sắp Hết Hàng</span>
+                                <div class="stat-icon red">
+                                    <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="stat-low-stock-count">0</div>
+                            <div class="stat-footer">Cần lưu ý khi tiếp nhận đơn hàng</div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <div class="card-header-bar" style="flex-wrap: wrap; gap: 10px;">
+                            <h2 class="card-title">
+                                <span>Bảng Kiểm Tra Tồn Kho Thực Tế</span>
+                            </h2>
+                            <div class="filter-pills-row" id="inventory-filter-pills">
+                                <button type="button" class="dash-filter-pill active" data-inv-filter="ALL">Tất cả hàng hóa</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="LOW_STOCK">Sắp hết hàng</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="OUT_OF_STOCK">Hết hàng (0)</button>
+                                <button type="button" class="dash-filter-pill" data-inv-filter="IN_STOCK">Còn dồi dào</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã ID</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Danh Mục</th>
+                                        <th>Tồn Kho</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác Nhập Hàng</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM / SỬA (CHO PHÉP NẾU CÓ QUYỀN) -->
+    <div class="dash-modal-backdrop" id="product-modal" aria-hidden="true">
+        <div class="dash-modal" style="max-width: 680px;" role="dialog" aria-labelledby="product-modal-title">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Thao Tác Sản Phẩm</h3>
+                <button class="btn-modal-close" id="product-modal-close">&times;</button>
+            </div>
+            <form id="product-form">
+                <div class="modal-body">
+                    <input type="hidden" id="modal-prod-id">
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-name">Tên sản phẩm <span class="req">*</span></label>
+                            <input type="text" class="form-input" id="modal-prod-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-category">Danh mục <span class="req">*</span></label>
+                            <select class="form-select" id="modal-prod-category" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-tag">Nhãn (Tag)</label>
+                            <select class="form-select" id="modal-prod-tag">
+                                <option value="">Không có nhãn</option>
+                                <option value="NEW">NEW</option>
+                                <option value="HOT">HOT</option>
+                                <option value="SALE">SALE</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-price">Đơn giá (VND) <span class="req">*</span></label>
+                            <input type="number" min="1000" step="1000" class="form-input" id="modal-prod-price" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-old-price">Giá niêm yết cũ</label>
+                            <input type="number" min="0" step="1000" class="form-input" id="modal-prod-old-price">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-prod-stock">Số lượng tồn kho <span class="req">*</span></label>
+                            <input type="number" min="0" step="1" class="form-input" id="modal-prod-stock" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-image">Đường dẫn ảnh</label>
+                            <input type="text" class="form-input" id="modal-prod-image">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label" for="modal-prod-desc">Mô tả sản phẩm</label>
+                            <textarea class="form-textarea" id="modal-prod-desc"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-error" id="product-form-error" style="margin-top: 10px;"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" id="product-modal-cancel">Hủy</button>
+                    <button type="submit" class="btn-action primary" id="product-modal-submit">Lưu Sản Phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="dash-toast-container" id="dash-toast-container" aria-live="polite"></div>
+
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/staff-products.js"></script>
+</body>
+</html>

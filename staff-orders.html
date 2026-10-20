@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Xử Lý Đơn Hàng (Staff Orders)</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/theme.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dash-layout" id="dash-layout">
+        <div class="dash-backdrop" id="dash-backdrop" aria-hidden="true"></div>
+
+        <!-- ── SIDEBAR ───────────────────────────────────────────────────── -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header">
+                <a href="staff-dashboard.html" class="sidebar-brand">
+                    <span class="brand-logo">
+                        <strong>B</strong><strong>M</strong><strong>W</strong>
+                    </span>
+                    <span class="portal-badge" style="background: rgba(217, 119, 6, 0.12); color: #d97706; border-color: rgba(217, 119, 6, 0.25);">Staff</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav-container" aria-label="Staff Navigation">
+                <div class="nav-section-title">Vận hành ca trực</div>
+                <a href="staff-dashboard.html" class="dash-nav-item" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Xử lý đơn hàng</div>
+                <a href="staff-orders.html" class="dash-nav-item active" id="nav-orders">
+                    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-text">Tất cả đơn hàng</span>
+                </a>
+                <a href="staff-orders.html#queue-shipping" class="dash-nav-item" id="nav-shipping">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    <span class="nav-text">Xử lý giao hàng</span>
+                </a>
+                <a href="staff-orders.html#queue-returns" class="dash-nav-item" id="nav-returns">
+                    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    <span class="nav-text">Đổi trả &amp; Hủy</span>
+                </a>
+
+                <div class="nav-section-title">Kho hàng</div>
+                <a href="staff-products.html" class="dash-nav-item" id="nav-products">
+                    <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    <span class="nav-text">Tra cứu &amp; Tồn kho</span>
+                </a>
+                <div class="nav-section-title">Khách hàng & Hỗ trợ</div>
+                <a href="staff-customers.html" class="dash-nav-item" id="nav-customers">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="nav-text">Khách hàng & Hỗ trợ</span>
+                </a>
+
+                <div class="nav-section-title">Cá nhân</div>
+                <a href="profile.html" class="dash-nav-item" id="nav-profile">
+                    <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-text">Hồ sơ cá nhân</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="profile.html" class="sidebar-user-mini">
+                    <div class="user-mini-avatar" id="sidebar-user-avatar" style="background: rgba(217, 119, 6, 0.2); color: #d97706;">S</div>
+                    <div class="user-mini-info">
+                        <span class="user-mini-name" id="sidebar-user-name">Staff BMW</span>
+                        <span class="user-mini-role" id="sidebar-role-badge">Nhân viên</span>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Thu gọn / Mở rộng sidebar">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN WRAPPER ───────────────────────────────────────────────── -->
+        <div class="dash-main">
+            <!-- Topbar -->
+            <header class="dash-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-nav-toggle" id="sidebar-mobile-toggle" aria-label="Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <a href="staff-dashboard.html">Staff</a>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current">Xử Lý Đơn Hàng</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="index.html" class="btn-store-link">
+                        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>Cửa hàng</span>
+                    </a>
+
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+                        <svg class="theme-icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        <svg class="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+
+                    <a href="profile.html" class="user-mini-avatar" id="topbar-user-avatar">S</a>
+                    <button class="btn-logout" id="logout-btn" title="Đăng xuất">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Đăng xuất</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+            <main class="dash-content">
+                <div class="dash-page-header">
+                    <div class="page-title-box">
+                        <h1>Xử Lý Đơn Hàng Vận Hành</h1>
+                        <p>Xác nhận đơn, cập nhật đóng gói, điều phối giao hàng và hỗ trợ khách hàng theo quyền hạn được cấp</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" class="dash-btn outline" id="btn-refresh-orders">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── 1. STAFF OPERATIONAL QUEUE METRICS ──────────────────── -->
+                <div class="metrics-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Chờ xác nhận</span>
+                            <strong class="stat-value" id="metric-pending-orders">0</strong>
+                            <span class="stat-subtext" style="color: #f59e0b;">Cần duyệt đơn ngay</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Cần đóng gói</span>
+                            <strong class="stat-value" id="metric-packing-orders">0</strong>
+                            <span class="stat-subtext">Đã xác nhận &amp; Xử lý</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+                            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Đang giao hàng</span>
+                            <strong class="stat-value" id="metric-shipping-orders">0</strong>
+                            <span class="stat-subtext">Bàn giao &amp; Đang phát</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background: rgba(234, 88, 12, 0.1); color: #ea580c;">
+                            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Yêu cầu đổi trả</span>
+                            <strong class="stat-value" id="metric-returns-orders">0</strong>
+                            <span class="stat-subtext" style="color: #ea580c;">Cần hỗ trợ khách</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 2. FILTER & SEARCH TOOLBAR ─────────────────────────── -->
+                <div class="dash-card" style="margin-top: 24px;">
+                    <div class="dash-table-toolbar" style="flex-wrap: wrap; gap: 12px;">
+                        <div class="search-box" style="flex: 1; min-width: 240px;">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="order-search-input" placeholder="Tìm kiếm theo mã đơn, người nhận, SĐT...">
+                        </div>
+
+                        <select id="filter-order-status" class="dash-select" style="min-width: 170px;">
+                            <option value="ALL">Mọi trạng thái đơn</option>
+                            <option value="Chờ xác nhận">Chờ xác nhận</option>
+                            <option value="Đã xác nhận">Đã xác nhận</option>
+                            <option value="Đang xử lý">Đang xử lý</option>
+                            <option value="Đang đóng gói">Đang đóng gói</option>
+                            <option value="Đã bàn giao vận chuyển">Đã bàn giao VC</option>
+                            <option value="Đang giao hàng">Đang giao hàng</option>
+                            <option value="Đã giao">Đã giao thành công</option>
+                            <option value="Yêu cầu đổi trả">Yêu cầu đổi trả</option>
+                            <option value="Đã hủy">Đã hủy</option>
+                        </select>
+
+                        <select id="filter-payment-method" class="dash-select" style="min-width: 130px;">
+                            <option value="ALL">Mọi PT thanh toán</option>
+                            <option value="COD">COD</option>
+                            <option value="QR">Chuyển khoản QR</option>
+                        </select>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="dash-table-container">
+                        <table class="dash-table" id="staff-orders-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 110px;">Mã đơn</th>
+                                    <th>Khách hàng &amp; SĐT</th>
+                                    <th style="width: 130px;">Thời gian</th>
+                                    <th style="width: 90px;">Mặt hàng</th>
+                                    <th style="width: 120px;">Tổng tiền</th>
+                                    <th style="width: 160px;">Thanh toán</th>
+                                    <th style="width: 150px;">Trạng thái đơn</th>
+                                    <th style="width: 130px; text-align: center;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <!-- Populated dynamically by staff-orders.js -->
+                            </tbody>
+                        </table>
+
+                        <div id="table-loading" class="dash-loading" style="display: none;">
+                            <div class="dash-spinner"></div>
+                            <span>Đang tải danh sách đơn hàng...</span>
+                        </div>
+
+                        <div id="table-empty" class="dash-empty" style="display: none;">
+                            <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <h3>Không tìm thấy đơn hàng nào</h3>
+                            <p>Không có đơn hàng nào khớp với bộ lọc hiện tại</p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="dash-pagination" id="table-pagination">
+                        <div class="pagination-info" id="pagination-info">Hiển thị 0 đơn hàng</div>
+                        <div class="pagination-btns" id="pagination-btns"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ── 3. STAFF ORDER DETAIL & ACTION MODAL ───────────────────────────── -->
+    <div class="modal-overlay" id="order-detail-modal">
+        <div class="dash-modal" style="max-width: 840px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modal-order-id" style="font-size: 18px; font-weight: 800;">Chi tiết đơn hàng</h3>
+                    <div id="modal-order-date" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"></div>
+                </div>
+                <button type="button" class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+
+            <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Summary bar -->
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--bg-surface); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div>
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); display: block; font-weight: 700;">Trạng thái đơn:</span>
+                        <div id="modal-badge-order-status" style="margin-top: 4px;"></div>
+                    </div>
+                    <div style="border-left: 1px solid var(--border-color); padding-left: 12px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); display: block; font-weight: 700;">Thanh toán:</span>
+                        <div id="modal-badge-payment-status" style="margin-top: 4px;"></div>
+                    </div>
+                </div>
+
+                <!-- Two-column info: Recipient & Financial -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: #d97706; margin: 0;">Thông tin giao nhận</h4>
+                            <div style="display: flex; gap: 6px;">
+                                <a id="modal-customer-call-btn" href="#" class="dash-btn sm outline" style="padding: 2px 8px; font-size: 11px; text-decoration: none;">Gọi điện</a>
+                                <button type="button" id="modal-btn-copy-address" class="dash-btn sm outline" style="padding: 2px 8px; font-size: 11px;">Sao chép ĐC</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 12.5px; display: flex; flex-direction: column; gap: 6px;">
+                            <div><strong>Người nhận:</strong> <span id="modal-customer-name"></span></div>
+                            <div><strong>Số điện thoại:</strong> <span id="modal-customer-phone"></span></div>
+                            <div><strong>Địa chỉ:</strong> <span id="modal-customer-address"></span></div>
+                            <div><strong>Ghi chú khách:</strong> <span id="modal-customer-notes" style="font-style: italic;"></span></div>
+                            <div style="border-top: 1px dashed var(--border-color); padding-top: 6px; margin-top: 4px; font-size: 11.5px; color: var(--text-muted);">
+                                <strong>Tuyến vận chuyển:</strong> <span id="modal-shipping-route">Chưa cập nhật</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; color: #d97706;">Tổng thanh toán &amp; Đối soát</h4>
+                        <div style="font-size: 12.5px; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display:flex; justify-content:space-between;"><span>Phương thức:</span> <strong id="modal-payment-method"></strong></div>
+                            <div style="display:flex; justify-content:space-between;"><span>Trạng thái tiền:</span> <span id="modal-payment-status-text"></span></div>
+                            <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--border-color); padding-top:6px; font-size:14px; font-weight:800; color:var(--accent-blue);">
+                                <span>TỔNG TIỀN:</span> <span id="modal-total"></span>
+                            </div>
+                        </div>
+                        <div id="staff-payment-perm-notice" style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">
+                            * Xác nhận thanh toán &amp; hoàn tiền tuân thủ quy tắc kiểm toán tài chính nghiêm ngặt.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Return / Exchange Support Panel (Requirement 3) -->
+                <div id="modal-return-panel" class="support-action-box amber" style="display: none;">
+                    <div class="support-action-title" style="color: #d97706;">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                        <span>Tiếp Nhận &amp; Xử Lý Yêu Cầu Đổi / Trả Hàng</span>
+                        <span id="modal-return-badge" style="margin-left: auto;"></span>
+                    </div>
+                    <div style="font-size: 12.5px; background: var(--bg-primary); padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div><strong>Lý do:</strong> <span id="modal-return-reason">...</span></div>
+                        <div style="margin-top: 4px;"><strong>Chi tiết khách gửi:</strong> <span id="modal-return-details">...</span></div>
+                        <div style="margin-top: 4px; font-size: 11px; color: var(--text-muted);"><strong>Thời gian yêu cầu:</strong> <span id="modal-return-time">...</span></div>
+                    </div>
+                    <div id="modal-return-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="dash-btn sm" id="btn-accept-return" style="background: #10b981; color: #fff;">
+                            ✓ Chấp thuận Đổi / Trả hàng (Hoàn kho)
+                        </button>
+                        <button type="button" class="dash-btn sm" id="btn-reject-return" style="background: #ef4444; color: #fff;">
+                            ✕ Từ chối yêu cầu
+                        </button>
+                    </div>
+                    <div id="modal-return-reviewed-notice" style="display: none; font-size: 12px; font-weight: 600;"></div>
+                </div>
+
+                <!-- Real Refund Transaction Confirmation Box (Requirement 3 & 8) -->
+                <div id="modal-refund-panel" class="support-action-box blue" style="display: none;">
+                    <div class="support-action-title" style="color: var(--accent-blue);">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        <span>Xác Nhận Hoàn Tiền Giao Dịch Thật (Kế Toán / Staff)</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">
+                        ⚠️ <strong>Cảnh báo an toàn tài chính:</strong> Tuyệt đối không tự xác nhận hoàn tiền nếu chưa thực hiện giao dịch chuyển khoản ngân hàng thật cho khách hàng.
+                    </p>
+                    <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 220px;">
+                            <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Mã giao dịch ngân hàng / Tham chiếu hoàn tiền:</label>
+                            <input type="text" id="modal-refund-ref-input" class="form-input" style="width: 100%; height: 36px; font-size: 12px;" placeholder="Ví dụ: VCB-FT261019001234...">
+                        </div>
+                        <button type="button" class="dash-btn sm primary" id="btn-confirm-refund" style="height: 36px;">
+                            Xác nhận đã chuyển tiền hoàn
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products list in order -->
+                <div>
+                    <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Danh sách sản phẩm đóng gói</h4>
+                    <table class="order-items-table" id="modal-items-table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th style="width: 120px; text-align: right;">Đơn giá</th>
+                                <th style="width: 70px; text-align: center;">SL</th>
+                                <th style="width: 120px; text-align: right;">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-items-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Status Transition Controls for Staff -->
+                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                    <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: #d97706;">
+                        Cập nhật trạng thái xử lý
+                    </h4>
+                    <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 220px;">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Trạng thái tiếp theo hợp lệ:</label>
+                            <select id="modal-next-status-select" class="dash-select" style="width: 100%;"></select>
+                        </div>
+                        <div style="flex: 1.5; min-width: 240px;">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">Ghi chú thực hiện:</label>
+                            <input type="text" id="modal-status-note-input" class="form-input" style="width: 100%; height: 38px;" placeholder="Ví dụ: Đã kiểm đếm đủ hàng, đóng hộp và niêm phong...">
+                        </div>
+                        <button type="button" class="dash-btn primary" id="btn-modal-update-status" style="height: 38px; background: #d97706; border-color: #d97706;">
+                            Cập nhật trạng thái
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                        <button type="button" class="dash-btn sm" id="btn-quick-confirm-order" style="background: #10b981; color: #fff;">
+                            ✓ Xác nhận đơn ngay
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Two-column: Status History Timeline & Internal Notes -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Audit Trail Timeline -->
+                    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Lịch sử đơn hàng</h4>
+                        <div class="timeline-audit-list" id="modal-status-history-list"></div>
+                    </div>
+
+                    <!-- Internal Notes Thread -->
+                    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                        <h4 style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Ghi chú nội bộ</h4>
+                        <div class="internal-notes-list" id="modal-internal-notes-list"></div>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <input type="text" id="modal-new-note-input" class="form-input" style="flex: 1; height: 34px; font-size: 12px;" placeholder="Ghi chú ca trực...">
+                            <button type="button" class="dash-btn sm outline" id="btn-modal-add-note">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+                <button type="button" class="dash-btn outline" id="modal-close-footer-btn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="dash-toast-container" id="dash-toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/products.js"></script>
+    <script src="js/order-storage.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/staff-orders.js"></script>
+</body>
+</html>

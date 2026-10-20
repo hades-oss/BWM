@@ -1,0 +1,459 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM - Thể Hình, Tinh Thần, Ý Chí</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/quickview.css">
+    <script src="js/theme.js"></script>
+</head>
+<body>
+    <main class="site-shell">
+        <div class="announcement" aria-label="Thông báo">
+            <div class="marquee-track" aria-hidden="true">
+                <div class="marquee-content">
+                    <span>MIỄN PHÍ VẬN CHUYỂN ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+                <div class="marquee-content" aria-hidden="true">
+                    <span>MIỄN PHÍ VẬN CHUYỂN ĐƠN HÀNG TRÊN 1.500.000₫</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>CỐNG HIẾN CHO ĐAM MÊ</span>
+                    <span class="marquee-dot">✦</span>
+                    <span>ĐỔI TRẢ DỄ DÀNG TRONG 30 NGÀY</span>
+                    <span class="marquee-dot">✦</span>
+                </div>
+            </div>
+        </div>
+        <header class="header">
+            <button class="mobile-menu" aria-label="Mở menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </button>
+            <a href="index.html" class="brand"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+            <div class="header-search-wrapper">
+                <form class="header-search-form" id="inline-header-search" role="search">
+                    <input type="text" class="header-search-input" id="inline-search-input" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+                    <button type="submit" class="header-search-btn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+                    </button>
+                </form>
+            </div>
+            <div class="header-actions">
+                                <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển giao diện sáng/tối" title="Chuyển giao diện">
+                    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <div class="account-dropdown-wrapper">
+                    <button class="account-toggle-btn" aria-label="Tài khoản" title="Tài khoản">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.2-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>
+                    </button>
+                    <div class="account-dropdown-menu" role="menu">
+                        <div class="acc-menu-header auth-logged-in" style="display:none;">
+                            <small>Đã đăng nhập với tư cách</small>
+                            <strong class="menu-username-display">@User</strong>
+                        </div>
+                        <a href="login.html" class="acc-menu-link auth-logged-out" role="menuitem">Đăng nhập</a>
+                        <a href="register.html" class="acc-menu-link auth-logged-out" role="menuitem">Tạo tài khoản</a>
+                        <a href="profile.html" class="acc-menu-link auth-logged-in" role="menuitem" style="display:none;">Hồ sơ</a>
+                        <a href="#" id="acc-logout-btn" class="acc-menu-link logout-link auth-logged-in" role="menuitem" style="display:none;">Đăng xuất</a>
+                    </div>
+                </div>
+                <a href="wishlist.html" class="wishlist-header-btn" aria-label="Danh sách yêu thích">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.9a5.4 5.4 0 0 0-7.7 0L12 7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7L12 22l8.8-8.4a5.4 5.4 0 0 0 0-7.7Z"/></svg>
+                    <i class="wishlist-badge">0</i>
+                </a>                <button class="bag" aria-label="Giỏ hàng">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
+                    <i>0</i>
+                </button>
+            </div>
+            <nav>
+                <a href="shop.html">CỬA HÀNG <span class="chevron">&#8964;</span></a>
+                <a href="shop.html?category=Clothing">TRANG PHỤC</a>
+                <a href="shop.html?category=Accessories">PHỤ KIỆN</a>
+                <a href="shop.html?category=Equipment">DỤNG CỤ</a>
+                <a href="shop.html">HÀNG MỚI</a>
+                <a class="sale" href="shop.html">GIẢM GIÁ</a>
+                <a href="#promotions" class="nav-vouchers-btn">MÃ GIẢM GIÁ</a>
+                <a href="orders.html" class="nav-orders-btn">ĐƠN HÀNG</a>
+            </nav>
+        </header>
+
+        <section class="hero" id="top">
+            <div class="hero-slider">
+                <!-- Slide 1 -->
+                <div class="hero-slide active">
+                    <img src="images/hero/hero1.jpg" alt="BUILT FOR THE GRIND - TRAIN HARD.">
+                    <div class="hero-wash"></div>
+                    <div class="hero-copy">
+                        <p class="eyebrow">THIẾT KẾ CHO SỰ BỀN BỈ</p>
+                        <h1>TẬP LUYỆN<br><i>HẾT MÌNH.</i></h1>
+                        <p class="hero-sub">Trang bị dành riêng cho những ai không ngừng nỗ lực.</p>
+                        <div class="cta-row">
+                            <a class="button blue" href="shop.html">MUA NGAY <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="hero-slide">
+                    <img src="images/hero/hero2.jpg" alt="NEW ARRIVALS - MOVE WITH PURPOSE.">
+                    <div class="hero-wash"></div>
+                    <div class="hero-copy">
+                        <p class="eyebrow">BỘ SƯU TẬP MỚI</p>
+                        <h1>CHUYỂN ĐỘNG CÙNG<br><i>MỤC TIÊU.</i></h1>
+                        <p class="hero-sub">Trang phục thể thao tối ưu cho từng buổi tập.</p>
+                        <div class="cta-row">
+                            <a class="button blue" href="shop.html">KHÁM PHÁ MỚI <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="hero-slide">
+                    <img src="images/hero/hero3.jpg" alt="BMW EQUIPMENT - BUILT TO PERFORM.">
+                    <div class="hero-wash"></div>
+                    <div class="hero-copy">
+                        <p class="eyebrow">DỤNG CỤ TẬP BMW</p>
+                        <h1>BỨT PHÁ MỌI<br><i>GIỚI HẠN.</i></h1>
+                        <p class="hero-sub">Trang thiết bị chuyên nghiệp phục vụ tập luyện nghiêm túc.</p>
+                        <div class="cta-row">
+                            <a class="button blue" href="shop.html?category=Equipment">XEM DỤNG CỤ <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="slider-arrow slider-prev" aria-label="Slide trước">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="slider-arrow slider-next" aria-label="Slide tiếp theo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+
+            <div class="hero-foot">
+                <span class="slide-counter">01 / 03</span>
+                <div class="progress"><i id="hero-progress-bar"></i></div>
+                <div class="slider-dots">
+                    <button class="slider-dot active" data-index="0" aria-label="Slide 1"></button>
+                    <button class="slider-dot" data-index="1" aria-label="Slide 2"></button>
+                    <button class="slider-dot" data-index="2" aria-label="Slide 3"></button>
+                </div>
+                <span>CUỘN ĐỂ KHÁM PHÁ ↓</span>
+            </div>
+        </section>
+
+        <section class="categories section" id="shop">
+            <div class="section-title">
+                <div>
+                    <p class="eyebrow">HỆ THỐNG MUA SẮM</p>
+                    <h2>MUA SẮM THEO<br><i>DANH MỤC.</i></h2>
+                </div>
+                <a href="#new">XEM TẤT CẢ <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            <div class="category-grid">
+                <article class="category c0">
+                    <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85" alt="GYM CLOTHING">
+                    <div>
+                        <span>01</span>
+                        <h3>TRANG PHỤC TẬP</h3>
+                        <p>Linh hoạt chuyển động. Bền bỉ theo thời gian.</p>
+                        <a href="shop.html?category=Clothing">MUA NGAY <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                    </div>
+                </article>
+                <article class="category c1">
+                    <img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=900&q=85" alt="GYM ACCESSORIES">
+                    <div>
+                        <span>02</span>
+                        <h3>PHỤ KIỆN GYM</h3>
+                        <p>Từng chi tiết tạo nên sự khác biệt.</p>
+                        <a href="shop.html?category=Accessories">MUA NGAY <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                    </div>
+                </article>
+                <article class="category c2">
+                    <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=900&q=85" alt="WORKOUT EQUIPMENT">
+                    <div>
+                        <span>03</span>
+                        <h3>DỤNG CỤ TẬP LUYỆN</h3>
+                        <p>Phòng tập của bạn. Luật của bạn.</p>
+                        <a href="shop.html?category=Equipment">MUA NGAY <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="grind">
+            <div class="grind-image">
+                <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=85" alt="Athlete training with dumbbells">
+            </div>
+            <div class="grind-content">
+                <p class="eyebrow">TIÊU CHUẨN BMW</p>
+                <h2>ĐỒNG HÀNH CÙNG<br><i>SỰ KIÊN TRÌ.</i></h2>
+                <p>Trang phục & dụng cụ được thiết kế tối ưu cho chuyển động và hiệu suất mỗi ngày. Tiến bộ không bao giờ là ngẫu nhiên.</p>
+                <a class="button blue" href="shop.html">XEM BỘ SƯU TẬP <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                <div class="stat-line">
+                    <span><b>24/7</b> KHÔNG NGỪNG NỖ LỰC</span>
+                    <span><b>100%</b> CAM KẾT CHẤT LƯỢNG</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="products section" id="new">
+            <div class="section-top">
+                <div>
+                    <p class="eyebrow">VỪA RA MẮT</p>
+                    <h2>HÀNG <i>MỚI VỀ.</i></h2>
+                </div>
+                <div class="carousel-controls">
+                    <button>←</button>
+                    <button>→</button>
+                </div>
+            </div>
+            <div class="product-grid" id="new-arrivals-grid"></div>
+        </section>
+
+        <section class="promo" id="flash-sale">
+            <div class="promo-content">
+                <p class="eyebrow">BMW FLASH SALE</p>
+                <h2>ƯU ĐÃI <i>CÓ HẠN.</i></h2>
+                <p>Mọi thứ bạn cần để nâng tầm buổi tập. Đừng bỏ lỡ các ưu đãi độc quyền.</p>
+                
+                <div class="countdown-clock" id="countdown-clock">
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-days">00</span>
+                        <span class="countdown-label">NGÀY</span>
+                    </div>
+                    <span class="countdown-colon">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-hours">00</span>
+                        <span class="countdown-label">GIỜ</span>
+                    </div>
+                    <span class="countdown-colon">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-minutes">00</span>
+                        <span class="countdown-label">PHÚT</span>
+                    </div>
+                    <span class="countdown-colon">:</span>
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-seconds">00</span>
+                        <span class="countdown-label">GIÂY</span>
+                    </div>
+                </div>
+
+                <div class="sale-ended-message hidden" id="sale-ended-message">
+                    <span>ƯU ĐÃI ĐÃ KẾT THÚC</span>
+                </div>
+
+                <a class="button blue shop-sale-btn" href="shop.html">MUA NGAY ƯU ĐÃI <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            <span class="promo-mark">BMW</span>
+        </section>
+
+        <section class="best section">
+            <div class="section-top">
+                <div>
+                    <p class="eyebrow">ĐƯỢC ƯA CHUỘNG NHẤT</p>
+                    <h2>SẢN PHẨM <i>BÁN CHẠY.</i></h2>
+                </div>
+                <a href="shop.html" class="text-link">XEM TẤT CẢ <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            <div class="product-grid" id="best-sellers-grid"></div>
+        </section>
+
+        <section class="why section">
+            <div class="why-intro">
+                <p class="eyebrow">SỰ KHÁC BIỆT</p>
+                <h2>TẠI SAO CHỌN<br><i>BMW?</i></h2>
+                <p>Không chỉ là trang phục. Đó là tinh thần thép bạn khoác lên mỗi khi bước vào phòng tập.</p>
+            </div>
+            <div class="why-grid">
+                <article>
+                    <span>01</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 10-13h-7V2Z"/></svg>
+                    <h3>TỐI ƯU CHO TẬP LUYỆN</h3>
+                    <p>Thiết kế xoay quanh những bài tập thực tế.</p>
+                </article>
+                <article>
+                    <span>02</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 10-13h-7V2Z"/></svg>
+                    <h3>THIẾT KẾ HIỆN ĐẠI</h3>
+                    <p>Phong cách tối giản, đậm chất thể thao.</p>
+                </article>
+                <article>
+                    <span>03</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 10-13h-7V2Z"/></svg>
+                    <h3>CHẤT LƯỢNG TIÊN PHONG</h3>
+                    <p>Chất liệu bền bỉ, kiểm chứng qua từng buổi tập.</p>
+                </article>
+                <article>
+                    <span>04</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 10-13h-7V2Z"/></svg>
+                    <h3>DÀNH CHO SỰ BỀN BỈ</h3>
+                    <p>Dành cho những người tập luyện nghiêm túc.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="product-preview section">
+            <div class="section-top">
+                <div>
+                    <p class="eyebrow">LỰA CHỌN CỦA BẠN</p>
+                    <h2>SẢN PHẨM <i>THIẾT YẾU.</i></h2>
+                </div>
+                <div class="tabs">
+                    <button class="active" data-category="CLOTHING">TRANG PHỤC</button>
+                    <button data-category="ACCESSORIES">PHỤ KIỆN</button>
+                    <button data-category="EQUIPMENT">DỤNG CỤ</button>
+                </div>
+            </div>
+            <div class="tab-grid" id="essentials-grid"></div>
+        </section>
+
+        <!-- ── PROMOTIONS & VOUCHERS SHOWCASE (PHASE 8.6) ────────────────── -->
+        <section class="promotions-showcase section" id="promotions">
+            <div class="section-top">
+                <div>
+                    <p class="eyebrow">ƯU ĐÃI ĐỘC QUYỀN &amp; PHẦN THƯỞNG</p>
+                    <h2>MÃ GIẢM GIÁ &amp; <i>ƯU ĐÃI.</i></h2>
+                    <p style="margin-top: 6px; color: var(--text-secondary); max-width: 600px; font-size: 14px;">
+                        Hệ thống voucher chuẩn 6 ký tự kết nối trực tiếp với Checkout. Khám phá các mã ưu đãi độc quyền dành riêng cho bạn.
+                    </p>
+                </div>
+                <div class="promo-tab-controls">
+                    <button type="button" class="promo-tab-btn active" data-tab="active">Đang Hiệu Lực</button>
+                    <button type="button" class="promo-tab-btn" data-tab="special">Đặc Biệt (VIP)</button>
+                    <button type="button" class="promo-tab-btn" data-tab="expired">Hết Hiệu Lực</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Voucher Grid -->
+            <div class="promo-cards-grid" id="homepage-promo-grid"></div>
+
+            <!-- Toast notification for copy -->
+            <div id="promo-copy-toast" style="display: none; position: fixed; bottom: 30px; right: 30px; background: #10b981; color: #ffffff; padding: 12px 20px; border-radius: 8px; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,0.25); z-index: 9999; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5;"><path d="M20 6 9 17l-5-5"/></svg>
+                <span id="promo-copy-toast-text">Đã sao chép mã thành công!</span>
+            </div>
+        </section>
+
+        <section class="community">
+            <div class="community-copy">
+                <p class="eyebrow">CỘNG ĐỒNG BMW</p>
+                <h2>HƠN CẢ<br><i>TẬP LUYỆN.</i></h2>
+                <p>Thể hình. Tinh thần. Ý chí.</p>
+                <a href="#newsletter" class="button line">THAM GIA CỘNG ĐỒNG <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            <div class="collage">
+                <img class="collage-one" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=85" alt="Fitness community training">
+                <img class="collage-two" src="https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=700&q=85" alt="Athlete in gym">
+                <span>PHIÊN BẢN<br>TỐT NHẤT<br>CỦA BẠN</span>
+            </div>
+        </section>
+
+        <section class="newsletter" id="newsletter">
+            <div>
+                <p class="eyebrow">KẾT NỐI VỚI CHÚNG TÔI</p>
+                <h2>GIỮ VỮNG<br><i>Ý CHÍ.</i></h2>
+            </div>
+            <form id="newsletter-form" novalidate>
+                <p>Nhận thông tin ra mắt sản phẩm mới, cảm hứng tập luyện và cập nhật từ BMW.</p>
+                <div>
+                    <input type="email" id="newsletter-email" placeholder="NHẬP EMAIL CỦA BẠN">
+                    <button type="submit">ĐĂNG KÝ <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+                </div>
+                <p class="form-message" id="newsletter-message" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <footer>
+            <div class="footer-head">
+                <a class="brand" href="index.html"><strong>B</strong><strong>M</strong><strong>W</strong></a>
+                <p>Dành cho những ai không ngừng nỗ lực.</p>
+            </div>
+            <div class="footer-links">
+                <div>
+                    <h3>CỬA HÀNG</h3>
+                    <a href="shop.html?category=Clothing">TRANG PHỤC</a>
+                    <a href="shop.html?category=Accessories">PHỤ KIỆN</a>
+                    <a href="shop.html?category=Equipment">DỤNG CỤ</a>
+                    <a href="shop.html">HÀNG MỚI</a>
+                    <a href="shop.html">Giảm giá</a>
+                </div>
+                <div>
+                    <h3>KHÁCH HÀNG</h3>
+                    <a href="#">Liên hệ</a>
+                    <a href="#">Vận chuyển</a>
+                    <a href="#">Đổi trả</a>
+                    <a href="#">Câu hỏi thường gặp</a>
+                </div>
+                <div>
+                    <h3>VỀ BMW</h3>
+                    <a href="#">Về chúng tôi</a>
+                    <a href="#">Câu chuyện BMW</a>
+                    <a href="#">Cộng đồng</a>
+                    <a href="#">Tuyển dụng</a>
+                </div>
+                <div>
+                    <h3>THEO DÕI CHÚNG TÔI</h3>
+                    <a href="#">Instagram</a>
+                    <a href="#">TikTok</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">YouTube</a>
+                </div>
+                <div>
+                    <h3>LIÊN HỆ</h3>
+                    <div class="footer-contact-item">
+                        <strong>Địa chỉ</strong>
+                        137 Nguyễn Thị Thập, Phường Hải Châu, TP. Đà Nẵng
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Điện thoại</strong>
+                        <a href="tel:0355278900">0355278900</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <strong>Email</strong>
+                        <a href="mailto:tupqtd01646@gmail.com">tupqtd01646@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 BMW – BODY, MIND, WILLPOWER.</span>
+                <span>VIỆT NAM / VND</span>
+                <span>CHÍNH SÁCH BẢO MẬT &nbsp; ĐIỀU KHOẢN</span>
+            </div>
+        </footer>
+    </main>
+    <script src="js/products.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/product-render.js"></script>
+    <script src="js/slider.js"></script>
+    <script src="js/form-validation.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/quickview.js"></script>
+    <script src="js/countdown.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/promotions.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

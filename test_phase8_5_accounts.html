@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW GYM — Automated Test Suite Đợt 8.5 (Account Management & RBAC)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 24px;
+            margin: 0;
+        }
+        h1 { font-size: 20px; font-weight: 800; color: #38bdf8; margin-bottom: 6px; }
+        p.subtitle { color: #94a3b8; margin-bottom: 20px; font-size: 13px; }
+        .banner {
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+        .banner.pass { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; }
+        .banner.fail { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 6px;
+            overflow: hidden;
+            font-size: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #334155;
+            text-align: left;
+        }
+        th { background: #0f172a; color: #38bdf8; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        td.pass { color: #4ade80; font-weight: 700; }
+        td.fail { color: #f87171; font-weight: 700; }
+        code { background: rgba(0, 0, 0, 0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #e2e8f0; }
+        #test-frame {
+            width: 100%;
+            height: 480px;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            margin-top: 24px;
+            background: #ffffff;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>BỘ KIỂM THỬ TỰ ĐỘNG ĐỢT 8.5 — ACCOUNT MANAGEMENT & PHÂN QUYỀN RBAC</h1>
+    <p class="subtitle">Kiểm thử toàn diện CRUD tài khoản, cấp quyền Staff chi tiết, bảo vệ Admin cuối, ưu tiên vô hiệu hóa an toàn hơn xóa cứng, hủy phiên tài khoản bị khóa, ranh giới Staff và Audit Logging</p>
+
+    <div id="summary-banner" class="banner">Đang chuẩn bị chạy kịch bản kiểm thử...</div>
+
+    <table id="test-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Mã Test</th>
+                <th style="width: 160px;">Nhóm Chức Năng</th>
+                <th style="width: 320px;">Mục Tiêu Kiểm Thử</th>
+                <th>Kỳ Vọng</th>
+                <th>Thực Tế</th>
+                <th style="width: 80px;">Trạng Thái</th>
+            </tr>
+        </thead>
+        <tbody id="test-table-body">
+            <!-- Dynamic Test Rows -->
+        </tbody>
+    </table>
+
+    <iframe id="test-frame" src="about:blank"></iframe>
+
+    <script src="js/auth-guard.js"></script>
+    <script src="js/order-storage.js"></script>
+
+    <script>
+    const testTableBody = document.getElementById('test-table-body');
+    const summaryBanner = document.getElementById('summary-banner');
+    const testFrame = document.getElementById('test-frame');
+
+    let passCount = 0;
+    let failCount = 0;
+
+    function recordTest(code, group, objective, expected, actual, isPass) {
+        if (isPass) passCount++;
+        else failCount++;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${code}</strong></td>
+            <td>${group}</td>
+            <td>${objective}</td>
+            <td>${expected}</td>
+            <td><code>${String(actual)}</code></td>
+            <td class="${isPass ? 'pass' : 'fail'}">${isPass ? 'PASS' : 'FAIL'}</td>
+        `;
+        testTableBody.appendChild(tr);
+    }
+
+    function loadFrame(url) {
+        return new Promise(resolve => {
+            testFrame.onload = () => setTimeout(() => resolve({ win: testFrame.contentWindow, doc: testFrame.contentDocument }), 300);
+            testFrame.src = url;
+        });
+    }
+
+    async function runAllTests() {
+        // Clear environment for test isolation
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 1: MÔ HÌNH DỮ LIỆU, SEED & PHÂN BIỆT USERNAME / EMAIL / GMAIL
+        // ═════════════════════════════════════════════════════════════════════
+        const users = window.BMW_AUTH_GUARD.getUsers();
+        const adminSeed = users.find(u => u.username === 'admin');
+        const staffSeed = users.find(u => u.username === 'staff');
+
+        // T1.1: Seed tài khoản mặc định và mật khẩu mạnh
+        const isT11Pass = adminSeed && adminSeed.role === 'admin' && adminSeed.password === 'Admin@2026' &&
+                          staffSeed && staffSeed.role === 'staff' && staffSeed.password === 'Staff@2026';
+        recordTest(
+            'T1.1',
+            'Model & Seed',
+            'Khởi tạo Seed tài khoản Admin và Staff với mật khẩu mạnh, vai trò và trạng thái chuẩn',
+            'Admin role="admin", Staff role="staff", passwords non-empty & strong',
+            `Admin: ${adminSeed?.role}, Staff: ${staffSeed?.role}`,
+            isT11Pass
+        );
+
+        // T1.2: Phân biệt username, email chính và linkedGmail
+        const isT12Pass = adminSeed && 'username' in adminSeed && 'email' in adminSeed && 'linkedGmail' in adminSeed &&
+                          adminSeed.email === 'admin@bmwgym.vn';
+        recordTest(
+            'T1.2',
+            'Model & Seed',
+            'Phân biệt rõ ràng giữa Username đăng nhập, Email chính và Linked Gmail',
+            'username, email, linkedGmail thuộc tính độc lập',
+            `username: ${adminSeed?.username}, email: ${adminSeed?.email}, linkedGmail: ${adminSeed?.linkedGmail}`,
+            isT12Pass
+        );
+
+        // T1.3: Staff có mảng quyền chi tiết mặc định
+        const isT13Pass = staffSeed && Array.isArray(staffSeed.permissions) &&
+                          staffSeed.permissions.includes('orders_view') &&
+                          staffSeed.permissions.includes('customers_view');
+        recordTest(
+            'T1.3',
+            'Model & Seed',
+            'Tài khoản Staff sở hữu danh sách quyền chi tiết (Granular Permissions) mặc định',
+            'permissions là mảng chứa orders_view, customers_view...',
+            `staff.permissions: [${staffSeed?.permissions?.join(', ')}]`,
+            isT13Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 2: ADMIN TẠO TÀI KHOẢN STAFF & VALIDATION DỮ LIỆU
+        // ═════════════════════════════════════════════════════════════════════
+        const adminActor = { id: 'admin_001', username: 'admin', role: 'admin' };
+
+        // T2.1: Admin tạo Staff thành công với quyền chi tiết tùy chọn
+        const newStaffResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Trần Văn Vận Hành',
+            username: 'staff_vanhanh',
+            email: 'vanhanh@bmwgym.vn',
+            phone: '0905999888',
+            password: 'StaffPassword@123',
+            permissions: ['orders_view', 'orders_update', 'customers_view']
+        }, adminActor);
+
+        const isT21Pass = newStaffResult.success && newStaffResult.user && newStaffResult.user.username === 'staff_vanhanh';
+        recordTest(
+            'T2.1',
+            'Admin Create Staff',
+            'Admin tạo mới tài khoản Staff thành công với đầy đủ thông tin và phân quyền',
+            'success=true, user.role="staff"',
+            `success: ${newStaffResult.success}, username: ${newStaffResult.user?.username}`,
+            isT21Pass
+        );
+
+        // T2.2: Chặn tạo trùng username
+        const dupUserResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Trùng Tên',
+            username: 'staff_vanhanh', // trùng
+            email: 'different@bmwgym.vn',
+            phone: '0905111222',
+            password: 'Password@123'
+        }, adminActor);
+
+        const isT22Pass = !dupUserResult.success && dupUserResult.field === 'username';
+        recordTest(
+            'T2.2',
+            'Validation',
+            'Chặn tạo tài khoản nếu Username đã tồn tại trong hệ thống',
+            'success=false, field="username"',
+            `success: ${dupUserResult.success}, message: "${dupUserResult.message}"`,
+            isT22Pass
+        );
+
+        // T2.3: Chặn tạo trùng email
+        const dupEmailResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Trùng Email',
+            username: 'staff_unique_user',
+            email: 'vanhanh@bmwgym.vn', // trùng
+            phone: '0905111222',
+            password: 'Password@123'
+        }, adminActor);
+
+        const isT23Pass = !dupEmailResult.success && dupEmailResult.field === 'email';
+        recordTest(
+            'T2.3',
+            'Validation',
+            'Chặn tạo tài khoản nếu Email chính đã tồn tại trong hệ thống',
+            'success=false, field="email"',
+            `success: ${dupEmailResult.success}, message: "${dupEmailResult.message}"`,
+            isT23Pass
+        );
+
+        // T2.4: Chặn định dạng email sai
+        const invalidEmailResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Sai Email',
+            username: 'staff_bad_email',
+            email: 'not-an-email',
+            phone: '0905111222',
+            password: 'Password@123'
+        }, adminActor);
+
+        const isT24Pass = !invalidEmailResult.success && invalidEmailResult.field === 'email';
+        recordTest(
+            'T2.4',
+            'Validation',
+            'Kiểm tra định dạng email chuẩn RFC regex',
+            'success=false, field="email"',
+            `success: ${invalidEmailResult.success}, message: "${invalidEmailResult.message}"`,
+            isT24Pass
+        );
+
+        // T2.5: Chặn định dạng số điện thoại sai
+        const invalidPhoneResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Sai Phone',
+            username: 'staff_bad_phone',
+            email: 'valid_email@bmwgym.vn',
+            phone: '123', // quá ngắn
+            password: 'Password@123'
+        }, adminActor);
+
+        const isT25Pass = !invalidPhoneResult.success && invalidPhoneResult.field === 'phone';
+        recordTest(
+            'T2.5',
+            'Validation',
+            'Kiểm tra định dạng số điện thoại (từ 9 đến 15 chữ số)',
+            'success=false, field="phone"',
+            `success: ${invalidPhoneResult.success}, message: "${invalidPhoneResult.message}"`,
+            isT25Pass
+        );
+
+        // T2.6: Chặn mật khẩu yếu
+        const weakPwResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Mật Khẩu Yếu',
+            username: 'staff_weak_pw',
+            email: 'weak_email@bmwgym.vn',
+            phone: '0905123456',
+            password: '123' // < 6 ký tự
+        }, adminActor);
+
+        const isT26Pass = !weakPwResult.success && weakPwResult.field === 'password';
+        recordTest(
+            'T2.6',
+            'Validation',
+            'Chặn mật khẩu yếu dưới 6 ký tự',
+            'success=false, field="password"',
+            `success: ${weakPwResult.success}, message: "${weakPwResult.message}"`,
+            isT26Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 3: RANH GIỚI VAI TRÒ & TỪ CHỐI THAO TÁC VƯỢT QUYỀN CỦA STAFF
+        // ═════════════════════════════════════════════════════════════════════
+        const staffActor = { id: 'staff_001', username: 'staff', role: 'staff' };
+
+        // T3.1: Staff không được tạo tài khoản staff/admin
+        const staffCreateResult = window.BMW_AUTH_GUARD.createStaffAccount({
+            fullName: 'Staff Tạo Trộm',
+            username: 'staff_rogue',
+            email: 'rogue@bmwgym.vn',
+            phone: '0905000111',
+            password: 'Password@123'
+        }, staffActor);
+
+        const isT31Pass = !staffCreateResult.success && staffCreateResult.message.includes('Chỉ Quản trị viên');
+        recordTest(
+            'T3.1',
+            'Staff Boundary',
+            'Từ chối khi tài khoản Staff cố gắng gọi API tạo nhân viên',
+            'success=false, message thông báo thiếu quyền',
+            `success: ${staffCreateResult.success}, message: "${staffCreateResult.message}"`,
+            isT31Pass
+        );
+
+        // T3.2: Staff không được tự đổi quyền hoặc sửa người khác
+        const staffUpdateResult = window.BMW_AUTH_GUARD.updateUser(
+            'staff_001',
+            { role: 'admin' }, // Tự nâng lên admin
+            staffActor
+        );
+
+        const isT32Pass = !staffUpdateResult.success && staffUpdateResult.message.includes('Chỉ Quản trị viên');
+        recordTest(
+            'T3.2',
+            'Staff Boundary',
+            'Từ chối khi tài khoản Staff cố gắng thay đổi vai trò hoặc cấp quyền',
+            'success=false, message từ chối thao tác',
+            `success: ${staffUpdateResult.success}, message: "${staffUpdateResult.message}"`,
+            isT32Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 4: ADMIN SỬA THÔNG TIN, PHÂN QUYỀN VÀ QUẢN LÝ QUYỀN STAFF
+        // ═════════════════════════════════════════════════════════════════════
+        // T4.1: Admin cập nhật thông tin và quyền chi tiết cho Staff
+        const updateStaffResult = window.BMW_AUTH_GUARD.updateUser(
+            newStaffResult.user.id,
+            {
+                fullName: 'Trần Văn Vận Hành (Đã Đổi)',
+                permissions: ['orders_view', 'orders_update', 'products_view', 'products_edit']
+            },
+            adminActor
+        );
+
+        const isT41Pass = updateStaffResult.success &&
+                          updateStaffResult.user.fullName === 'Trần Văn Vận Hành (Đã Đổi)' &&
+                          updateStaffResult.user.permissions.includes('products_edit');
+        recordTest(
+            'T4.1',
+            'Admin Management',
+            'Admin cập nhật thông tin và quyền hạn chi tiết cho nhân viên',
+            'success=true, thông tin và quyền mới được lưu',
+            `fullName: "${updateStaffResult.user?.fullName}", perms: [${updateStaffResult.user?.permissions?.join(', ')}]`,
+            isT41Pass
+        );
+
+        // T4.2: Admin cấp vai trò mới (chuyển Customer thành Staff)
+        const customerSeed = {
+            id: 'cust_001',
+            fullName: 'Khách Hàng Mẫu',
+            username: 'customer_demo',
+            email: 'customer_demo@gmail.com',
+            phone: '0905123999',
+            password: 'CustomerPassword@123',
+            role: 'customer',
+            status: 'active',
+            permissions: [],
+            createdAt: new Date().toISOString()
+        };
+        const currentUsers = window.BMW_AUTH_GUARD.getUsers();
+        currentUsers.push(customerSeed);
+        window.BMW_AUTH_GUARD.saveUsers(currentUsers);
+
+        const promoteResult = window.BMW_AUTH_GUARD.updateUser(
+            'cust_001',
+            { role: 'staff', permissions: ['orders_view', 'customers_view'] },
+            adminActor
+        );
+        const isT42Pass = promoteResult.success && promoteResult.user.role === 'staff';
+        recordTest(
+            'T4.2',
+            'Admin Management',
+            'Admin nâng cấp tài khoản Customer thành Staff với phân quyền kiểm soát',
+            'success=true, role="staff"',
+            `success: ${promoteResult.success}, role: ${promoteResult.user?.role}`,
+            isT42Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 5: CHẶN TỰ NÂNG QUYỀN QUA PROFILE FORM
+        // ═════════════════════════════════════════════════════════════════════
+        // Giả lập lưu currentUser giả lập có gán role="admin" thông qua profile edit
+        sessionStorage.setItem('bmw_current_user', JSON.stringify({
+            id: 'cust_001',
+            username: 'customer_demo',
+            email: 'customer_demo@gmail.com',
+            role: 'customer',
+            status: 'active'
+        }));
+
+        // Gọi getCurrentUser() để kiểm tra cơ chế đồng bộ live record chống can thiệp local
+        const syncedSession = window.BMW_AUTH_GUARD.getCurrentUser();
+        const isT51Pass = syncedSession && syncedSession.role === 'staff'; // do ở test T4.2 Admin đã chuyển thành staff
+        recordTest(
+            'T5.1',
+            'Profile Security',
+            'Đồng bộ live record chống việc tự sửa role trong sessionStorage/localStorage profile',
+            'Role được đồng bộ chặt chẽ theo master record từ quản trị viên',
+            `liveSyncedRole: ${syncedSession?.role}`,
+            isT51Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 6: BẢO VỆ ADMIN CUỐI CÙNG (LAST ADMIN PROTECTION)
+        // ═════════════════════════════════════════════════════════════════════
+        // T6.1: Nhận diện Admin duy nhất còn hoạt động
+        const isLastAdmin = window.BMW_AUTH_GUARD.isLastActiveAdmin('admin_001');
+        recordTest(
+            'T6.1',
+            'Last Admin Protection',
+            'Hệ thống nhận diện chính xác tài khoản Admin duy nhất còn lại',
+            'isLastActiveAdmin("admin_001") === true',
+            `isLastAdmin: ${isLastAdmin}`,
+            isLastAdmin === true
+        );
+
+        // T6.2: Chặn giáng quyền (demote) Admin cuối cùng
+        const demoteCheck = window.BMW_AUTH_GUARD.validateAdminChange('admin_001', 'staff', null);
+        const isT62Pass = !demoteCheck.allowed && demoteCheck.message.includes('duy nhất');
+        recordTest(
+            'T6.2',
+            'Last Admin Protection',
+            'Chặn thao tác hạ quyền hoặc giáng quyền Quản trị viên (Admin) duy nhất',
+            'allowed=false, message cảnh báo Admin duy nhất',
+            `allowed: ${demoteCheck.allowed}, message: "${demoteCheck.message}"`,
+            isT62Pass
+        );
+
+        // T6.3: Chặn khóa Admin cuối cùng
+        const lockAdminCheck = window.BMW_AUTH_GUARD.toggleLockUser('admin_001', adminActor);
+        const isT63Pass = !lockAdminCheck.success && lockAdminCheck.message.includes('duy nhất');
+        recordTest(
+            'T6.3',
+            'Last Admin Protection',
+            'Chặn thao tác khóa tài khoản Quản trị viên (Admin) duy nhất',
+            'success=false, message cảnh báo Admin duy nhất',
+            `success: ${lockAdminCheck.success}, message: "${lockAdminCheck.message}"`,
+            isT63Pass
+        );
+
+        // T6.4: Chặn xóa Admin cuối cùng
+        const deleteAdminCheck = window.BMW_AUTH_GUARD.canDeleteUser('admin_001');
+        const isT64Pass = !deleteAdminCheck.allowed && deleteAdminCheck.isLastAdmin === true;
+        recordTest(
+            'T6.4',
+            'Last Admin Protection',
+            'Chặn thao tác xóa tài khoản Quản trị viên (Admin) duy nhất',
+            'allowed=false, isLastAdmin=true',
+            `allowed: ${deleteAdminCheck.allowed}, isLastAdmin: ${deleteAdminCheck.isLastAdmin}`,
+            isT64Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 7: ƯU TIÊN VÔ HIỆU HÓA AN TOÀN KHI CÓ ĐƠN HÀNG (INTEGRITY)
+        // ═════════════════════════════════════════════════════════════════════
+        // Tạo một user có đơn hàng
+        const userWithOrder = {
+            id: 'user_has_order_01',
+            fullName: 'Khách Hàng Có Đơn',
+            username: 'buyer_test',
+            email: 'buyer@test.com',
+            phone: '0905123777',
+            password: 'Password@123',
+            role: 'customer',
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        const allU = window.BMW_AUTH_GUARD.getUsers();
+        allU.push(userWithOrder);
+        window.BMW_AUTH_GUARD.saveUsers(allU);
+
+        // Tạo đơn hàng liên kết với user_has_order_01
+        const mockOrder = {
+            orderId: 'BMW20261019TEST',
+            userId: 'user_has_order_01',
+            userAccount: 'buyer_test',
+            customerName: 'Khách Hàng Có Đơn',
+            customerPhone: '0905123777',
+            totalAmount: 1250000,
+            finalTotal: 1250000,
+            orderStatus: 'Đã giao',
+            createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('bmw_orders', JSON.stringify([mockOrder]));
+
+        // T7.1: Kiểm tra canDeleteUser chặn xóa cứng khi có đơn
+        const deleteCheckWithOrder = window.BMW_AUTH_GUARD.canDeleteUser('user_has_order_01');
+        const isT71Pass = !deleteCheckWithOrder.allowed && deleteCheckWithOrder.hasOrders === true && deleteCheckWithOrder.orderCount === 1;
+        recordTest(
+            'T7.1',
+            'Safe Deactivation',
+            'Hệ thống phát hiện tài khoản có lịch sử đơn hàng và từ chối xóa cứng',
+            'allowed=false, hasOrders=true, orderCount=1',
+            `allowed: ${deleteCheckWithOrder.allowed}, hasOrders: ${deleteCheckWithOrder.hasOrders}, orderCount: ${deleteCheckWithOrder.orderCount}`,
+            isT71Pass
+        );
+
+        // T7.2: Thực hiện vô hiệu hóa an toàn thay vì xóa cứng
+        const deactivateResult = window.BMW_AUTH_GUARD.deactivateUser('user_has_order_01', 'Vô hiệu hóa an toàn', adminActor);
+        const isT72Pass = deactivateResult.success && deactivateResult.user.status === 'locked';
+
+        // Kiểm tra đơn hàng vẫn tồn tại nguyên vẹn
+        const ordersAfter = JSON.parse(localStorage.getItem('bmw_orders') || '[]');
+        const orderIntact = ordersAfter.find(o => o.orderId === 'BMW20261019TEST' && o.userId === 'user_has_order_01');
+        const isT72Complete = isT72Pass && Boolean(orderIntact);
+
+        recordTest(
+            'T7.2',
+            'Safe Deactivation',
+            'Vô hiệu hóa an toàn tài khoản và bảo toàn 100% dữ liệu lịch sử đơn hàng liên kết',
+            'status="locked", đơn hàng BMW20261019TEST còn nguyên vẹn',
+            `status: ${deactivateResult.user?.status}, orderExists: ${Boolean(orderIntact)}`,
+            isT72Complete
+        );
+
+        // T7.3: Tài khoản KHÔNG CÓ đơn hàng thì được phép xóa vĩnh viễn
+        const userNoOrder = {
+            id: 'user_no_order_02',
+            fullName: 'Người Dùng Không Đơn',
+            username: 'no_order_user',
+            email: 'noorder@test.com',
+            phone: '0905123888',
+            password: 'Password@123',
+            role: 'customer',
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        const curUsers2 = window.BMW_AUTH_GUARD.getUsers();
+        curUsers2.push(userNoOrder);
+        window.BMW_AUTH_GUARD.saveUsers(curUsers2);
+
+        const deleteResult = window.BMW_AUTH_GUARD.deleteUser('user_no_order_02', adminActor);
+        const usersAfterDelete = window.BMW_AUTH_GUARD.getUsers();
+        const deletedUserFound = usersAfterDelete.find(u => u.id === 'user_no_order_02');
+
+        const isT73Pass = deleteResult.success && !deletedUserFound;
+        recordTest(
+            'T7.3',
+            'Safe Deactivation',
+            'Cho phép xóa vĩnh viễn đối với tài khoản chưa từng phát sinh đơn hàng',
+            'success=true, user bị xóa khỏi danh sách',
+            `success: ${deleteResult.success}, stillExists: ${Boolean(deletedUserFound)}`,
+            isT73Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 8: HỦY PHIÊN LÀM VIỆC CỦA TÀI KHOẢN BỊ KHÓA (SESSION INVALIDATION)
+        // ═════════════════════════════════════════════════════════════════════
+        // Tạo một user active riêng cho bài test hủy phiên khi bị khóa
+        const activeUserToLock = {
+            id: 'user_active_03',
+            fullName: 'Người Dùng Sắp Bị Khóa',
+            username: 'lock_target_user',
+            email: 'locktarget@test.com',
+            phone: '0905999111',
+            password: 'Password@123',
+            role: 'customer',
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        const uList = window.BMW_AUTH_GUARD.getUsers();
+        uList.push(activeUserToLock);
+        window.BMW_AUTH_GUARD.saveUsers(uList);
+
+        // Giả lập tài khoản đang có phiên làm việc đăng nhập
+        sessionStorage.setItem('bmw_current_user', JSON.stringify({
+            id: 'user_active_03',
+            username: 'lock_target_user',
+            email: 'locktarget@test.com',
+            role: 'customer',
+            status: 'active'
+        }));
+
+        // Khóa tài khoản này
+        const lockRes = window.BMW_AUTH_GUARD.toggleLockUser('user_active_03', adminActor);
+
+        // Kiểm tra getCurrentUser() có trả về null và xóa session
+        const kickedSession = window.BMW_AUTH_GUARD.getCurrentUser();
+        const rawSessionAfter = sessionStorage.getItem('bmw_current_user');
+
+        const isT81Pass = lockRes.success && lockRes.newStatus === 'locked' && kickedSession === null && rawSessionAfter === null;
+        recordTest(
+            'T8.1',
+            'Session Invalidation',
+            'Tài khoản bị khóa ngay lập tức bị chấm dứt phiên làm việc (kicked out)',
+            'getCurrentUser() === null, session bị xóa',
+            `lockSuccess: ${lockRes.success}, newStatus: "${lockRes.newStatus}", currentUser: ${kickedSession}`,
+            isT81Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 9: NHẬT KÝ THAO TÁC & AUDIT LOGS
+        // ═════════════════════════════════════════════════════════════════════
+        const auditLogs = window.BMW_AUTH_GUARD.getAuditLogs();
+        const hasCreateStaff = auditLogs.some(l => l.action === 'CREATE_STAFF');
+        const hasLockUser = auditLogs.some(l => l.action === 'LOCK_USER');
+        const hasDeactivate = auditLogs.some(l => l.action === 'DEACTIVATE_USER');
+
+        const isT91Pass = auditLogs.length >= 3 && hasCreateStaff && hasLockUser && hasDeactivate;
+        recordTest(
+            'T9.1',
+            'Audit Logging',
+            'Ghi nhận đầy đủ người thực hiện, thời gian, hành động và nội dung vào Audit Logs',
+            'Audit logs chứa CREATE_STAFF, LOCK_USER, DEACTIVATE_USER',
+            `totalLogs: ${auditLogs.length}, hasCreate: ${hasCreateStaff}, hasLock: ${hasLockUser}`,
+            isT91Pass
+        );
+
+        // ═════════════════════════════════════════════════════════════════════
+        // NHÓM 10: GIAO DIỆN & TRUY CẬP ĐIỀU HƯỚNG ADMIN & STAFF
+        // ═════════════════════════════════════════════════════════════════════
+        // T10.1: Khởi tạo hoàn chỉnh trang admin-users.html
+        sessionStorage.setItem('bmw_current_user', JSON.stringify({
+            id: 'admin_001',
+            username: 'admin',
+            role: 'admin',
+            fullName: 'Admin Test'
+        }));
+
+        await loadFrame('admin-users.html');
+        await new Promise(r => setTimeout(r, 200));
+
+        const docAdmin = testFrame.contentDocument;
+        const adminTable = docAdmin.querySelector('#users-table');
+        const btnCreateStaff = docAdmin.querySelector('#btn-open-create-staff');
+        const searchInput = docAdmin.querySelector('#filter-user-search');
+        const statusFilter = docAdmin.querySelector('#filter-user-status');
+        const tabStaff = docAdmin.querySelector('[data-tab="tab-staff"]');
+        const tabAudit = docAdmin.querySelector('[data-tab="tab-audit"]');
+
+        const isT101Pass = Boolean(adminTable) && Boolean(btnCreateStaff) && Boolean(searchInput) &&
+                           Boolean(statusFilter) && Boolean(tabStaff) && Boolean(tabAudit);
+
+        recordTest(
+            'T10.1',
+            'Admin Users UI',
+            'Trang admin-users.html khởi tạo hoàn chỉnh: Bảng tài khoản, nút tạo Staff, tìm kiếm, lọc và các Tabs',
+            'Tất cả elements giao diện tồn tại đầy đủ',
+            `table: ${Boolean(adminTable)}, btnCreateStaff: ${Boolean(btnCreateStaff)}, tabs: ${Boolean(tabAudit)}`,
+            isT101Pass
+        );
+
+        // T10.2: Khởi tạo hoàn chỉnh trang staff-customers.html
+        sessionStorage.setItem('bmw_current_user', JSON.stringify({
+            id: 'staff_001',
+            username: 'staff',
+            role: 'staff',
+            fullName: 'Staff Test'
+        }));
+
+        await loadFrame('staff-customers.html');
+        await new Promise(r => setTimeout(r, 200));
+
+        const docStaff = testFrame.contentDocument;
+        const staffCustTable = docStaff.querySelector('#customers-table');
+        const staffSearch = docStaff.querySelector('#staff-customer-search');
+        // Đảm bảo trang staff không có nút tạo staff hoặc xóa
+        const hasNoAdminCreate = docStaff.querySelector('#btn-open-create-staff') === null;
+
+        const isT102Pass = Boolean(staffCustTable) && Boolean(staffSearch) && hasNoAdminCreate;
+        recordTest(
+            'T10.2',
+            'Staff Customers UI',
+            'Trang staff-customers.html hiển thị danh sách khách hàng phục vụ giao hàng và ẩn hoàn toàn chức năng quản trị',
+            'Hiển thị danh sách khách hàng, không chứa nút tạo staff hoặc quyền admin',
+            `custTable: ${Boolean(staffCustTable)}, hasNoAdminCreate: ${hasNoAdminCreate}`,
+            isT102Pass
+        );
+
+        // ── TỔNG KẾT BỘ KIỂM THỬ ───────────────────────────────────────────
+        const total = passCount + failCount;
+        summaryBanner.className = 'banner ' + (failCount === 0 ? 'pass' : 'fail');
+        summaryBanner.textContent = `KẾT QUẢ ĐỢT 8.5: ${passCount} PASS / ${total} TESTS (${failCount === 0 ? '100% THÀNH CÔNG' : `${failCount} THẤT BẠI`})`;
+        console.log(`--- HOÀN TẤT ĐỢT 8.5: ${passCount} PASS, ${failCount} FAIL ---`);
+    }
+
+    window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+</body>
+</html>
